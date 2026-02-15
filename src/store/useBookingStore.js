@@ -115,7 +115,7 @@ export const useBookingStore = create((set, get) => ({
                     }
                 ])
                 .select()
-                .single()
+                .maybeSingle()
 
             if (error) throw error
             set({ loading: false })
@@ -133,7 +133,7 @@ export const useBookingStore = create((set, get) => ({
             .update({ status: 'cancelled', updated_at: new Date() })
             .eq('id', fleteId)
             .select()
-            .single()
+            .maybeSingle()
 
         if (error) {
             set({ error: error.message, loading: false })

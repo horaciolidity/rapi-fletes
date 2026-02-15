@@ -34,7 +34,7 @@ export const useDriverStore = create((set, get) => ({
             `)
             .eq('driver_id', driverId)
             .in('status', ['accepted', 'picked_up'])
-            .single()
+            .maybeSingle()
 
         if (!error && data) {
             set({ activeFlete: data })
@@ -53,7 +53,7 @@ export const useDriverStore = create((set, get) => ({
             })
             .eq('id', fleteId)
             .select()
-            .single()
+            .maybeSingle()
 
         if (error) {
             set({ error: error.message, loading: false })
@@ -73,7 +73,7 @@ export const useDriverStore = create((set, get) => ({
             .update({ status, updated_at: new Date() })
             .eq('id', fleteId)
             .select()
-            .single()
+            .maybeSingle()
 
         if (error) {
             set({ error: error.message, loading: false })

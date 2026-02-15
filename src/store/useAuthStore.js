@@ -121,7 +121,7 @@ export const useAuthStore = create((set, get) => ({
                 .update(updates)
                 .eq('id', userId)
                 .select()
-                .single()
+                .maybeSingle()
 
             if (error) throw error
             set({ profile: data, loading: false })
