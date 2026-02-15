@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Truck, User, LogOut, Menu, X, Bell, LayoutDashboard } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import { useAuthStore } from '../store/useAuthStore'
+import { useAuthStore } from '../../store/useAuthStore'
 
 const Navbar = () => {
     const { user, profile, signOut } = useAuthStore()
