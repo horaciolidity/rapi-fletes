@@ -36,7 +36,8 @@ export const useBookingStore = create((set, get) => ({
                 .from('fletes')
                 .select(`
           *,
-          vehicle_categories (name, base_price)
+          vehicle_categories (name, base_price),
+          driver:driver_id (full_name, phone)
         `)
                 .eq('user_id', userId)
                 .order('created_at', { ascending: false })

@@ -11,7 +11,7 @@ const Booking = () => {
         categories, fetchCategories, pickup, setPickup, dropoff, setDropoff,
         selectedCategory, setCategory, estimate, createFlete, loading, error, resetBooking
     } = useBookingStore()
-    const { user } = useAuthStore()
+    const { user, profile } = useAuthStore()
     const navigate = useNavigate()
 
     const [step, setStep] = useState(1) // 1: Locations, 2: Category, 3: Confirm
@@ -20,6 +20,13 @@ const Booking = () => {
     const [isLocating, setIsLocating] = useState(false)
     const [searchResults, setSearchResults] = useState([])
     const [activeSearch, setActiveSearch] = useState(null) // 'pickup' or 'dropoff'
+
+    useEffect(() => {
+        if (profile?.role === 'driver') {
+            navigate('/driver')
+            return
+        }
+    }, [profile])
 
     useEffect(() => {
         fetchCategories()

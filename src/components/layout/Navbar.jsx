@@ -21,7 +21,7 @@ const Navbar = () => {
         {
             name: 'PEDIR FLETE',
             path: '/booking',
-            show: profile?.role !== 'driver',
+            show: !profile || (profile.role !== 'driver' && profile.role !== 'admin'),
         },
         {
             name: 'MIS PEDIDOS',
@@ -161,6 +161,23 @@ const Navbar = () => {
                                 >
                                     PANEL CHOFER
                                 </Link>
+                            )}
+                            {profile?.role === 'admin' && (
+                                <Link
+                                    to="/admin"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="text-6xl font-black text-red-500 uppercase tracking-tighter italic hover:translate-x-4 transition-all"
+                                >
+                                    PANEL ADMIN
+                                </Link>
+                            )}
+                            {user && (
+                                <button
+                                    onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                                    className="text-left text-4xl font-black text-red-500/50 uppercase tracking-tighter italic mt-12 hover:text-red-500 transition-all"
+                                >
+                                    Cerrar Sesión
+                                </button>
                             )}
                         </div>
 

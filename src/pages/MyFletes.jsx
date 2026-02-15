@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, MapPin, Navigation, Clock, CheckCircle2, ChevronRight, Package, AlertCircle } from 'lucide-react'
+import { Truck, MapPin, Navigation, Clock, CheckCircle2, ChevronRight, Package, AlertCircle, Phone } from 'lucide-react'
 import { useBookingStore } from '../store/useBookingStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { Link, useNavigate } from 'react-router-dom'
@@ -87,6 +87,27 @@ const MyFletes = () => {
                                                     <p className="text-sm text-slate-200 font-medium">{flete.dropoff_address}</p>
                                                 </div>
                                             </div>
+
+                                            {flete.driver && (
+                                                <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 bg-primary-500/20 rounded-full flex items-center justify-center">
+                                                            <Truck className="w-4 h-4 text-primary-400" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Tu Chofer</p>
+                                                            <p className="text-xs font-bold text-white uppercase italic">{flete.driver.full_name}</p>
+                                                        </div>
+                                                    </div>
+                                                    <a
+                                                        href={`tel:${flete.driver.phone}`}
+                                                        className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-primary-400 transition-colors"
+                                                        title="Llamar chofer"
+                                                    >
+                                                        <Phone className="w-4 h-4" />
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="md:w-48 flex flex-col justify-between items-end border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">

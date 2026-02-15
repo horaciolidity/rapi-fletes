@@ -23,6 +23,25 @@ export const useDriverStore = create((set, get) => ({
         else set({ availableFletes: data, loading: false })
     },
 
+    fetchActiveFlete: async (driverId) => {
+        if (!driverId) return null
+        const { data, error } = await supabase
+            .from('fletes')
+            .select(`
+                *,
+                vehicle_categories (name, base_price),
+                profiles:user_id (full_name, phone)
+            `)
+            .eq('driver_id', driverId)
+            .in('status', ['accepted', 'picked_up'])
+            .single()
+
+        if (!error && data) {
+            set({ activeFlete: data })
+        }
+        return data
+    },
+
     acceptFlete: async (fleteId, driverId) => {
         set({ loading: true, error: null })
         const { data, error } = await supabase
@@ -87,5 +106,17 @@ export const useDriverStore = create((set, get) => ({
             .subscribe()
 
         return channel
+    },
+
+    fetchDriverHistory: async (driverId) => {
+        if (!driverId) return []
+        const { data, error } = await supabase
+            .from('fletes')
+            .select('*')
+            .eq('driver_id', driverId)
+            .eq('status', 'completed')
+            .order('created_at', { ascending: false })
+
+        return data || []
     }
 }))
