@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  DRIVER
+  ADMIN
+}
+
+enum TripStatus {
+  PENDING
+  ACCEPTED
+  ON_WAY
+  ARRIVED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String
+  phone         String?
+  role          Role      @default(USER)
+  avatar        String?
+  isVerified    Boolean   @default(false)
+  isAvailable   Boolean   @default(true)
+  referralCode  String    @unique
+  referredBy    String?
+  rating        Float     @default(5.0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  tripsAsClient Trip[]    @relation("ClientTrips")
+  tripsAsDriver Trip[]    @relation("DriverTrips")
+  messages      Message[]
+  referrals     User[]    @relation("ReferralTree")
+  referrer      User?     @relation("ReferralTree", fields: [referredBy], references: [referralCode])
+}
+
+model Trip {
+  id              String        @id @default(uuid())
+  clientId        String
+  driverId        String?
+  originAddr      String
+  originLat       Float
+  originLng       Float
+  destAddr        String
+  destLat         Float
+  destLng         Float
+  distance        Float         // in km
+  duration        Float         // in minutes
+  price           Float
+  status          TripStatus    @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentId       String?       @unique
+  scheduledAt     DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relationships
+  client   User      @relation("ClientTrips", fields: [clientId], references: [id])
+  driver   User?     @relation("DriverTrips", fields: [driverId], references: [id])
+  messages Message[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  tripId    String
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  // Relationships
+  trip   Trip @relation(fields: [tripId], references: [id])
+  sender User @relation(fields: [senderId], references: [id])
+}
