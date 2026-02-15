@@ -138,6 +138,18 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
     return null
 }
 
+// Fix for map resizing in flex containers
+const ResizeMap = () => {
+    const map = useMap()
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            map.invalidateSize()
+        }, 500)
+        return () => clearTimeout(timer)
+    }, [map])
+    return null
+}
+
 // Map controller for auto-centering and bounds fitting
 const MapController = ({ pickup, dropoff, autoDetectLocation, driverLocation }) => {
     const map = useMap()
@@ -146,9 +158,22 @@ const MapController = ({ pickup, dropoff, autoDetectLocation, driverLocation }) 
     useEffect(() => {
         if (autoDetectLocation && !hasAutoDetected && !pickup) {
             setHasAutoDetected(true)
-            map.locate({ setView: true, maxZoom: 16 })
+            map.locate({ setView: true, maxZoom: 16, enableHighAccuracy: true })
         }
     }, [autoDetectLocation, hasAutoDetected, pickup, map])
+
+    // Handle geolocation errors or denials gracefully
+    useEffect(() => {
+        const onLocationError = (e) => {
+            console.warn("Map Geolocation error:", e.message)
+            // If user denies or it fails, center on a default visible point (BA)
+            if (!pickup) {
+                map.setView([-34.6037, -58.3816], 13)
+            }
+        }
+        map.on('locationerror', onLocationError)
+        return () => map.off('locationerror', onLocationError)
+    }, [map, pickup])
 
     useEffect(() => {
         if (driverLocation && pickup && dropoff) {
@@ -315,6 +340,7 @@ const FreightMap = ({
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
 
+                <ResizeMap />
                 <MapController pickup={pickup} dropoff={dropoff} autoDetectLocation={autoDetectLocation} driverLocation={driverLocation} />
 
                 {pickup && dropoff && <RoutingMachine pickup={pickup} dropoff={dropoff} onRouteFound={handleRouteFound} />}
@@ -426,6 +452,20 @@ const FreightMap = ({
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Manual Recenter Control */}
+            <div className="absolute top-6 right-6 z-[1000] flex flex-col gap-2">
+                <button
+                    onClick={() => {
+                        const map = document.querySelector('.leaflet-container')?._leaflet_map
+                        if (map) map.locate({ setView: true, maxZoom: 16 })
+                    }}
+                    className="p-3 bg-black/80 backdrop-blur-md border border-white/10 rounded-2xl text-white hover:text-primary-500 transition-all shadow-xl pointer-events-auto group"
+                    title="Mi ubicación"
+                >
+                    <Crosshair className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                </button>
+            </div>
         </div>
     )
 }
