@@ -1,12 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #facc15;
+  --color-primary-dark: #eab308;
+  --color-secondary: #18181b;
+  --color-accent: #27272a;
+
+  --animate-fade-in: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 :root {
-  --primary: #facc15; /* Yellow-400 */
-  --primary-dark: #eab308; /* Yellow-500 */
-  --secondary: #18181b; /* Zinc-900 */
-  --accent: #27272a; /* Zinc-800 */
   --bg-main: #fcfcfc;
 }
 
@@ -30,17 +45,6 @@ body {
   @apply w-full px-4 py-2 border border-zinc-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all bg-white;
 }
 
-/* Glassmorphism utility */
 .glass {
   @apply bg-white/70 backdrop-blur-md border border-white/20;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
 }
