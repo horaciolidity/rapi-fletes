@@ -5,6 +5,7 @@ import { useBookingStore } from '../store/useBookingStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { Link, useNavigate } from 'react-router-dom'
 import FreightMap from '../components/map/FreightMap'
+import ChatWidget from '../components/chat/ChatWidget'
 
 const MyFletes = () => {
     const { user } = useAuthStore()
@@ -124,6 +125,14 @@ const MyFletes = () => {
                                 )
                             })}
                         </AnimatePresence>
+
+                        {/* Chat Widget for active flete */}
+                        {selectedFlete && ['accepted', 'picked_up'].includes(selectedFlete.status) && (
+                            <ChatWidget
+                                fleteId={selectedFlete.id}
+                                receiverName={selectedFlete.driver?.full_name || "Chofer"}
+                            />
+                        )}
 
                         {fletes.length === 0 && !loading && (
                             <div className="text-center py-20 bg-slate-900/20 rounded-[3rem] border-2 border-dashed border-white/5 opacity-40">
@@ -278,6 +287,14 @@ const MyFletes = () => {
                         <AlertCircle className="w-6 h-6 shrink-0" />
                         <p className="text-sm font-bold italic">{error}</p>
                     </div>
+                )}
+
+                {/* Chat Widget: Active only when flete is accepted/picked_up */}
+                {selectedFlete && ['accepted', 'picked_up'].includes(selectedFlete.status) && (
+                    <ChatWidget
+                        fleteId={selectedFlete.id}
+                        receiverName={selectedFlete.driver?.full_name || "Chofer"}
+                    />
                 )}
             </div>
         </div>
