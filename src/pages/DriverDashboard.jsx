@@ -5,6 +5,7 @@ import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { useNavigate } from 'react-router-dom'
 import FreightMap from '../components/map/FreightMap'
+import ChatWidget from '../components/chat/ChatWidget'
 
 const DriverDashboard = () => {
     const { user, profile, updateProfile, fetchProfile } = useAuthStore()
@@ -309,6 +310,14 @@ const DriverDashboard = () => {
                     )}
                 </AnimatePresence>
             </div>
+
+            {/* Chat Widget for active flete */}
+            {activeFlete && ['accepted', 'picked_up'].includes(activeFlete.status) && (
+                <ChatWidget
+                    fleteId={activeFlete.id}
+                    receiverName={activeFlete.profiles?.full_name || "Cliente"}
+                />
+            )}
         </div>
     )
 }
