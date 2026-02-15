@@ -28,15 +28,11 @@ const DriverDashboard = () => {
             navigate('/auth')
             return
         }
-
-        // Force profile refresh to catch admin approvals
         fetchProfile(user.id)
     }, [user])
 
     useEffect(() => {
         if (profile?.role !== 'driver' && profile?.role !== 'admin') {
-            // If they are not a driver, they shouldn't be here
-            // Note: Admins can view it for testing
             if (profile && profile.role !== 'admin') navigate('/')
         }
 
@@ -83,39 +79,41 @@ const DriverDashboard = () => {
     const selectedFlete = activeFlete || availableFletes.find(f => f.id === selectedFleteId)
 
     if (!profile) return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-950">
-            <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+        <div className="min-h-screen flex items-center justify-center bg-black">
+            <Loader2 className="w-16 h-16 text-primary-500 animate-spin" />
         </div>
     )
 
     if (profile.verification_status === 'none') {
         return (
-            <div className="pt-32 pb-12 min-h-screen bg-slate-950 px-6 flex items-center justify-center">
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-2xl w-full glass-card p-12 bg-slate-900/60 border-white/5">
-                    <header className="mb-12 text-center">
-                        <div className="w-20 h-20 bg-primary-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary-600/20">
-                            <Car className="w-10 h-10 text-white" />
+            <div className="pt-32 pb-12 min-h-screen bg-black px-6 flex items-center justify-center font-sans relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary-500/5 blur-[120px] rounded-full animate-float" />
+
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-3xl w-full glass-card p-16 bg-zinc-950/60 border-zinc-900 shadow-[0_40px_100px_rgba(0,0,0,0.9)] relative z-10">
+                    <header className="mb-16 text-center">
+                        <div className="w-24 h-24 bg-primary-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-[0_0_50px_rgba(245,158,11,0.3)]">
+                            <Car className="w-12 h-12 text-black" />
                         </div>
-                        <h1 className="text-4xl font-black italic tracking-tighter uppercase mb-4 text-white">Activar Unidad</h1>
-                        <p className="text-slate-500 font-medium italic">Ingresa los datos de tu vehículo para empezar a operar.</p>
+                        <h1 className="text-5xl font-black italic tracking-tighter uppercase mb-6 text-white leading-none">ALTA DE<br /><span className="text-primary-500">UNIDAD</span></h1>
+                        <p className="text-zinc-500 font-bold italic uppercase tracking-tight">Registro táctico de recurso móvil profesional</p>
                     </header>
-                    <form onSubmit={handleVerificationSubmit} className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-3">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 px-1">Modelo y Marca</label>
-                                <input className="input-field py-4 bg-slate-950/40 border-white/5" placeholder="Ej: Toyota Hilux" value={formData.vehicle_model} onChange={e => setFormData({ ...formData, vehicle_model: e.target.value })} required />
+                    <form onSubmit={handleVerificationSubmit} className="space-y-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700 px-4 italic">01. MODELO / MARCA</label>
+                                <input className="input-field" placeholder="EJ: MERCEDEZ SPRINTER 2024" value={formData.vehicle_model} onChange={e => setFormData({ ...formData, vehicle_model: e.target.value })} required />
                             </div>
-                            <div className="space-y-3">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 px-1">Patente / Dominio</label>
-                                <input className="input-field py-4 bg-slate-950/40 border-white/5 uppercase" placeholder="ABC 123" value={formData.license_plate} onChange={e => setFormData({ ...formData, license_plate: e.target.value })} required />
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700 px-4 italic">02. DOMINIO / PATENTE</label>
+                                <input className="input-field uppercase" placeholder="ABC-123-XY" value={formData.license_plate} onChange={e => setFormData({ ...formData, license_plate: e.target.value })} required />
                             </div>
-                            <div className="col-span-full space-y-3">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 px-1">WhatsApp de contacto institucional</label>
-                                <input className="input-field py-4 bg-slate-950/40 border-white/5" placeholder="+54 9 11 ..." value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
+                            <div className="col-span-full space-y-4">
+                                <label className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700 px-4 italic">03. CANAL DE COMUNICACIÓN (WHATSAPP)</label>
+                                <input className="input-field" placeholder="+54 9 11 0000-0000" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
                             </div>
                         </div>
-                        <button type="submit" disabled={isSubmitting} className="premium-button w-full py-5 italic font-black text-xs uppercase tracking-widest">
-                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'ENVIAR PARA REVISIÓN'}
+                        <button type="submit" disabled={isSubmitting} className="premium-button w-full">
+                            {isSubmitting ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : 'DESPLEGAR SOLICITUD'}
                         </button>
                     </form>
                 </motion.div>
@@ -125,182 +123,245 @@ const DriverDashboard = () => {
 
     if (profile.verification_status === 'pending') {
         return (
-            <div className="pt-32 pb-12 min-h-screen bg-slate-950 px-6 flex items-center justify-center">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md text-center">
-                    <div className="w-24 h-24 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-10 border border-amber-500/20">
-                        <Clock className="w-12 h-12 text-amber-500 animate-pulse" />
+            <div className="pt-32 pb-12 min-h-screen bg-black px-6 flex items-center justify-center font-sans relative overflow-hidden">
+                <div className="absolute inset-0 bg-primary-500/2 opacity-10 pointer-events-none" />
+                <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl text-center glass-card p-20 bg-zinc-950/80 border-zinc-900 shadow-2xl">
+                    <div className="w-32 h-32 bg-zinc-900 rounded-[3rem] flex items-center justify-center mx-auto mb-12 border-2 border-primary-500/20">
+                        <Clock className="w-16 h-16 text-primary-500 animate-spin-slow" />
                     </div>
-                    <h2 className="text-5xl font-black italic tracking-tighter uppercase text-white mb-6">EN REVISIÓN</h2>
-                    <p className="text-slate-500 font-medium mb-12 italic leading-relaxed">Tu documentación está siendo procesada por auditoría. Recibirás acceso en cuanto sea validada.</p>
-                    <button onClick={() => fetchProfile(user.id)} className="w-full bg-white/5 border border-white/10 text-slate-500 py-4 rounded-2xl font-black text-[10px] tracking-widest uppercase hover:text-white hover:bg-white/10 transition-all">REFRESCAR ESTADO</button>
+                    <h2 className="text-6xl font-black italic tracking-tighter uppercase text-white mb-8 leading-none">AUDITORÍA<br /><span className="text-zinc-800">EN PROCESO</span></h2>
+                    <p className="text-zinc-500 font-bold italic mb-16 uppercase tracking-tight leading-relaxed max-w-sm mx-auto">Tu unidad está siendo validada por nuestros protocolos de seguridad. El acceso se activará en breve.</p>
+                    <button onClick={() => fetchProfile(user.id)} className="w-full bg-zinc-900 border-2 border-white/5 text-zinc-500 py-6 rounded-[2rem] font-black text-xs tracking-[0.3em] uppercase hover:text-white hover:border-primary-500/50 transition-all italic">RE-SINCRONIZAR ESTADO</button>
                 </motion.div>
             </div>
         )
     }
 
     return (
-        <div className="pt-24 pb-12 min-h-screen bg-slate-950">
-            <div className="container mx-auto px-6 max-w-7xl">
+        <div className="pt-32 pb-12 min-h-screen bg-black font-sans">
+            <div className="container mx-auto px-10 max-w-[1700px]">
 
-                {/* Header & Tabs */}
-                <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-12">
+                {/* Dashboard Control Bar */}
+                <div className="flex flex-col md:flex-row justify-between items-end gap-10 mb-16">
                     <div>
-                        <div className="flex items-center gap-4 mb-3">
-                            <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase">Dashboard</h1>
-                            <div className="px-4 py-1.5 bg-primary-600 rounded-full shadow-lg shadow-primary-600/20">
-                                <span className="text-[10px] font-black text-white uppercase italic tracking-widest">UNIT-VERIFIED</span>
+                        <div className="flex items-center gap-6 mb-6">
+                            <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">PANEL ALPHA</h1>
+                            <div className="px-5 py-2 bg-primary-500 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                                <span className="text-[10px] font-black text-black uppercase italic tracking-[0.2em]">CHOFER VERIFICADO</span>
                             </div>
                         </div>
-                        <div className="flex gap-6">
-                            <button onClick={() => setActiveTab('marketplace')} className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all ${activeTab === 'marketplace' ? 'text-primary-500 underline underline-offset-8' : 'text-slate-600 hover:text-slate-400'}`}>MARKETPLACE</button>
-                            <button onClick={() => setActiveTab('history')} className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all ${activeTab === 'history' ? 'text-primary-500 underline underline-offset-8' : 'text-slate-600 hover:text-slate-400'}`}>HISTORIAL COMPLETADOS</button>
+                        <div className="flex gap-10">
+                            {[
+                                { id: 'marketplace', label: 'MARKETPLACE' },
+                                { id: 'history', label: 'HISTORIAL OPERATIVO' }
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`text-xs font-black uppercase tracking-[0.4em] transition-all relative py-2 italic ${activeTab === tab.id ? 'text-primary-500' : 'text-zinc-700 hover:text-zinc-400'}`}
+                                >
+                                    {tab.label}
+                                    {activeTab === tab.id && <motion.div layoutId="tab-underline" className="absolute -bottom-1 left-0 right-0 h-1 bg-primary-500 rounded-full" />}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    <div className="flex gap-4">
-                        <div className="bg-slate-900 px-8 py-4 rounded-3xl border border-white/5 text-right min-w-[160px]">
-                            <p className="text-[10px] font-black text-slate-700 uppercase mb-1">Viajes</p>
-                            <p className="text-3xl font-black text-white italic">{completedHistory.length}</p>
+                    <div className="flex gap-6">
+                        <div className="bg-zinc-950 px-10 py-6 rounded-[2.5rem] border border-zinc-900 text-right min-w-[200px] shadow-2xl">
+                            <p className="text-[10px] font-black text-zinc-800 uppercase italic tracking-widest mb-2">RENDIMIENTO</p>
+                            <p className="text-5xl font-black text-white italic tracking-tighter leading-none">{completedHistory.length} <span className="text-xs text-zinc-700 not-italic uppercase">OK</span></p>
                         </div>
                     </div>
                 </div>
 
                 <AnimatePresence mode="wait">
                     {activeTab === 'marketplace' ? (
-                        <motion.div key="market" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-12">
+                        <motion.div key="market" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-16">
                             {/* Horizontal Marketplace Scroll */}
                             <section>
-                                <div className="flex items-center justify-between mb-8 px-2">
-                                    <h2 className="text-xs font-black uppercase tracking-[0.4em] text-slate-700">SOLICITUDES EN TIEMPO REAL</h2>
-                                    <div className="h-[1px] flex-grow mx-8 bg-white/5" />
+                                <div className="flex items-center justify-between mb-10 px-4">
+                                    <h2 className="text-[10px] font-black uppercase tracking-[0.6em] text-zinc-800 italic">TRANSMISIÓN DE CARGAS EN VIVO</h2>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                                        <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">REAL-TIME DATA REDACTED</span>
+                                    </div>
                                 </div>
-                                <div className="flex gap-8 overflow-x-auto pb-8 scrollbar-none snap-x h-[320px]">
-                                    {availableFletes.length > 0 ? availableFletes.map((flete) => (
+                                <div className="flex gap-10 overflow-x-auto pb-10 scrollbar-none snap-x h-[360px]">
+                                    {availableFletes.length > 0 ? availableFletes.map((flete, idx) => (
                                         <motion.div
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: idx * 0.1 }}
                                             key={flete.id}
-                                            layoutId={flete.id}
                                             onClick={() => setSelectedFleteId(flete.id)}
-                                            className={`flex-shrink-0 w-[400px] snap-start glass-card p-8 border-2 transition-all cursor-pointer flex flex-col justify-between ${selectedFleteId === flete.id || activeFlete?.id === flete.id ? 'border-primary-500 bg-primary-500/5 shadow-2xl' : 'border-white/5 bg-slate-900/40 hover:border-white/10'}`}
+                                            className={`flex-shrink-0 w-[450px] snap-start glass-card p-10 border-2 transition-all duration-500 cursor-pointer flex flex-col justify-between relative overflow-hidden ${selectedFleteId === flete.id || activeFlete?.id === flete.id ? 'border-primary-500 bg-primary-500/10 shadow-[0_40px_80px_rgba(0,0,0,0.8)] scale-[0.98]' : 'border-zinc-900 bg-zinc-950/40 hover:border-zinc-800'}`}
                                         >
-                                            <div className="flex justify-between items-start mb-8">
-                                                <div className="w-12 h-12 bg-slate-950 rounded-2xl border border-white/5 flex items-center justify-center">
-                                                    <Truck className="w-6 h-6 text-slate-500" />
+                                            <div className="flex justify-between items-start">
+                                                <div className={`w-14 h-14 rounded-[1.5rem] flex items-center justify-center border transition-all duration-500 ${selectedFleteId === flete.id ? 'bg-primary-500 text-black border-transparent shadow-xl' : 'bg-black text-zinc-700 border-white/5'}`}>
+                                                    <Truck className="w-8 h-8" />
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-[10px] font-black text-slate-700 uppercase mb-1">Monto Flete</p>
-                                                    <p className="text-3xl font-black text-white italic tracking-tighter">${flete.estimated_price}</p>
+                                                    <p className="text-[8px] font-black text-zinc-800 uppercase italic tracking-widest mb-1">INVERSIÓN</p>
+                                                    <p className="text-4xl font-black text-white italic tracking-tighter">$ {flete.estimated_price}</p>
                                                 </div>
                                             </div>
-                                            <div className="space-y-4">
-                                                <div className="flex items-center gap-4">
-                                                    <MapPin className="w-4 h-4 text-primary-500 shrink-0" />
-                                                    <p className="text-sm font-bold text-slate-300 line-clamp-1 italic">{flete.pickup_address}</p>
+                                            <div className="space-y-6">
+                                                <div className="flex items-center gap-5">
+                                                    <MapPin className="w-5 h-5 text-primary-500 shrink-0" />
+                                                    <p className="text-xs font-black text-zinc-500 line-clamp-1 italic uppercase tracking-tight">{flete.pickup_address}</p>
                                                 </div>
-                                                <div className="flex items-center gap-4">
-                                                    <Navigation className="w-4 h-4 text-secondary-500 shrink-0" />
-                                                    <p className="text-sm font-bold text-slate-300 line-clamp-1 italic">{flete.dropoff_address}</p>
+                                                <div className="flex items-center gap-5">
+                                                    <Navigation className="w-5 h-5 text-secondary-600 shrink-0" />
+                                                    <p className="text-xs font-black text-zinc-500 line-clamp-1 italic uppercase tracking-tight">{flete.dropoff_address}</p>
                                                 </div>
                                             </div>
                                         </motion.div>
                                     )) : (
-                                        <div className="w-full bg-slate-900/10 rounded-[3rem] border-2 border-dashed border-white/5 flex flex-col items-center justify-center text-slate-600 italic">
-                                            <Loader2 className="w-10 h-10 animate-spin opacity-20 mb-4" />
-                                            <p className="text-sm font-black uppercase tracking-widest">Sin cargas disponibles en este momento</p>
+                                        <div className="w-full bg-zinc-950/40 rounded-[4rem] border-4 border-dashed border-zinc-900 flex flex-col items-center justify-center text-zinc-800 italic p-20 grayscale opacity-20">
+                                            <Loader2 className="w-20 h-20 animate-spin mb-8" />
+                                            <p className="text-xl font-black uppercase tracking-[0.4em]">ESPERANDO NUEVAS CARGAS EN TU SECTOR</p>
                                         </div>
                                     )}
                                 </div>
                             </section>
 
                             {/* Detailed Orientation & Map */}
-                            <section className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-stretch">
-                                <div className="lg:col-span-1">
+                            <section className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-stretch min-h-[700px]">
+                                <div className="lg:col-span-1 h-full">
                                     <AnimatePresence mode="wait">
                                         {selectedFlete ? (
-                                            <motion.div key={selectedFlete.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="glass-card p-10 h-full bg-slate-900/60 border-primary-500/20 flex flex-col">
-                                                <div className="flex-grow space-y-10">
+                                            <motion.div key={selectedFlete.id} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} className="glass-card p-12 h-full bg-zinc-950 border-primary-500/20 flex flex-col shadow-[0_45px_100px_rgba(0,0,0,0.9)]">
+                                                <div className="flex-grow space-y-12">
                                                     <header>
-                                                        <span className="text-[10px] font-black text-primary-500 uppercase tracking-widest block mb-1">ID #{selectedFlete.id.slice(0, 8)}</span>
-                                                        <h3 className="text-4xl font-black italic uppercase tracking-tighter text-white">Hoja de Ruta</h3>
-                                                    </header>
-                                                    <div className="space-y-6">
-                                                        <div className="flex justify-between items-center bg-slate-950 p-4 rounded-2xl border border-white/5">
-                                                            <span className="text-[10px] font-black text-slate-700 uppercase">CLIENTE</span>
-                                                            <span className="text-xs font-black text-white uppercase italic">{selectedFlete.profiles?.full_name || "Usuario RapiFletes"}</span>
+                                                        <div className="flex items-center gap-4 mb-4">
+                                                            <span className="w-3 h-3 bg-primary-500 rounded-full animate-pulse" />
+                                                            <span className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] italic leading-none">MISIÓN #{selectedFlete.id.slice(0, 8)}</span>
                                                         </div>
-                                                        <div className="flex justify-between items-center bg-slate-950 p-4 rounded-2xl border border-white/5">
-                                                            <span className="text-[10px] font-black text-slate-700 uppercase">RECAUDACIÓN</span>
-                                                            <span className="text-2xl font-black text-primary-400 italic">${selectedFlete.estimated_price}</span>
+                                                        <h3 className="text-5xl font-black italic uppercase tracking-tighter text-white leading-none">HOJA DE<br /><span className="text-primary-500">RUTA</span></h3>
+                                                    </header>
+
+                                                    <div className="space-y-8">
+                                                        <div className="bg-zinc-900/50 p-6 rounded-[2rem] border border-white/5 flex flex-col items-center gap-3">
+                                                            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest italic leading-none">CONTRATANTE</p>
+                                                            <p className="text-xl font-black text-white uppercase italic tracking-tighter leading-none">{selectedFlete.profiles?.full_name || "CLIENTE EXTERNO"}</p>
+                                                        </div>
+                                                        <div className="bg-zinc-900/50 p-6 rounded-[2rem] border border-white/5 flex flex-col items-center gap-3">
+                                                            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest italic leading-none">RECAUDACIÓN BRUTA</p>
+                                                            <p className="text-4xl font-black text-primary-500 italic tracking-tighter leading-none">$ {selectedFlete.estimated_price}</p>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="mt-12 space-y-4">
+
+                                                <div className="mt-16 space-y-6">
                                                     {selectedFlete.status === 'pending' ? (
-                                                        <button onClick={() => handleAccept(selectedFlete.id)} className="premium-button w-full py-6 font-black italic tracking-widest text-xs uppercase shadow-2xl">ACEPTAR CARGA YA</button>
+                                                        <button onClick={() => handleAccept(selectedFlete.id)} className="premium-button w-full shadow-2xl shadow-primary-500/30">
+                                                            ACEPTAR COMISIÓN
+                                                        </button>
                                                     ) : (
-                                                        <div className="space-y-4">
-                                                            {selectedFlete.status === 'accepted' && <button onClick={() => handleStatusChange(selectedFlete.id, 'picked_up')} className="premium-button w-full py-6 font-black italic text-xs uppercase">CONFIRMAR RECOGIDA</button>}
-                                                            {selectedFlete.status === 'picked_up' && <button onClick={() => handleStatusChange(selectedFlete.id, 'completed')} className="w-full py-6 bg-green-600 text-white font-black italic text-xs uppercase rounded-2xl shadow-xl shadow-green-600/20">ENTREGA FINALIZADA</button>}
-                                                            <a href={`tel:${selectedFlete.profiles?.phone || ''}`} className="w-full block text-center py-5 bg-white text-black font-black italic text-[10px] uppercase rounded-2xl hover:bg-slate-200 transition-all uppercase tracking-widest font-black">Llamar Cliente</a>
-                                                            <button onClick={() => handleStatusChange(selectedFlete.id, 'cancelled')} className="w-full py-4 text-slate-600 hover:text-red-500 font-black text-[10px] uppercase tracking-widest transition-colors font-black">CANCELAR MISIÓN</button>
+                                                        <div className="space-y-6">
+                                                            {selectedFlete.status === 'accepted' && (
+                                                                <button onClick={() => handleStatusChange(selectedFlete.id, 'picked_up')} className="premium-button w-full">REGISTRAR CARGA</button>
+                                                            )}
+                                                            {selectedFlete.status === 'picked_up' && (
+                                                                <button onClick={() => handleStatusChange(selectedFlete.id, 'completed')} className="w-full py-6 bg-primary-500 text-black font-black italic text-sm uppercase rounded-[2rem] shadow-[0_0_40px_rgba(245,158,11,0.4)] transition-all hover:scale-[1.02]">
+                                                                    FINALIZAR ENTREGA
+                                                                </button>
+                                                            )}
+                                                            <div className="grid grid-cols-2 gap-4">
+                                                                <a href={`tel:${selectedFlete.profiles?.phone || ''}`} className="py-5 bg-zinc-900 border border-white/5 text-white font-black italic text-[9px] uppercase rounded-[1.5rem] hover:bg-zinc-800 transition-all flex items-center justify-center gap-3 tracking-[0.2em] shadow-xl">
+                                                                    <Phone className="w-4 h-4" /> LLAMAR
+                                                                </a>
+                                                                <button onClick={() => handleStatusChange(selectedFlete.id, 'cancelled')} className="py-5 border-2 border-red-500/20 text-red-500/50 font-black text-[9px] uppercase rounded-[1.5rem] hover:border-red-500 hover:text-red-500 transition-all tracking-[0.2em] italic">ABORTAR</button>
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
                                             </motion.div>
                                         ) : (
-                                            <div className="glass-card p-10 h-full bg-slate-900/10 border-white/5 flex flex-col items-center justify-center text-center opacity-30">
-                                                <MapIcon className="w-16 h-16 text-slate-700 mb-6" />
-                                                <h3 className="text-2xl font-black italic uppercase tracking-widest text-slate-700">Radar Inactivo</h3>
-                                                <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest mt-2">Selecciona un pedido superior para ver la ruta táctica</p>
+                                            <div className="glass-card p-20 h-full bg-zinc-950/20 border-zinc-900 border-dashed border-4 flex flex-col items-center justify-center text-center opacity-10">
+                                                <Target className="w-24 h-24 text-zinc-800 mb-8" />
+                                                <h3 className="text-4xl font-black italic uppercase tracking-widest text-zinc-800 leading-none">SELECCIONE<br />OBJETIVO</h3>
                                             </div>
                                         )}
                                     </AnimatePresence>
                                 </div>
 
-                                <div className="lg:col-span-2 min-h-[500px] lg:h-auto rounded-[3.5rem] overflow-hidden border border-white/5 relative bg-slate-900 shadow-2xl">
+                                <div className="lg:col-span-2 min-h-[600px] lg:h-auto rounded-[4rem] overflow-hidden border-8 border-zinc-950 relative bg-zinc-900 shadow-[0_50px_100px_rgba(0,0,0,0.9)]">
                                     <FreightMap
                                         pickup={selectedFlete ? { address: selectedFlete.pickup_address, lat: selectedFlete.pickup_lat, lng: selectedFlete.pickup_lng } : null}
                                         dropoff={selectedFlete ? { address: selectedFlete.dropoff_address, lat: selectedFlete.dropoff_lat, lng: selectedFlete.dropoff_lng } : null}
                                         distance={selectedFlete?.distance}
                                         duration={selectedFlete?.duration}
                                     />
-                                    <div className="absolute bottom-10 right-10 p-6 bg-slate-950/80 backdrop-blur-xl rounded-3xl border border-white/10 text-right">
-                                        <p className="text-[10px] font-black text-slate-600 uppercase mb-1">Estatus del GPS</p>
-                                        <p className="text-xl font-black text-white italic tracking-tighter">SINCRONIZADO</p>
+
+                                    {/* Map Overlays */}
+                                    <div className="absolute top-10 right-10 flex flex-col gap-4">
+                                        <div className="bg-black/90 backdrop-blur-3xl border border-white/10 p-6 rounded-[2rem] flex flex-col items-end gap-2 shadow-2xl">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                                                <span className="text-[10px] font-black text-white italic tracking-[0.3em] leading-none uppercase">SAT-FEED LIVE</span>
+                                            </div>
+                                            <p className="text-[8px] font-black text-zinc-800 uppercase tracking-widest italic">ENCRYPTION: AES-256</p>
+                                        </div>
                                     </div>
+
+                                    {selectedFlete && (
+                                        <div className="absolute bottom-10 left-10 p-8 bg-black/90 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 border-l-8 border-l-primary-500 shadow-2xl max-w-sm">
+                                            <div className="flex gap-6 items-center flex-col md:flex-row">
+                                                <div className="w-16 h-16 bg-zinc-900 rounded-3xl flex items-center justify-center shrink-0 border border-white/5">
+                                                    <Navigation className="w-8 h-8 text-primary-500" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-2 leading-none">RANGO OPERATIVO</p>
+                                                    <p className="text-xl font-black text-white italic uppercase tracking-tighter leading-none">
+                                                        {selectedFlete.distance ? `${selectedFlete.distance.toFixed(1)} KM` : '-- KM'}
+                                                        <span className="mx-3 text-zinc-800">|</span>
+                                                        {selectedFlete.duration ? `${selectedFlete.duration.toFixed(0)} MIN` : '-- MIN'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </section>
                         </motion.div>
                     ) : (
-                        <motion.div key="history" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-card p-4 bg-slate-900/40 border-white/5 overflow-hidden">
+                        <motion.div key="history" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="glass-card bg-zinc-950 border-zinc-900 rounded-[3rem] overflow-hidden shadow-2xl">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
-                                        <tr className="bg-slate-950/80 border-b border-white/5">
-                                            <th className="p-6 text-[10px] font-black uppercase text-slate-600 tracking-widest">ID</th>
-                                            <th className="p-6 text-[10px] font-black uppercase text-slate-600 tracking-widest">Ruta Táctica</th>
-                                            <th className="p-6 text-[10px] font-black uppercase text-slate-600 tracking-widest">Monto</th>
-                                            <th className="p-6 text-[10px] font-black uppercase text-slate-600 tracking-widest">Fecha</th>
-                                            <th className="p-6 text-[10px] font-black uppercase text-slate-600 tracking-widest">Estado</th>
+                                        <tr className="bg-zinc-950 border-b border-zinc-900">
+                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic">ID MISIÓN</th>
+                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic">LOGÍSTICA / RUTA</th>
+                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-right">INVERSIÓN</th>
+                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-right">FECHA</th>
+                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-center">STATUS</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/5">
+                                    <tbody className="divide-y divide-zinc-900">
                                         {completedHistory.map((f) => (
-                                            <tr key={f.id} className="hover:bg-white/5 transition-colors">
-                                                <td className="p-6 text-[10px] font-bold text-slate-500 tracking-tighter">#{f.id.slice(0, 8)}</td>
-                                                <td className="p-6">
-                                                    <p className="text-xs font-black text-white italic uppercase tracking-tighter mb-1 truncate max-w-[200px]">{f.pickup_address}</p>
-                                                    <p className="text-[10px] text-slate-600 italic truncate max-w-[200px]">→ {f.dropoff_address}</p>
+                                            <tr key={f.id} className="hover:bg-primary-500/[0.02] transition-colors group">
+                                                <td className="p-10 text-[10px] font-black text-zinc-700 tracking-[0.2em] italic group-hover:text-primary-500/50 transition-colors">#{f.id.slice(0, 8)}</td>
+                                                <td className="p-10">
+                                                    <p className="text-sm font-black text-zinc-400 italic uppercase tracking-tight mb-2 truncate max-w-[250px]">{f.pickup_address}</p>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-2 h-2 rounded-full bg-zinc-800 group-hover:bg-primary-500 transition-colors" />
+                                                        <p className="text-[10px] text-zinc-700 italic truncate max-w-[250px] uppercase font-bold tracking-tight">RUTA COMPLETADA → {f.dropoff_address}</p>
+                                                    </div>
                                                 </td>
-                                                <td className="p-6 text-sm font-black italic text-primary-400">$ {f.estimated_price}</td>
-                                                <td className="p-6 text-[10px] font-black text-slate-600 uppercase italic">{new Date(f.created_at).toLocaleDateString()}</td>
-                                                <td className="p-6">
-                                                    <span className="px-2 py-0.5 bg-green-500/10 text-green-500 text-[9px] font-black uppercase italic rounded border border-green-500/20">COMPLETADO</span>
+                                                <td className="p-10 text-right">
+                                                    <span className="text-3xl font-black italic text-white group-hover:text-primary-500 transition-colors tracking-tighter shadow-primary-500/10">$ {f.estimated_price}</span>
+                                                </td>
+                                                <td className="p-10 text-right text-[10px] font-black text-zinc-700 uppercase italic tracking-widest">{new Date(f.created_at).toLocaleDateString()}</td>
+                                                <td className="p-10 text-center">
+                                                    <span className="px-4 py-2 bg-zinc-900 text-green-500 text-[10px] font-black uppercase italic rounded-full border border-green-500/20 group-hover:border-green-500 group-hover:bg-green-500/10 transition-all tracking-[0.2em]">SUCCESS</span>
                                                 </td>
                                             </tr>
                                         ))}
                                         {completedHistory.length === 0 && (
                                             <tr>
-                                                <td colSpan="5" className="p-20 text-center italic text-slate-700 font-black uppercase tracking-widest text-xs">Sin registros de viajes completados</td>
+                                                <td colSpan="5" className="p-32 text-center italic text-zinc-800 font-black uppercase tracking-[0.6em] text-xs grayscale opacity-20">ÁREA SIN REGISTROS DE VIAJES COMPLETADOS</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -311,12 +372,14 @@ const DriverDashboard = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Chat Widget for active flete */}
+            {/* Chat Widget Floating Refined */}
             {activeFlete && ['accepted', 'picked_up'].includes(activeFlete.status) && (
-                <ChatWidget
-                    fleteId={activeFlete.id}
-                    receiverName={activeFlete.profiles?.full_name || "Cliente"}
-                />
+                <div className="fixed bottom-12 right-12 z-[2000]">
+                    <ChatWidget
+                        fleteId={activeFlete.id}
+                        receiverName={activeFlete.profiles?.full_name || "Cliente"}
+                    />
+                </div>
             )}
         </div>
     )

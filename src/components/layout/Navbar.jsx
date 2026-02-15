@@ -11,191 +11,170 @@ const Navbar = () => {
     const location = useLocation()
 
     useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.scrollY > 10)
+        const handleScroll = () => setIsScrolled(window.scrollY > 20)
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
     const navLinks = [
-        { name: 'INICIO', path: '/' },
+        { name: 'HOME', path: '/' },
         {
-            name: 'PEDIR FLETE',
+            name: 'DESPLEGAR UNIDAD',
             path: '/booking',
             show: !profile || (profile.role !== 'driver' && profile.role !== 'admin'),
         },
         {
-            name: 'MIS PEDIDOS',
+            name: 'MIS MISIONES',
             path: '/my-fletes',
             show: user && profile?.role !== 'driver' && profile?.role !== 'admin',
-        },
-        {
-            name: 'PANEL ADMIN',
-            path: '/admin',
-            show: profile?.role === 'admin',
         },
     ]
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${isScrolled ? 'bg-slate-950/80 backdrop-blur-2xl border-b border-white/5 py-3 shadow-2xl' : 'bg-transparent py-6'}`}>
-            <div className="container mx-auto px-6 flex items-center justify-between max-w-7xl">
-                {/* Logo - Centered alignment in its box */}
-                <Link to="/" className="flex items-center gap-3 group relative">
-                    <div className="p-2.5 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-[1rem] group-hover:rotate-[15deg] transition-all duration-500 shadow-lg shadow-primary-500/20">
-                        <Truck className="w-5 h-5 text-white" />
+        <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-1000 ${isScrolled ? 'bg-black/90 backdrop-blur-3xl border-b border-zinc-900 py-4 shadow-2xl' : 'bg-transparent py-10'}`}>
+            <div className="container mx-auto px-10 flex items-center justify-between max-w-[1700px]">
+
+                {/* Tactical Logo */}
+                <Link to="/" className="flex items-center gap-5 group relative">
+                    <div className="w-14 h-14 bg-primary-500 rounded-[1.5rem] flex items-center justify-center transform group-hover:rotate-[15deg] group-hover:scale-110 transition-all duration-700 shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+                        <Truck className="w-7 h-7 text-black" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-2xl font-black tracking-tighter uppercase italic leading-none">Rapi<span className="text-primary-500">Fletes</span></span>
-                        <span className="text-[8px] font-black tracking-[0.4em] text-slate-500 leading-none mt-1 opacity-60">LOGÍSTICA ELITE</span>
+                        <span className="text-3xl font-black tracking-tighter uppercase italic leading-none text-white">RAPI<span className="text-primary-500">FLETES</span></span>
+                        <span className="text-[9px] font-black tracking-[0.5em] text-zinc-700 leading-none mt-2 opacity-80 italic uppercase">Logística Alpha</span>
                     </div>
                 </Link>
 
-                {/* Desktop Nav - Perfectly Spaced */}
-                <div className="hidden md:flex items-center gap-12 bg-white/5 px-8 py-2.5 rounded-full border border-white/5 backdrop-blur-md">
+                {/* Tactical Desktop Nav */}
+                <div className="hidden md:flex items-center gap-16 bg-zinc-950/50 px-12 py-3.5 rounded-full border border-zinc-900 backdrop-blur-xl shadow-2xl">
                     {navLinks.filter(l => l.show !== false).map((link) => (
                         <Link
                             key={link.path}
                             to={link.path}
-                            className={`text-[10px] font-black tracking-[0.2em] transition-all hover:text-primary-400 relative py-1 ${location.pathname === link.path ? 'text-primary-400' : 'text-slate-400'}`}
+                            className={`text-[10px] font-black tracking-[0.4em] transition-all hover:text-primary-500 relative py-1 italic ${location.pathname === link.path ? 'text-primary-500' : 'text-zinc-500'}`}
                         >
                             {link.name}
                             {location.pathname === link.path && (
-                                <motion.div layoutId="nav-underline" className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary-500 rounded-full" />
+                                <motion.div layoutId="nav-underline" className="absolute -bottom-2 left-0 right-0 h-1 bg-primary-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
                             )}
                         </Link>
                     ))}
-                </div>
 
-                {/* User Actions - Aligned to the end */}
-                <div className="hidden md:flex items-center gap-6">
-                    {user ? (
-                        <div className="flex items-center gap-4 bg-slate-900/50 p-1.5 pr-4 rounded-2xl border border-white/5">
-                            <div className="w-10 h-10 rounded-[0.8rem] bg-slate-800 border border-white/5 flex items-center justify-center overflow-hidden relative group">
-                                {profile?.avatar_url ? (
-                                    <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <User className="w-5 h-5 text-slate-500 group-hover:text-primary-400 transition-colors" />
-                                )}
-                                {profile?.role === 'driver' && <div className="absolute bottom-0 right-0 bg-amber-500 w-2.5 h-2.5 rounded-full border-2 border-slate-900" />}
-                            </div>
+                    {profile?.role === 'driver' && (
+                        <Link to="/driver" className={`text-[10px] font-black tracking-[0.4em] italic transition-all uppercase ${location.pathname === '/driver' ? 'text-primary-500' : 'text-zinc-500 hover:text-primary-500'}`}>
+                            PANEL ALPHA
+                        </Link>
+                    )}
 
-                            <div className="text-left">
-                                <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">{profile?.full_name?.split(' ')[0] || 'Cargando...'}</p>
-                                <div className="flex items-center gap-1.5">
-                                    <ShieldCheck className="w-3 h-3 text-primary-500" />
-                                    <p className="text-[8px] text-slate-500 uppercase tracking-[0.2em] font-black">
-                                        {profile?.role === 'driver' ? 'Chofer' : profile?.role === 'admin' ? 'Administrador' : 'Cliente'}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="h-4 w-[1px] bg-white/10 mx-2" />
-
-                            {profile?.role === 'driver' && (
-                                <Link to="/driver" className="p-2 bg-amber-500/10 text-amber-500 rounded-lg hover:bg-amber-500 hover:text-white transition-all">
-                                    <LayoutDashboard className="w-4 h-4" />
-                                </Link>
-                            )}
-
-                            {profile?.role === 'admin' && (
-                                <Link to="/admin" className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all">
-                                    <LayoutDashboard className="w-4 h-4" />
-                                </Link>
-                            )}
-
-                            <button
-                                onClick={signOut}
-                                className="p-2 text-slate-500 hover:text-red-500 transition-colors"
-                                title="Cerrar Sesión"
-                            >
-                                <LogOut className="w-4 h-4" />
-                            </button>
-                        </div>
-                    ) : (
-                        <Link to="/auth" className="premium-button py-3.5 px-10 text-[10px] uppercase tracking-[0.2em] font-black italic">
-                            Acceso Clientes
+                    {profile?.role === 'admin' && (
+                        <Link to="/admin" className={`text-[10px] font-black tracking-[0.4em] italic transition-all uppercase ${location.pathname === '/admin' ? 'text-secondary-600' : 'text-zinc-500 hover:text-secondary-600'}`}>
+                            HQ ADMIN
                         </Link>
                     )}
                 </div>
 
-                {/* Mobile Toggle */}
+                {/* Tactical User Profile */}
+                <div className="hidden md:flex items-center gap-10">
+                    {user ? (
+                        <div className="flex items-center gap-6 bg-zinc-950 p-2 pr-6 rounded-full border border-zinc-900 shadow-xl group cursor-pointer">
+                            <div className="w-12 h-12 rounded-full border-2 border-zinc-800 p-0.5 overflow-hidden transition-all group-hover:border-primary-500">
+                                {profile?.avatar_url ? (
+                                    <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                                ) : (
+                                    <div className="w-full h-full bg-zinc-900 rounded-full flex items-center justify-center">
+                                        <User className="w-6 h-6 text-zinc-700" />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="text-left hidden lg:block">
+                                <p className="text-[10px] font-black text-white uppercase italic tracking-widest leading-none mb-2">{profile?.full_name?.split(' ')[0] || 'RECURSO'}</p>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
+                                    <p className="text-[8px] text-zinc-700 uppercase tracking-[0.3em] font-black italic">CONECTADO</p>
+                                </div>
+                            </div>
+
+                            <div className="h-6 w-[1px] bg-zinc-900 mx-2" />
+
+                            <button
+                                onClick={signOut}
+                                className="p-3 bg-zinc-900 text-zinc-700 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all"
+                            >
+                                <LogOut className="w-5 h-5" />
+                            </button>
+                        </div>
+                    ) : (
+                        <Link to="/auth" className="premium-button py-5 px-12 text-[10px]">
+                            ACCESO SISTEMA
+                        </Link>
+                    )}
+                </div>
+
+                {/* Mobile Trigger */}
                 <button
-                    className="md:hidden p-3 bg-slate-900/80 rounded-2xl border border-white/5 text-slate-300 shadow-xl"
+                    className="md:hidden w-14 h-14 bg-zinc-950 rounded-[1.5rem] border-2 border-zinc-900 flex items-center justify-center text-white"
                     onClick={() => setMobileMenuOpen(true)}
                 >
-                    <Menu className="w-6 h-6" />
+                    <Menu className="w-7 h-7" />
                 </button>
             </div>
 
-            {/* Mobile Menu - Premium Fullscreen */}
+            {/* Mobile Menu - Full Tactical HUD */}
             <AnimatePresence>
                 {mobileMenuOpen && (
                     <motion.div
-                        initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 1.1 }}
-                        className="fixed inset-0 z-[60] bg-slate-950/95 backdrop-blur-3xl p-8 flex flex-col"
+                        initial={{ opacity: 0, x: '100%' }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: '100%' }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        className="fixed inset-0 z-[200] bg-black p-12 flex flex-col"
                     >
-                        <div className="flex justify-between items-center mb-16">
-                            <span className="text-3xl font-black tracking-tighter uppercase italic">Rapi<span className="text-primary-500">Fletes</span></span>
-                            <button onClick={() => setMobileMenuOpen(false)} className="bg-slate-900/50 p-4 rounded-3xl border border-white/10 text-white">
+                        <div className="flex justify-between items-center mb-24">
+                            <span className="text-4xl font-black tracking-tighter uppercase italic text-white leading-none">RAPI<span className="text-primary-500">FLETES</span></span>
+                            <button onClick={() => setMobileMenuOpen(false)} className="w-16 h-16 bg-zinc-950 rounded-[2rem] border-2 border-zinc-900 flex items-center justify-center text-white">
                                 <X className="w-8 h-8" />
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-8 flex-grow">
+                        <div className="flex flex-col gap-12 flex-grow">
                             {navLinks.filter(l => l.show !== false).map((link) => (
                                 <Link
                                     key={link.path}
                                     to={link.path}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="text-6xl font-black text-slate-400 hover:text-white uppercase tracking-tighter italic transition-all hover:translate-x-4"
+                                    className="text-7xl font-black text-zinc-900 hover:text-white uppercase tracking-tighter italic transition-all hover:translate-x-6"
                                 >
                                     {link.name}
                                 </Link>
                             ))}
+
                             {profile?.role === 'driver' && (
                                 <Link
                                     to="/driver"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="text-6xl font-black text-amber-500 uppercase tracking-tighter italic hover:translate-x-4 transition-all"
+                                    className="text-7xl font-black text-zinc-900 hover:text-primary-500 uppercase tracking-tighter italic transition-all hover:translate-x-6"
                                 >
-                                    PANEL CHOFER
+                                    PANEL ALPHA
                                 </Link>
-                            )}
-                            {profile?.role === 'admin' && (
-                                <Link
-                                    to="/admin"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="text-6xl font-black text-red-500 uppercase tracking-tighter italic hover:translate-x-4 transition-all"
-                                >
-                                    PANEL ADMIN
-                                </Link>
-                            )}
-                            {user && (
-                                <button
-                                    onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                                    className="text-left text-4xl font-black text-red-500/50 uppercase tracking-tighter italic mt-12 hover:text-red-500 transition-all"
-                                >
-                                    Cerrar Sesión
-                                </button>
                             )}
                         </div>
 
-                        <div className="pt-10 border-t border-white/10">
+                        <div className="pt-16 border-t border-zinc-900">
                             {!user ? (
                                 <Link
                                     to="/auth"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="premium-button text-center py-6 text-2xl w-full block italic"
+                                    className="premium-button text-center w-full py-10 text-3xl italic"
                                 >
-                                    INICIAR SESIÓN
+                                    INGRESAR AL SISTEMA
                                 </Link>
                             ) : (
                                 <button
                                     onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                                    className="flex items-center justify-between w-full bg-red-500/10 border border-red-500/20 p-6 rounded-[2rem] text-red-500 font-black text-2xl uppercase tracking-tighter italic"
+                                    className="w-full flex items-center justify-between bg-red-500/5 border-2 border-red-500/20 p-10 rounded-[3rem] text-red-500 font-black text-3xl uppercase tracking-tighter italic group hover:bg-red-500 hover:text-black transition-all"
                                 >
-                                    CERRAR SESIÓN <LogOut className="w-8 h-8" />
+                                    ABORTAR SESIÓN <LogOut className="w-10 h-10" />
                                 </button>
                             )}
                         </div>

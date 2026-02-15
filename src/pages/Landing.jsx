@@ -1,102 +1,135 @@
 import React, { useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Truck, MapPin, Shield, CreditCard, Clock, Star, ArrowRight, Play, CheckCircle } from 'lucide-react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { Truck, MapPin, Shield, CreditCard, Clock, Star, ArrowRight, Play, CheckCircle, AlertCircle } from 'lucide-react'
 import { useBookingStore } from '../store/useBookingStore'
 import { Link } from 'react-router-dom'
 
 const Landing = () => {
     const { categories, fetchCategories, loading, error } = useBookingStore()
+    const { scrollY } = useScroll()
+    const y1 = useTransform(scrollY, [0, 500], [0, 200])
 
     useEffect(() => {
         fetchCategories()
     }, [])
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-primary-500 selection:text-white">
-            {/* Hero Section - Optimized Alignment */}
-            <section className="relative pt-40 pb-32 overflow-hidden flex flex-col justify-center items-center">
-                {/* Background Decor */}
-                <div className="absolute top-0 left-0 w-full h-[120%] pointer-events-none overflow-hidden -z-10">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary-600/10 blur-[150px] rounded-full animate-pulse" />
-                    <div className="absolute bottom-0 right-1/4 w-[600px] h-[400px] bg-secondary-900/10 blur-[120px] rounded-full" />
-                </div>
+        <div className="min-h-screen bg-black text-white selection:bg-primary-500 selection:text-black font-sans">
+            {/* Nav Mockup */}
+            <nav className="fixed top-0 left-0 w-full z-[100] px-10 py-8 flex justify-between items-center pointer-events-none">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-4 pointer-events-auto"
+                >
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-secondary-600 rounded-full flex items-center justify-center p-2.5 shadow-2xl shadow-primary-500/20">
+                        <Truck className="w-full h-full text-black" />
+                    </div>
+                    <span className="text-2xl font-black italic uppercase tracking-tighter">Rapi<span className="text-primary-500">Fletes</span></span>
+                </motion.div>
 
-                <div className="container mx-auto px-6 text-center max-w-5xl">
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex gap-4 pointer-events-auto"
+                >
+                    <Link to="/login" className="px-8 py-3 bg-zinc-900 border border-white/5 rounded-full text-xs font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">Ingresar</Link>
+                    <Link to="/register" className="px-8 py-3 bg-primary-500 text-black rounded-full text-xs font-black uppercase tracking-widest hover:bg-primary-400 transition-all shadow-xl shadow-primary-500/20">Registrarse</Link>
+                </motion.div>
+            </nav>
+
+            {/* Hero Section */}
+            <section className="relative min-h-screen pt-40 pb-32 overflow-hidden flex flex-col justify-center items-center">
+                {/* Visual Elements */}
+                <motion.div style={{ y: y1 }} className="absolute inset-0 -z-10">
+                    <div className="absolute top-[10%] left-[5%] w-[500px] h-[500px] bg-primary-500/5 blur-[120px] rounded-full animate-float" />
+                    <div className="absolute bottom-[10%] right-[5%] w-[600px] h-[600px] bg-secondary-600/5 blur-[150px] rounded-full" />
+                </motion.div>
+
+                <div className="container mx-auto px-6 text-center z-10">
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                     >
-                        <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full mb-10 backdrop-blur-md">
-                            <span className="flex h-2 w-2 relative">
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="inline-flex items-center gap-3 px-6 py-2 bg-zinc-900/80 border border-white/5 rounded-full mb-12 backdrop-blur-3xl shadow-2xl"
+                        >
+                            <span className="flex h-3 w-3 relative">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
                             </span>
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Servicio Disponible 24/7</span>
-                        </div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 italic">Operaciones Activas 24/7</span>
+                        </motion.div>
 
-                        <h1 className="text-6xl md:text-9xl font-black mb-10 leading-[0.85] tracking-tighter italic uppercase">
-                            LOGÍSTICA <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-secondary-500 to-primary-600">
-                                SIN LÍMITES
+                        <h1 className="text-7xl md:text-[12rem] font-black mb-12 leading-[0.8] tracking-tighter italic uppercase flex flex-col items-center">
+                            <span className="flex items-baseline gap-4">
+                                RÁPIDO <ArrowRight className="w-16 h-16 md:w-32 md:h-32 text-primary-500 -rotate-45" />
                             </span>
+                            <span className="text-gradient">EFICIENTE</span>
                         </h1>
 
-                        <p className="text-xl text-slate-400 mb-14 max-w-2xl mx-auto leading-relaxed font-medium">
-                            Conectamos tus cargas con la red de choferes profesionales más eficiente. Mudanzas, exprés e industrial en minutos.
+                        <p className="text-xl md:text-2xl text-zinc-500 mb-16 max-w-3xl mx-auto leading-relaxed font-bold italic uppercase tracking-tight">
+                            La plataforma definitiva de fletes urbanos. <span className="text-white">Mudanzas, cargas pesadas y logística exprés</span> en segundos.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-20">
-                            <Link to="/booking" className="premium-button w-full sm:w-auto px-12 py-5 flex items-center justify-center gap-4 group">
-                                <span className="text-sm font-black uppercase tracking-widest italic">Pedir Flete Ahora</span>
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
+                            <Link to="/booking" className="premium-button min-w-[300px] group flex items-center justify-center gap-6">
+                                <span>SOLICITAR UNIDAD</span>
+                                <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500" />
                             </Link>
-                            <button className="w-full sm:w-auto px-12 py-5 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-800 transition-all">
-                                <Play className="w-5 h-5 text-primary-500 fill-current" />
-                                <span className="text-sm font-black uppercase tracking-widest text-slate-300 italic">Ver cómo funciona</span>
-                            </button>
+                            <Link to="/register?role=driver" className="px-12 py-5 bg-zinc-900 text-white rounded-full text-sm font-black uppercase tracking-[0.2em] italic border border-white/5 hover:bg-zinc-800 transition-all">
+                                Quiero ser Chofer
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
             </section>
 
-            {/* Stats/Social Proof - Centered Row */}
-            <section className="py-12 border-y border-white/5 bg-slate-900/40 relative z-10">
-                <div className="container mx-auto px-6">
-                    <div className="flex flex-wrap justify-center items-center gap-10 md:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all">
-                        <StatItem label="Choferes" value="+2,500" />
-                        <StatItem label="Ciudades" value="45" />
-                        <StatItem label="Entregas" value="150k" />
-                        <StatItem label="Calificación" value="4.9/5" />
-                    </div>
+            {/* Scrolling Banner */}
+            <div className="py-20 bg-primary-500 overflow-hidden whitespace-nowrap border-y-8 border-black -rotate-1 relative z-20 shadow-[0_0_100px_rgba(245,158,11,0.2)]">
+                <div className="flex gap-20 animate-infinite-scroll">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                        <span key={i} className="text-6xl font-black italic uppercase tracking-tighter text-black flex items-center gap-10">
+                            Carga Segura <Star className="w-10 h-10 fill-black" />
+                            Logística 4.0 <Star className="w-10 h-10 fill-black" />
+                            Precios Bajos <Star className="w-10 h-10 fill-black" />
+                        </span>
+                    ))}
                 </div>
-            </section>
+            </div>
 
-            {/* Categories Grid - Better Spacing and Alignment */}
-            <section className="py-32 relative overflow-hidden">
-                <div className="container mx-auto px-6">
-                    <div className="text-center mb-24 max-w-3xl mx-auto">
-                        <h2 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter mb-6">NUESTRA FLOTA</h2>
-                        <div className="w-24 h-2 bg-gradient-to-r from-primary-500 to-secondary-500 mx-auto rounded-full mb-8" />
-                        <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">
-                            Soluciones escalables para cada tipo de necesidad
-                        </p>
+            {/* Fleet Section */}
+            <section className="py-40 relative">
+                <div className="container mx-auto px-10">
+                    <div className="flex flex-col md:flex-row justify-between items-end mb-32 gap-10">
+                        <div className="max-w-2xl">
+                            <h2 className="text-6xl md:text-8xl font-black italic uppercase tracking-tighter mb-8 leading-none">LA FLOTA<br /><span className="text-zinc-800">MÁS MODERNA</span></h2>
+                            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm italic">Categorías adaptadas a cada misión operativa</p>
+                        </div>
+                        <div className="w-32 h-32 border-8 border-primary-500 rounded-full flex items-center justify-center animate-spin-slow">
+                            <Truck className="w-12 h-12 text-primary-500" />
+                        </div>
                     </div>
 
                     {loading ? (
-                        <div className="flex flex-col items-center justify-center py-20 gap-6">
-                            <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                            <p className="text-slate-500 font-black uppercase tracking-widest text-xs">Conectando con la flota...</p>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="aspect-[3/4] rounded-[3rem] bg-zinc-900 animate-pulse" />
+                            ))}
                         </div>
                     ) : error ? (
-                        <div className="glass-card p-12 text-center max-w-md mx-auto border-red-500/20">
-                            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-6" />
-                            <h3 className="text-xl font-bold mb-4 text-white">Error del Sistema</h3>
-                            <p className="text-slate-500 mb-8">{error}</p>
-                            <button onClick={fetchCategories} className="premium-button px-10 py-3 text-xs">Reintentar</button>
+                        <div className="glass-card p-20 text-center max-w-2xl mx-auto border-red-500/20">
+                            <AlertCircle className="w-20 h-20 text-red-500 mx-auto mb-10" />
+                            <h3 className="text-3xl font-black uppercase italic mb-6">Error de Sistema</h3>
+                            <p className="text-zinc-500 font-bold italic mb-10">{error}</p>
+                            <button onClick={fetchCategories} className="premium-button">Reintentar</button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
                             {categories.map((cat, idx) => (
                                 <CategoryCard key={cat.id} category={cat} index={idx} />
                             ))}
@@ -105,78 +138,86 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* Features - Grid Alignment */}
-            <section className="py-32 bg-slate-900/20 relative border-t border-white/5">
-                <div className="container mx-auto px-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {/* Features Section */}
+            <section className="py-40 bg-zinc-950 border-t border-white/5">
+                <div className="container mx-auto px-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
                         <FeatureCard
-                            icon={<Shield className="w-8 h-8 text-primary-400" />}
-                            title="SEGURO PREMIUM"
-                            description="Toda carga viaja 100% asegurada por nuestra alianza con las mejores aseguradoras."
+                            icon={<Shield className="w-10 h-10 text-primary-500" />}
+                            title="Seguridad Nivel Militar"
+                            desc="Protocolos de verificación rigurosos para cada unidad y chofer de nuestra red."
                         />
                         <FeatureCard
-                            icon={<Clock className="w-8 h-8 text-secondary-500" />}
-                            title="REAL TIME TRACKING"
-                            description="Visualiza el recorrido exacto de tu flete a través de nuestra plataforma optimizada."
+                            icon={<MapPin className="w-10 h-10 text-primary-500" />}
+                            title="Control Táctico"
+                            desc="Seguimiento GPS de alta precisión en tiempo real para tu tranquilidad total."
                         />
                         <FeatureCard
-                            icon={<CreditCard className="w-8 h-8 text-indigo-400" />}
-                            title="MULTI-PAGO"
-                            description="Aceptamos todas las tarjetas, transferencias y pagos en efectivo al finalizar."
+                            icon={<Clock className="w-10 h-10 text-primary-500" />}
+                            title="Despliegue Rápido"
+                            desc="Tiempo estimado de arribo menor a 15 minutos en el 90% de las zonas operativas."
                         />
                     </div>
                 </div>
             </section>
+
+            {/* Footer */}
+            <footer className="py-20 border-t border-white/5 text-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700 italic">© 2026 RapiFletes Inc - El Mañana en Logística Hoy</p>
+            </footer>
         </div>
     )
 }
 
-const StatItem = ({ label, value }) => (
-    <div className="flex flex-col items-center text-center">
-        <span className="text-3xl font-black text-white italic tracking-tighter mb-1">{value}</span>
-        <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 leading-none">{label}</span>
-    </div>
-)
-
 const CategoryCard = ({ category, index }) => (
     <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: index * 0.1 }}
-        className="glass-card group hover:border-primary-500/40 transition-all duration-500 cursor-pointer overflow-hidden flex flex-col h-full bg-slate-900/60"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: index * 0.1, duration: 0.8, ease: "easeOut" }}
+        whileHover={{ y: -20 }}
+        className="glass-card p-10 group relative h-full overflow-hidden border-zinc-800 hover:border-primary-500/50 transition-all duration-700"
     >
-        <div className="p-8 flex flex-col h-full">
-            <div className="w-full aspect-video bg-slate-950 rounded-2xl mb-8 flex items-center justify-center group-hover:bg-primary-500/5 transition-colors duration-500 border border-white/5 overflow-hidden relative">
-                <Truck className="w-16 h-16 text-slate-800 group-hover:text-primary-500/20 group-hover:scale-125 transition-all duration-700" />
-                <div className="absolute top-4 left-4 bg-primary-500/10 border border-primary-500/20 text-primary-400 text-[8px] font-black uppercase px-2 py-0.5 rounded italic">Económico</div>
+        <div className="absolute top-0 right-0 w-40 h-40 bg-primary-500/5 blur-[60px] rounded-full group-hover:bg-primary-500/10 transition-colors" />
+
+        <div className="relative z-10">
+            <div className="w-20 h-20 bg-zinc-950 rounded-[2rem] border border-white/5 flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-primary-500 group-hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] transition-all duration-500">
+                <Truck className="w-10 h-10 text-primary-500 group-hover:text-black transition-colors" />
             </div>
 
-            <h3 className="text-2xl font-black text-white italic mb-2 tracking-tighter uppercase">{category.name}</h3>
-            <p className="text-slate-500 text-sm font-medium leading-relaxed mb-8 flex-grow line-clamp-2 italic">{category.description}</p>
+            <h3 className="text-3xl font-black italic uppercase tracking-tighter mb-4 text-white">{category.name}</h3>
+            <p className="text-zinc-500 font-bold text-sm leading-relaxed mb-10 italic uppercase tracking-tight line-clamp-3">
+                {category.description}
+            </p>
 
-            <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+            <div className="flex items-center justify-between pt-8 border-t border-white/5">
                 <div>
-                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Precio Inicial</p>
-                    <p className="text-xl font-black text-white tracking-widest italic">$ {category.base_price}</p>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-zinc-700 mb-1">Precio Base</p>
+                    <p className="text-2xl font-black italic text-primary-500">$ {category.base_price}</p>
                 </div>
-                <div className="w-10 h-10 bg-slate-950 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-primary-500 transition-colors duration-300">
-                    <ArrowRight className="w-5 h-5 text-slate-600 group-hover:text-white" />
+                <div className="w-12 h-12 bg-zinc-900 rounded-full border border-white/5 flex items-center justify-center group-hover:translate-x-2 transition-all">
+                    <ArrowRight className="w-6 h-6 text-zinc-600" />
                 </div>
             </div>
         </div>
     </motion.div>
 )
 
-const FeatureCard = ({ icon, title, description }) => (
-    <div className="flex flex-col items-center md:items-start text-center md:text-left gap-6 group">
-        <div className="p-5 bg-slate-950 rounded-[1.5rem] border border-white/5 shadow-2xl group-hover:border-primary-500/30 group-hover:-translate-y-2 transition-all duration-500">
+const FeatureCard = ({ icon, title, desc }) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        className="flex flex-col gap-8 group"
+    >
+        <div className="w-20 h-20 bg-zinc-900 rounded-[2rem] flex items-center justify-center border border-white/5 shadow-2xl group-hover:-rotate-12 transition-all duration-500">
             {icon}
         </div>
         <div>
-            <h3 className="text-xl font-black text-white italic mb-3 tracking-tighter uppercase">{title}</h3>
-            <p className="text-slate-500 font-medium leading-relaxed text-sm">{description}</p>
+            <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white mb-4">{title}</h3>
+            <p className="text-zinc-500 font-bold italic leading-relaxed text-sm uppercase tracking-tight">{desc}</p>
         </div>
-    </div>
+    </motion.div>
 )
 
 export default Landing

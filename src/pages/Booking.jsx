@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Navigation, Truck, ChevronRight, Search, CreditCard, Clock, CheckCircle2, AlertTriangle, ChevronLeft, Loader2, Target, ArrowRight } from 'lucide-react'
+import { MapPin, Navigation, Truck, ChevronRight, Search, CreditCard, Clock, CheckCircle2, AlertTriangle, ChevronLeft, Loader2, Target, ArrowRight, Star } from 'lucide-react'
 import FreightMap from '../components/map/FreightMap'
 import { useBookingStore } from '../store/useBookingStore'
 import { useAuthStore } from '../store/useAuthStore'
@@ -98,65 +98,69 @@ const Booking = () => {
     }
 
     return (
-        <div className="pt-32 pb-12 min-h-screen bg-slate-950 flex items-center justify-center">
-            <div className="container mx-auto px-6 max-w-7xl h-full">
-                <div className="flex flex-col lg:flex-row gap-12 items-stretch min-h-[700px]">
+        <div className="pt-32 pb-12 min-h-screen bg-black flex items-center justify-center font-sans overflow-hidden">
+            <div className="container mx-auto px-10 max-w-[1600px] h-full relative z-10">
+                <div className="flex flex-col lg:flex-row gap-12 items-stretch min-h-[850px]">
 
                     {/* Left Panel: Booking Flow */}
-                    <div className="w-full lg:w-[480px] flex flex-col">
-                        <div className="glass-card flex-grow p-10 flex flex-col relative overflow-hidden bg-slate-900/60 border-white/5 shadow-2xl">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-primary-600 to-secondary-600" />
+                    <motion.div
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="w-full lg:w-[500px] flex flex-col"
+                    >
+                        <div className="glass-card flex-grow p-12 flex flex-col relative overflow-hidden bg-zinc-950/60 border-zinc-900 shadow-[0_40px_100px_rgba(0,0,0,0.9)]">
+                            <div className="absolute top-0 right-0 w-4 h-full bg-gradient-to-b from-primary-500 to-secondary-600" />
 
-                            <header className="mb-12">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-2.5 bg-primary-600 rounded-2xl shadow-lg shadow-primary-600/20">
-                                        <Truck className="w-6 h-6 text-white" />
+                            <header className="mb-14">
+                                <div className="flex items-center gap-6 mb-4">
+                                    <div className="w-16 h-16 bg-primary-500 rounded-[2rem] flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+                                        <Truck className="w-8 h-8 text-black" />
                                     </div>
-                                    <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white">RESERVA</h2>
+                                    <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white leading-none">PEDIDO<br /><span className="text-primary-500">TÁCTICO</span></h2>
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Configura tu traslado hoy</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700">Iniciando protocolo de traslado</p>
                             </header>
 
-                            {/* Stepper Indicator */}
+                            {/* Stepper */}
                             {step < 4 && (
-                                <div className="flex items-center gap-3 mb-12">
+                                <div className="flex items-center gap-4 mb-14">
                                     {[1, 2, 3].map((s) => (
                                         <div
                                             key={s}
-                                            className={`h-2 flex-grow rounded-full transition-all duration-700 ${s <= step ? 'bg-primary-500 w-full' : 'bg-slate-800 w-1/3 opacity-20'}`}
+                                            className={`h-3 flex-grow rounded-full transition-all duration-1000 ${s <= step ? 'bg-gradient-to-r from-primary-500 to-secondary-600 shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 'bg-zinc-900'}`}
                                         />
                                     ))}
                                 </div>
                             )}
 
-                            <div className="flex-grow">
+                            <div className="flex-grow flex flex-col">
                                 <AnimatePresence mode='wait'>
                                     {/* Step 1: Locations */}
                                     {step === 1 && (
                                         <motion.div
                                             key="step1"
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: 20 }}
-                                            className="space-y-10"
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 1.05 }}
+                                            className="space-y-12"
                                         >
-                                            <div className="space-y-8">
+                                            <div className="space-y-10">
                                                 <div className="relative">
-                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex justify-between items-center">
-                                                        Punto de Recogida
+                                                    <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4 flex justify-between items-center italic">
+                                                        <span>01. ORIGEN</span>
                                                         <button
                                                             onClick={handleGeolocation}
-                                                            className="flex items-center gap-1.5 text-primary-500 hover:text-white transition-colors"
+                                                            className="flex items-center gap-2 text-primary-500 hover:text-white transition-all uppercase tracking-widest"
                                                         >
-                                                            {isLocating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Target className="w-3 h-3" />}
-                                                            Ubicación Actual
+                                                            {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Target className="w-4 h-4" />}
+                                                            DETECTAR MI POSICIÓN
                                                         </button>
                                                     </label>
                                                     <div className="relative group">
-                                                        <MapPin className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${pickup ? 'text-primary-500' : 'text-slate-700'}`} />
+                                                        <MapPin className={`absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 transition-all duration-500 ${pickup ? 'text-primary-500 scale-110' : 'text-zinc-800'}`} />
                                                         <input
-                                                            className="input-field pl-12 bg-slate-950/40 border-white/5 py-4 placeholder:italic"
-                                                            placeholder="Indica la calle y altura..."
+                                                            className="input-field pl-16"
+                                                            placeholder="Indica la calle y altura exacta..."
                                                             value={pAddress}
                                                             onChange={(e) => {
                                                                 setPAddress(e.target.value)
@@ -165,12 +169,12 @@ const Booking = () => {
                                                         />
                                                     </div>
                                                     {activeSearch === 'pickup' && searchResults.length > 0 && (
-                                                        <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-3xl">
+                                                        <div className="absolute z-[100] left-0 right-0 top-full mt-4 bg-zinc-950 border border-white/5 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.9)] overflow-hidden backdrop-blur-3xl">
                                                             {searchResults.map((r, i) => (
                                                                 <button
                                                                     key={i}
                                                                     onClick={() => selectResult(r)}
-                                                                    className="w-full text-left p-4 hover:bg-white/5 border-b border-white/5 text-xs text-slate-400 font-medium last:border-0"
+                                                                    className="w-full text-left p-6 hover:bg-white/5 border-b border-white/5 text-[10px] font-black uppercase text-zinc-500 hover:text-primary-500 transition-colors tracking-tight"
                                                                 >
                                                                     {r.display_name}
                                                                 </button>
@@ -180,12 +184,12 @@ const Booking = () => {
                                                 </div>
 
                                                 <div className="relative">
-                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Dirección de Entrega</label>
+                                                    <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4 block italic">02. DESTINO FINAL</label>
                                                     <div className="relative group">
-                                                        <Navigation className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${dropoff ? 'text-secondary-500' : 'text-slate-700'}`} />
+                                                        <Navigation className={`absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 transition-all duration-500 ${dropoff ? 'text-secondary-500 scale-110' : 'text-zinc-800'}`} />
                                                         <input
-                                                            className="input-field pl-12 bg-slate-950/40 border-white/5 py-4 placeholder:italic"
-                                                            placeholder="¿A dónde llevamos la carga?"
+                                                            className="input-field pl-16"
+                                                            placeholder="¿A dónde nos dirigimos hoy?"
                                                             value={dAddress}
                                                             onChange={(e) => {
                                                                 setDAddress(e.target.value)
@@ -194,12 +198,12 @@ const Booking = () => {
                                                         />
                                                     </div>
                                                     {activeSearch === 'dropoff' && searchResults.length > 0 && (
-                                                        <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-3xl">
+                                                        <div className="absolute z-[100] left-0 right-0 top-full mt-4 bg-zinc-950 border border-white/5 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.9)] overflow-hidden backdrop-blur-3xl">
                                                             {searchResults.map((r, i) => (
                                                                 <button
                                                                     key={i}
                                                                     onClick={() => selectResult(r)}
-                                                                    className="w-full text-left p-4 hover:bg-white/5 border-b border-white/5 text-xs text-slate-400 font-medium last:border-0"
+                                                                    className="w-full text-left p-6 hover:bg-white/5 border-b border-white/5 text-[10px] font-black uppercase text-zinc-500 hover:text-primary-500 transition-colors tracking-tight"
                                                                 >
                                                                     {r.display_name}
                                                                 </button>
@@ -212,9 +216,10 @@ const Booking = () => {
                                             <button
                                                 disabled={!pickup || !dropoff}
                                                 onClick={() => setStep(2)}
-                                                className="premium-button w-full py-5 text-sm uppercase tracking-widest font-black italic mt-10 flex items-center justify-center gap-3 disabled:opacity-30 disabled:grayscale transition-all shadow-xl"
+                                                className="premium-button w-full flex items-center justify-center gap-6 mt-10"
                                             >
-                                                Siguiente Paso <ChevronRight className="w-5 h-5" />
+                                                <span>ELEGIR VEHÍCULO</span>
+                                                <ChevronRight className="w-7 h-7" />
                                             </button>
                                         </motion.div>
                                     )}
@@ -223,39 +228,48 @@ const Booking = () => {
                                     {step === 2 && (
                                         <motion.div
                                             key="step2"
-                                            initial={{ opacity: 0, x: -20 }}
+                                            initial={{ opacity: 0, x: 20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: 20 }}
-                                            className="space-y-6"
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="space-y-8 h-full flex flex-col"
                                         >
-                                            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                                {categories.map((cat) => (
-                                                    <button
+                                            <div className="space-y-4 max-h-[480px] overflow-y-auto pr-2 scrollbar-none flex-grow">
+                                                {categories.map((cat, idx) => (
+                                                    <motion.button
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: idx * 0.1 }}
                                                         key={cat.id}
                                                         onClick={() => setCategory(cat)}
-                                                        className={`w-full p-6 rounded-3xl border-2 transition-all text-left flex items-center gap-6 ${selectedCategory?.id === cat.id ? 'border-primary-500 bg-primary-500/10 shadow-lg shadow-primary-500/20' : 'border-white/5 bg-slate-950/40 hover:border-white/10'}`}
+                                                        className={`w-full p-8 rounded-[2.5rem] border-2 transition-all duration-500 text-left flex items-center gap-8 relative overflow-hidden group ${selectedCategory?.id === cat.id ? 'border-primary-500 bg-primary-500/10 shadow-[0_0_40px_rgba(245,158,11,0.1)]' : 'border-white/5 bg-zinc-900/40 hover:border-white/20'}`}
                                                     >
-                                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${selectedCategory?.id === cat.id ? 'bg-primary-500 text-white shadow-lg' : 'bg-slate-900 text-slate-600'}`}>
-                                                            <Truck className="w-7 h-7" />
+                                                        {selectedCategory?.id === cat.id && (
+                                                            <div className="absolute top-0 right-0 p-4">
+                                                                <Star className="w-5 h-5 text-primary-500 fill-primary-500 shadow-xl" />
+                                                            </div>
+                                                        )}
+
+                                                        <div className={`w-20 h-20 rounded-[1.5rem] flex items-center justify-center shrink-0 transition-all duration-500 ${selectedCategory?.id === cat.id ? 'bg-primary-500 text-black shadow-2xl scale-110' : 'bg-black text-zinc-700 group-hover:bg-zinc-800'}`}>
+                                                            <Truck className="w-10 h-10" />
                                                         </div>
                                                         <div className="flex-grow">
-                                                            <p className="font-black italic uppercase text-lg leading-none mb-1">{cat.name}</p>
-                                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 opacity-60">{cat.description}</p>
-                                                            <p className="text-sm font-black text-primary-400 italic">$ {cat.base_price} <span className="text-[9px] text-slate-600 font-bold uppercase not-italic">Base</span></p>
+                                                            <p className="font-black italic uppercase text-2xl leading-tight mb-1 text-white">{cat.name}</p>
+                                                            <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-3">{cat.description}</p>
+                                                            <p className="text-xl font-black text-primary-500 italic">$ {cat.base_price}</p>
                                                         </div>
-                                                    </button>
+                                                    </motion.button>
                                                 ))}
                                             </div>
-                                            <div className="flex gap-4 pt-4">
-                                                <button onClick={() => setStep(1)} className="p-5 bg-slate-950 rounded-[1.5rem] border border-white/5 text-slate-400 group hover:text-white transition-colors">
-                                                    <ChevronLeft className="w-6 h-6 transition-transform group-hover:-translate-x-1" />
+                                            <div className="flex gap-4 pt-6">
+                                                <button onClick={() => setStep(1)} className="p-6 bg-zinc-900 rounded-[2rem] border border-white/5 text-zinc-600 group hover:text-white transition-all">
+                                                    <ChevronLeft className="w-7 h-7 transition-transform group-hover:-translate-x-2" />
                                                 </button>
                                                 <button
                                                     disabled={!selectedCategory}
                                                     onClick={() => setStep(3)}
-                                                    className="premium-button flex-grow uppercase tracking-widest font-black text-xs italic disabled:opacity-30 shadow-xl"
+                                                    className="premium-button flex-grow"
                                                 >
-                                                    Ver Resumen
+                                                    RESUMEN FINAL
                                                 </button>
                                             </div>
                                         </motion.div>
@@ -265,67 +279,70 @@ const Booking = () => {
                                     {step === 3 && (
                                         <motion.div
                                             key="step3"
-                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            initial={{ opacity: 0, scale: 0.9 }}
                                             animate={{ opacity: 1, scale: 1 }}
-                                            className="space-y-10"
+                                            className="space-y-12"
                                         >
-                                            <div className="bg-slate-950 rounded-[2.5rem] p-10 border border-white/5 space-y-8 relative overflow-hidden">
-                                                <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
-                                                    <CreditCard className="w-40 h-40" />
+                                            <div className="bg-black rounded-[3rem] p-12 border border-zinc-900 space-y-10 relative overflow-hidden shadow-2xl">
+                                                <div className="absolute -top-10 -right-10 opacity-[0.05] pointer-events-none">
+                                                    <Clock className="w-64 h-64 text-primary-500" />
                                                 </div>
 
-                                                <div className="space-y-4 relative z-10">
-                                                    <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Vehículo</span>
-                                                        <span className="font-black italic text-white uppercase text-base">{selectedCategory?.name}</span>
+                                                <div className="space-y-6 relative z-10">
+                                                    <div className="bg-zinc-900/80 p-6 rounded-[2rem] border border-white/5 flex flex-col items-center gap-4">
+                                                        <Truck className="w-12 h-12 text-primary-500 mb-2" />
+                                                        <div className="text-center">
+                                                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">CATEGORÍA SELECCIONADA</p>
+                                                            <p className="text-3xl font-black italic text-white uppercase tracking-tighter">{selectedCategory?.name}</p>
+                                                        </div>
                                                     </div>
 
-                                                    <div className="space-y-4 px-4">
-                                                        <div className="flex items-start gap-4">
-                                                            <div className="w-5 h-5 bg-primary-500/20 rounded-full flex items-center justify-center shrink-0 mt-1">
-                                                                <div className="w-2 h-2 bg-primary-500 rounded-full" />
+                                                    <div className="space-y-8 py-6">
+                                                        <div className="flex gap-6 items-start">
+                                                            <div className="w-4 h-4 bg-primary-500 rounded-full border-4 border-black mt-1.5 shadow-[0_0_15px_rgba(245,158,11,1)]" />
+                                                            <div>
+                                                                <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-1">PUNTO DE RECOGIDA</p>
+                                                                <p className="text-xs font-black text-zinc-400 italic leading-snug">{pickup?.address}</p>
                                                             </div>
-                                                            <p className="text-xs text-slate-400 font-medium italic underline decoration-white/10 underline-offset-4">{pickup?.address}</p>
                                                         </div>
-                                                        <div className="flex items-start gap-4">
-                                                            <div className="w-5 h-5 bg-secondary-500/20 rounded-full flex items-center justify-center shrink-0 mt-1">
-                                                                <div className="w-2 h-2 bg-secondary-500 rounded-full" />
+                                                        <div className="flex gap-6 items-start">
+                                                            <div className="w-4 h-4 bg-secondary-600 rounded-full border-4 border-black mt-1.5 shadow-[0_0_15px_rgba(234,88,12,1)]" />
+                                                            <div>
+                                                                <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-1">DESTINO FINAL</p>
+                                                                <p className="text-xs font-black text-zinc-400 italic leading-snug">{dropoff?.address}</p>
                                                             </div>
-                                                            <p className="text-xs text-slate-400 font-medium italic underline decoration-white/10 underline-offset-4">{dropoff?.address}</p>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="pt-8 border-t border-white/10 flex justify-between items-end relative z-10">
-                                                    <div>
-                                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-600 mb-1">Total Estimado</p>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-4xl font-black italic text-primary-400 tracking-tighter">$ {estimate?.toFixed(2)}</span>
-                                                            <div className="px-2 py-0.5 bg-green-500/20 text-green-500 text-[8px] font-black rounded uppercase italic">Garantizado</div>
-                                                        </div>
+                                                <div className="pt-10 border-t border-zinc-900 flex flex-col items-center gap-4 relative z-10">
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700">INVERSIÓN LOGÍSTICA ESTIMADA</p>
+                                                    <div className="flex items-center gap-4">
+                                                        <span className="text-6xl font-black italic text-primary-500 tracking-tighter shadow-primary-500/10">$ {estimate?.toFixed(0)}</span>
+                                                        <div className="px-3 py-1 bg-primary-500 text-black text-[9px] font-black rounded-full uppercase italic animate-pulse">Tarifa Blindada</div>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             {error && (
-                                                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-[11px] font-bold flex gap-3">
-                                                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                                                <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-[2rem] text-red-500 text-[11px] font-black italic uppercase flex gap-4 text-center">
+                                                    <AlertTriangle className="w-5 h-5 shrink-0" />
                                                     <p>{error}</p>
                                                 </div>
                                             )}
 
                                             <div className="flex gap-4">
-                                                <button onClick={() => setStep(2)} className="p-5 bg-slate-950 rounded-[1.5rem] border border-white/5 text-slate-400 group hover:text-white transition-colors">
-                                                    <ChevronLeft className="w-6 h-6 transition-transform group-hover:-translate-x-1" />
+                                                <button onClick={() => setStep(2)} className="p-6 bg-zinc-900 rounded-[2rem] border border-white/5 text-zinc-600 hover:text-white transition-all">
+                                                    <ChevronLeft className="w-7 h-7" />
                                                 </button>
                                                 <button
                                                     onClick={handleConfirmBooking}
                                                     disabled={loading}
-                                                    className="premium-button flex-grow flex items-center justify-center gap-4 italic uppercase font-black text-xs tracking-widest shadow-2xl"
+                                                    className="premium-button flex-grow flex items-center justify-center gap-6"
                                                 >
-                                                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                                                    {loading ? <Loader2 className="w-8 h-8 animate-spin" /> : (
                                                         <>
-                                                            CONFIRMAR SERVICIO <ArrowRight className="w-5 h-5" />
+                                                            <span>DESPLEGAR UNIDAD</span> <ArrowRight className="w-7 h-7" />
                                                         </>
                                                     )}
                                                 </button>
@@ -337,39 +354,64 @@ const Booking = () => {
                                     {step === 4 && (
                                         <motion.div
                                             key="success"
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="text-center py-10 space-y-10"
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="text-center py-10 flex flex-col items-center justify-center h-full"
                                         >
-                                            <div className="relative mx-auto w-32 h-32">
-                                                <div className="absolute inset-0 bg-green-500/20 blur-[40px] rounded-full animate-pulse" />
-                                                <div className="relative w-full h-full bg-slate-900 border border-green-500/30 rounded-[2.5rem] flex items-center justify-center shadow-2xl">
-                                                    <CheckCircle2 className="w-16 h-16 text-green-500" />
-                                                </div>
+                                            <div className="relative mb-16">
+                                                <div className="absolute inset-0 bg-primary-500 blur-[80px] opacity-20 rounded-full animate-pulse" />
+                                                <motion.div
+                                                    initial={{ rotate: -180, scale: 0 }}
+                                                    animate={{ rotate: 0, scale: 1 }}
+                                                    transition={{ type: "spring", damping: 10, stiffness: 100 }}
+                                                    className="relative w-40 h-40 bg-black border-4 border-primary-500 rounded-[4rem] flex items-center justify-center shadow-[0_0_60px_rgba(245,158,11,0.4)]"
+                                                >
+                                                    <CheckCircle2 className="w-20 h-20 text-primary-500" />
+                                                </motion.div>
                                             </div>
-                                            <div>
-                                                <h3 className="text-5xl font-black italic tracking-tighter uppercase mb-6 leading-none">¡MISIÓN <br /><span className="text-primary-500">ACEPTADA!</span></h3>
-                                                <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-xs mx-auto italic">Sistema buscando la unidad de <span className="text-white font-black">{selectedCategory?.name}</span> más eficiente. Recibirás un alerta en breve.</p>
-                                            </div>
+
+                                            <h3 className="text-6xl font-black italic tracking-tighter uppercase mb-6 leading-[0.9] text-white">OPERACIÓN<br /><span className="text-primary-500">CONFIRMADA</span></h3>
+                                            <p className="text-zinc-500 text-sm font-bold leading-relaxed max-w-xs mx-auto italic uppercase tracking-tight mb-16">
+                                                Escaneando la red de choferes para asignar la unidad de <span className="text-white font-black">{selectedCategory?.name}</span> ideal.
+                                            </p>
+
                                             <button
                                                 onClick={() => navigate('/my-fletes')}
-                                                className="premium-button w-full py-5 italic font-black tracking-widest uppercase text-xs shadow-xl"
+                                                className="premium-button w-full shadow-2xl shadow-primary-500/40"
                                             >
-                                                SEGUIR MI PEDIDO
+                                                SEGUIMIENTO TÁCTICO
                                             </button>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Right Panel: Map */}
-                    <div className="flex-grow flex flex-col min-h-[500px] lg:h-auto rounded-[3rem] overflow-hidden border border-white/5 relative shadow-2xl">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex-grow flex flex-col min-h-[500px] lg:h-auto rounded-[4rem] overflow-hidden border-8 border-zinc-950 relative shadow-[0_40px_100px_rgba(0,0,0,0.9)]"
+                    >
                         <FreightMap />
-                    </div>
+
+                        {/* Map HUD Overlay */}
+                        <div className="absolute top-10 right-10 flex flex-col gap-4">
+                            <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-3xl flex items-center gap-4">
+                                <div className="w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                                <span className="text-[9px] font-black uppercase tracking-widest text-white italic">FEED SATELITAL EN VIVO</span>
+                            </div>
+                        </div>
+                    </motion.div>
 
                 </div>
+            </div>
+
+            {/* Background elements */}
+            <div className="absolute inset-0 pointer-events-none -z-10">
+                <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-primary-500/5 blur-[200px] rounded-full" />
+                <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-secondary-600/5 blur-[180px] rounded-full" />
             </div>
         </div>
     )
