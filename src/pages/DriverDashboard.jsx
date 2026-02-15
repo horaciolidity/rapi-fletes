@@ -216,7 +216,7 @@ const DriverDashboard = () => {
                                             transition={{ delay: idx * 0.1 }}
                                             key={flete.id}
                                             onClick={() => setSelectedFleteId(flete.id)}
-                                            className={`flex-shrink-0 w-[300px] md:w-[450px] snap-start glass-card p-6 md:p-10 border-2 transition-all duration-500 cursor-pointer flex flex-col justify-between relative overflow-hidden ${selectedFleteId === flete.id || activeFlete?.id === flete.id ? 'border-primary-500 bg-primary-500/10 shadow-[0_40px_80px_rgba(0,0,0,0.8)] scale-[0.98]' : 'border-zinc-900 bg-zinc-950/40 hover:border-zinc-800'}`}
+                                            className={`flex-shrink-0 w-[280px] md:w-[380px] snap-start glass-card p-5 md:p-8 border-2 transition-all duration-500 cursor-pointer flex flex-col justify-between relative overflow-hidden ${selectedFleteId === flete.id || activeFlete?.id === flete.id ? 'border-primary-500 bg-primary-500/10 shadow-[0_40px_80px_rgba(0,0,0,0.8)] scale-[0.98]' : 'border-zinc-900 bg-zinc-950/40 hover:border-zinc-800'}`}
                                         >
                                             <div className="flex justify-between items-start mb-8">
                                                 <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-[1.5rem] flex items-center justify-center border transition-all duration-500 ${selectedFleteId === flete.id ? 'bg-primary-500 text-black border-transparent shadow-xl' : 'bg-black text-zinc-700 border-white/5'}`}>
@@ -252,7 +252,7 @@ const DriverDashboard = () => {
                                 <div className="lg:col-span-1 h-full order-2 lg:order-1">
                                     <AnimatePresence mode="wait">
                                         {selectedFlete ? (
-                                            <motion.div key={selectedFlete.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="glass-card p-8 md:p-12 h-full bg-zinc-950 border-primary-500/20 flex flex-col shadow-[0_45px_100px_rgba(0,0,0,0.9)]">
+                                            <motion.div key={selectedFlete.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="glass-card p-6 md:p-10 h-full bg-zinc-950 border-primary-500/20 flex flex-col shadow-[0_45px_100px_rgba(0,0,0,0.9)]">
                                                 <div className="flex-grow space-y-8 md:space-y-12">
                                                     <header>
                                                         <div className="flex items-center gap-3 mb-3 md:mb-4">
@@ -274,7 +274,7 @@ const DriverDashboard = () => {
                                                     </div>
                                                 </div>
 
-                                                <div className="mt-16 space-y-6">
+                                                <div className="mt-10 space-y-4">
                                                     {selectedFlete.status === 'pending' ? (
                                                         <button onClick={() => handleAccept(selectedFlete.id)} className="premium-button w-full shadow-2xl shadow-primary-500/30">
                                                             ACEPTAR SERVICIO
@@ -350,45 +350,53 @@ const DriverDashboard = () => {
                             </section>
                         </motion.div>
                     ) : (
-                        <motion.div key="history" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="glass-card bg-zinc-950 border-zinc-900 rounded-[3rem] overflow-hidden shadow-2xl">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="bg-zinc-950 border-b border-zinc-900">
-                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic">ID SERVICIO</th>
-                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic">LOGÍSTICA / RUTA</th>
-                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-right">GANANCIA</th>
-                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-right">FECHA</th>
-                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-center">STATUS</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-zinc-900">
-                                        {completedHistory.map((f) => (
-                                            <tr key={f.id} className="hover:bg-primary-500/[0.02] transition-colors group">
-                                                <td className="p-10 text-[10px] font-black text-zinc-700 tracking-[0.2em] italic group-hover:text-primary-500/50 transition-colors">#{f.id.slice(0, 8)}</td>
-                                                <td className="p-10">
-                                                    <p className="text-sm font-black text-zinc-400 italic uppercase tracking-tight mb-2 truncate max-w-[250px]">{f.pickup_address}</p>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-2 h-2 rounded-full bg-zinc-800 group-hover:bg-primary-500 transition-colors" />
-                                                        <p className="text-[10px] text-zinc-700 italic truncate max-w-[250px] uppercase font-bold tracking-tight">RUTA COMPLETADA → {f.dropoff_address}</p>
-                                                    </div>
-                                                </td>
-                                                <td className="p-10 text-right">
-                                                    <span className="text-3xl font-black italic text-white group-hover:text-primary-500 transition-colors tracking-tighter shadow-primary-500/10">$ {f.estimated_price}</span>
-                                                </td>
-                                                <td className="p-10 text-right text-[10px] font-black text-zinc-700 uppercase italic tracking-widest">{new Date(f.created_at).toLocaleDateString()}</td>
-                                                <td className="p-10 text-center">
-                                                    <span className="px-4 py-2 bg-zinc-900 text-green-500 text-[10px] font-black uppercase italic rounded-full border border-green-500/20 group-hover:border-green-500 group-hover:bg-green-500/10 transition-all tracking-[0.2em]">SUCCESS</span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {completedHistory.length === 0 && (
-                                            <tr>
-                                                <td colSpan="5" className="p-32 text-center italic text-zinc-800 font-black uppercase tracking-[0.6em] text-xs grayscale opacity-20">ÁREA SIN REGISTROS DE VIAJES COMPLETADOS</td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                        <motion.div key="history" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                            <div className="hidden md:grid grid-cols-12 gap-4 px-8 py-4 bg-zinc-900/50 rounded-2xl border border-white/5">
+                                <div className="col-span-2 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic">ID SERVICIO</div>
+                                <div className="col-span-5 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic">LOGÍSTICA / RUTA</div>
+                                <div className="col-span-2 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic text-right">GANANCIA</div>
+                                <div className="col-span-2 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic text-right">FECHA</div>
+                                <div className="col-span-1 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic text-center">STATUS</div>
+                            </div>
+
+                            <div className="space-y-3">
+                                {completedHistory.map((f) => (
+                                    <div key={f.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-5 md:px-8 md:py-6 bg-zinc-950 border border-zinc-900 rounded-[1.5rem] md:rounded-[2rem] hover:border-zinc-800 transition-all group">
+                                        <div className="md:col-span-2 flex items-center justify-between md:block">
+                                            <span className="md:hidden text-[8px] font-black text-zinc-800 uppercase italic">ID</span>
+                                            <p className="text-[10px] font-black text-zinc-600 tracking-[0.2em] italic group-hover:text-primary-500 transition-colors">#{f.id.slice(0, 8)}</p>
+                                        </div>
+
+                                        <div className="md:col-span-5 space-y-1">
+                                            <p className="text-xs font-black text-zinc-400 italic uppercase tracking-tight truncate">{f.pickup_address}</p>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 group-hover:bg-primary-500 transition-colors" />
+                                                <p className="text-[9px] text-zinc-600 italic truncate uppercase font-bold tracking-tight">Hacia → {f.dropoff_address}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="md:col-span-2 flex items-center justify-between md:justify-end">
+                                            <span className="md:hidden text-[8px] font-black text-zinc-800 uppercase italic">GANANCIA</span>
+                                            <span className="text-xl md:text-2xl font-black italic text-white group-hover:text-primary-500 transition-colors tracking-tighter">$ {f.estimated_price}</span>
+                                        </div>
+
+                                        <div className="md:col-span-2 flex items-center justify-between md:justify-end">
+                                            <span className="md:hidden text-[8px] font-black text-zinc-800 uppercase italic">FECHA</span>
+                                            <p className="text-[10px] font-black text-zinc-700 uppercase italic tracking-widest">{new Date(f.created_at).toLocaleDateString()}</p>
+                                        </div>
+
+                                        <div className="md:col-span-1 flex items-center justify-between md:justify-center">
+                                            <span className="md:hidden text-[8px] font-black text-zinc-800 uppercase italic">STATUS</span>
+                                            <span className="px-3 py-1 bg-zinc-900 text-green-500 text-[8px] font-black uppercase italic rounded-full border border-green-500/20 group-hover:border-green-500/40 transition-all">OK</span>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {completedHistory.length === 0 && (
+                                    <div className="p-20 text-center italic text-zinc-800 font-black uppercase tracking-[0.5em] text-[10px] grayscale opacity-20 bg-zinc-950/40 rounded-[3rem] border-2 border-dashed border-zinc-900 transition-all">
+                                        SIN REGISTROS DE VIAJES
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     )}

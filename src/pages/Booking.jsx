@@ -170,7 +170,7 @@ const Booking = () => {
                         animate={{ opacity: 1, x: 0 }}
                         className="w-full lg:w-[480px] flex flex-col"
                     >
-                        <div className="glass-card flex-grow p-6 md:p-12 flex flex-col relative overflow-hidden bg-zinc-950/60 border-zinc-900 shadow-[0_40px_100px_rgba(0,0,0,0.9)]">
+                        <div className="glass-card flex-grow p-6 md:p-10 flex flex-col relative overflow-hidden bg-zinc-950/60 border-zinc-900 shadow-[0_40px_100px_rgba(0,0,0,0.9)]">
                             <div className="absolute top-0 right-0 w-2 md:w-3 h-full bg-gradient-to-b from-primary-500 to-secondary-600" />
 
                             <header className="mb-8 md:mb-14">
@@ -303,7 +303,7 @@ const Booking = () => {
                                                         transition={{ delay: idx * 0.1 }}
                                                         key={cat.id}
                                                         onClick={() => setCategory(cat)}
-                                                        className={`w-full p-8 rounded-[2.5rem] border-2 transition-all duration-500 text-left flex items-center gap-8 relative overflow-hidden group ${selectedCategory?.id === cat.id ? 'border-primary-500 bg-primary-500/10 shadow-[0_0_40px_rgba(245,158,11,0.1)]' : 'border-white/5 bg-zinc-900/40 hover:border-white/20'}`}
+                                                        className={`w-full p-5 md:p-6 rounded-[2rem] border-2 transition-all duration-500 text-left flex items-center gap-6 relative overflow-hidden group ${selectedCategory?.id === cat.id ? 'border-primary-500 bg-primary-500/10 shadow-[0_0_40px_rgba(245,158,11,0.1)]' : 'border-white/5 bg-zinc-900/40 hover:border-white/20'}`}
                                                     >
                                                         {selectedCategory?.id === cat.id && (
                                                             <div className="absolute top-0 right-0 p-4">
@@ -311,13 +311,13 @@ const Booking = () => {
                                                             </div>
                                                         )}
 
-                                                        <div className={`w-20 h-20 rounded-[1.5rem] flex items-center justify-center shrink-0 transition-all duration-500 ${selectedCategory?.id === cat.id ? 'bg-primary-500 text-black shadow-2xl scale-110' : 'bg-black text-zinc-700 group-hover:bg-zinc-800'}`}>
-                                                            <Truck className="w-10 h-10" />
+                                                        <div className={`w-14 h-14 rounded-[1.2rem] flex items-center justify-center shrink-0 transition-all duration-500 ${selectedCategory?.id === cat.id ? 'bg-primary-500 text-black shadow-2xl scale-110' : 'bg-black text-zinc-700 group-hover:bg-zinc-800'}`}>
+                                                            <Truck className="w-7 h-7" />
                                                         </div>
                                                         <div className="flex-grow">
-                                                            <p className="font-black italic uppercase text-2xl leading-tight mb-1 text-white">{cat.name}</p>
-                                                            <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-3">{cat.description}</p>
-                                                            <p className="text-xl font-black text-primary-500 italic">$ {cat.base_price}</p>
+                                                            <p className="font-black italic uppercase text-lg md:text-xl leading-tight mb-1 text-white">{cat.name}</p>
+                                                            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-2">{cat.description}</p>
+                                                            <p className="text-lg font-black text-primary-500 italic">$ {cat.base_price}</p>
                                                         </div>
                                                     </motion.button>
                                                 ))}
@@ -460,14 +460,14 @@ const Booking = () => {
                     </motion.div>
 
                 </div>
-            </div>
+            </div >
 
             {/* Background elements */}
-            <div className="absolute inset-0 pointer-events-none -z-10">
+            < div className="absolute inset-0 pointer-events-none -z-10" >
                 <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-primary-500/5 blur-[200px] rounded-full" />
                 <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-secondary-600/5 blur-[180px] rounded-full" />
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }
 

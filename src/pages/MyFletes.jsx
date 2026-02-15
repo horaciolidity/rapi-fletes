@@ -63,8 +63,8 @@ const MyFletes = () => {
                             <HistoryIcon className="w-10 h-10 text-black" />
                         </div>
                         <div>
-                            <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">MIS<br /><span className="text-primary-500">SERVICIOS</span></h1>
-                            <p className="text-zinc-700 font-black italic mt-3 uppercase tracking-[0.4em] text-[10px]">Seguimiento de servicios en tiempo real</p>
+                            <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase leading-none">MIS<br /><span className="text-primary-500">SERVICIOS</span></h1>
+                            <p className="text-zinc-700 font-black italic mt-2 uppercase tracking-[0.4em] text-[8px] md:text-[10px]">Seguimiento de servicios en tiempo real</p>
                         </div>
                     </div>
 
@@ -99,15 +99,15 @@ const MyFletes = () => {
                                         animate={{ opacity: 1, scale: 1 }}
                                         transition={{ delay: idx * 0.05 }}
                                         onClick={() => setSelectedFleteId(flete.id)}
-                                        className={`glass-card p-10 border-2 cursor-pointer transition-all duration-500 relative overflow-hidden group ${isSelected ? 'border-primary-500 bg-primary-500/10 shadow-[0_30px_60px_rgba(0,0,0,0.8)]' : 'border-zinc-900 bg-zinc-950 hover:border-zinc-800'}`}
+                                        className={`glass-card p-6 md:p-8 border-2 cursor-pointer transition-all duration-500 relative overflow-hidden group ${isSelected ? 'border-primary-500 bg-primary-500/10 shadow-[0_30px_60px_rgba(0,0,0,0.8)]' : 'border-zinc-900 bg-zinc-950 hover:border-zinc-800'}`}
                                     >
-                                        <div className="flex justify-between items-start mb-8">
-                                            <div className={`w-12 h-12 rounded-[1.2rem] flex items-center justify-center bg-zinc-900 border border-white/5 transition-all duration-500 ${isSelected ? 'bg-primary-500 text-black shadow-lg scale-110' : 'text-zinc-600 group-hover:text-primary-500'}`}>
-                                                <theme.icon className="w-6 h-6" />
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div className={`w-10 h-10 rounded-[1rem] flex items-center justify-center bg-zinc-900 border border-white/5 transition-all duration-500 ${isSelected ? 'bg-primary-500 text-black shadow-lg scale-110' : 'text-zinc-600 group-hover:text-primary-500'}`}>
+                                                <theme.icon className="w-5 h-5" />
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-[8px] font-black text-zinc-800 uppercase italic tracking-widest mb-1">ID SERVICIO</p>
-                                                <p className="text-[10px] font-black text-zinc-500 uppercase italic"># {flete.id.slice(0, 8)}</p>
+                                                <p className="text-[7px] font-black text-zinc-800 uppercase italic tracking-widest mb-1">ID SERVICIO</p>
+                                                <p className="text-[9px] font-black text-zinc-500 uppercase italic"># {flete.id.slice(0, 8)}</p>
                                             </div>
                                         </div>
 
@@ -122,11 +122,11 @@ const MyFletes = () => {
                                             </div>
                                         </div>
 
-                                        <div className="mt-8 pt-8 border-t border-zinc-900 flex justify-between items-center">
-                                            <span className={`text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full italic bg-zinc-900 text-${theme.color}`}>
+                                        <div className="mt-6 pt-6 border-t border-zinc-900 flex justify-between items-center">
+                                            <span className={`text-[8px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-full italic bg-zinc-900 text-${theme.color}`}>
                                                 {theme.label}
                                             </span>
-                                            <span className="text-2xl font-black text-white italic tracking-tighter shadow-primary-500/10">${flete.estimated_price}</span>
+                                            <span className="text-xl font-black text-white italic tracking-tighter shadow-primary-500/10">${flete.estimated_price}</span>
                                         </div>
                                     </motion.div>
                                 )
@@ -186,7 +186,7 @@ const MyFletes = () => {
                                 {/* Control Panel Grid */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                     {/* Route Specs */}
-                                    <div className="glass-card p-12 bg-zinc-900/40 border-zinc-800 flex flex-col justify-between">
+                                    <div className="glass-card p-8 md:p-10 bg-zinc-900/40 border-zinc-800 flex flex-col justify-between">
                                         <div>
                                             <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700 mb-10">ESPECIFICACIONES DE RUTA</h3>
                                             <div className="space-y-10 relative">
@@ -220,7 +220,7 @@ const MyFletes = () => {
                                     </div>
 
                                     {/* Actor Information */}
-                                    <div className="glass-card p-12 bg-zinc-900/40 border-zinc-800">
+                                    <div className="glass-card p-8 md:p-10 bg-zinc-900/40 border-zinc-800">
                                         {selectedFlete.driver ? (
                                             <div className="h-full flex flex-col">
                                                 <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700 mb-10">CONDUCTOR ASIGNADO</h3>

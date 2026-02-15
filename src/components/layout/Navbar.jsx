@@ -36,7 +36,7 @@ const Navbar = () => {
     ]
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-700 ${isScrolled ? 'bg-black/90 backdrop-blur-2xl border-b border-white/5 py-3 shadow-2xl' : 'bg-transparent py-6 md:py-10'}`}>
+        <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-700 ${isScrolled ? 'bg-black/90 backdrop-blur-2xl border-b border-white/5 py-3 shadow-2xl' : 'bg-transparent py-4 md:py-7'}`}>
             <div className="container mx-auto px-6 md:px-10 flex items-center justify-between max-w-[1700px]">
 
                 {/* Logo Profesional */}
@@ -148,7 +148,7 @@ const Navbar = () => {
                                     key={link.path}
                                     to={link.path}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className={`text-4xl font-black uppercase tracking-tighter italic transition-all hover:translate-x-4 ${location.pathname === link.path ? 'text-primary-500' : 'text-zinc-800 hover:text-white'}`}
+                                    className={`text-3xl font-black uppercase tracking-tighter italic transition-all hover:translate-x-4 ${location.pathname === link.path ? 'text-primary-500' : 'text-zinc-800 hover:text-white'}`}
                                 >
                                     {link.name}
                                 </Link>
@@ -158,7 +158,7 @@ const Navbar = () => {
                                 <Link
                                     to="/driver"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="text-4xl font-black text-zinc-800 hover:text-primary-500 uppercase tracking-tighter italic transition-all hover:translate-x-4"
+                                    className="text-3xl font-black text-zinc-800 hover:text-primary-500 uppercase tracking-tighter italic transition-all hover:translate-x-4"
                                 >
                                     PANEL CHOFER
                                 </Link>
