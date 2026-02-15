@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, Phone, Mail, Camera, Save, Loader2, ShieldCheck, Truck, MapPin, Gear } from 'lucide-react'
+import { User, Phone, Mail, Camera, Save, Loader2, ShieldCheck, Truck, MapPin, Settings } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 import { useNavigate } from 'react-router-dom'
 
@@ -196,7 +196,7 @@ const Profile = () => {
 
                         <div className="glass-card p-10 bg-zinc-950/20 border-dashed border-2 border-zinc-900 flex flex-col items-center justify-center text-center group hover:border-zinc-700 transition-all cursor-pointer">
                             <div className="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center mb-6 border border-white/5 group-hover:scale-110 transition-all duration-500">
-                                <Gear className="w-8 h-8 text-zinc-700 group-hover:text-primary-500 transition-colors" />
+                                <Settings className="w-8 h-8 text-zinc-700 group-hover:text-primary-500 transition-colors" />
                             </div>
                             <h4 className="text-xl font-black italic uppercase tracking-tighter text-zinc-700 group-hover:text-white transition-colors">Ajustes Avanzados</h4>
                             <p className="text-[9px] font-bold text-zinc-800 uppercase tracking-widest mt-2 italic">Notificaciones, Seguridad y Privacidad</p>
