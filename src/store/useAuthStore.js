@@ -91,5 +91,24 @@ export const useAuthStore = create((set, get) => ({
             console.error('Error fetching profile:', err)
             return null
         }
+    },
+
+    updateProfile: async (userId, updates) => {
+        set({ loading: true, error: null })
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .update(updates)
+                .eq('id', userId)
+                .select()
+                .single()
+
+            if (error) throw error
+            set({ profile: data, loading: false })
+            return { data, error: null }
+        } catch (err) {
+            set({ error: err.message, loading: false })
+            return { data: null, error: err }
+        }
     }
 }))

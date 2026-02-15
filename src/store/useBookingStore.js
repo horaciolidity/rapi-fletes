@@ -66,8 +66,15 @@ export const useBookingStore = create((set, get) => ({
     calculateRoute: () => {
         const { pickup, dropoff } = get()
         if (!pickup || !dropoff) return
-        const mockDistance = Math.floor(Math.random() * 20) + 5
-        const mockDuration = mockDistance * 2
+
+        // Simple Euclidean distance for mock (lat/lng degree is ~111km)
+        const dx = (dropoff.lng - pickup.lng) * 111
+        const dy = (dropoff.lat - pickup.lat) * 111
+        const dist = Math.sqrt(dx * dx + dy * dy)
+
+        const mockDistance = Math.max(2, parseFloat(dist.toFixed(1)))
+        const mockDuration = Math.ceil(mockDistance * 2.5) // 2.5 min per km
+
         set({ distance: mockDistance, duration: mockDuration })
         get().calculateEstimate()
     },
