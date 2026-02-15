@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '../api/supabase'
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
     user: null,
     profile: null,
     loading: true,
@@ -10,58 +10,64 @@ export const useAuthStore = create((set) => ({
     setUser: (user) => set({ user }),
     setProfile: (profile) => set({ profile }),
     setLoading: (loading) => set({ loading }),
+    setError: (error) => set({ error }),
 
     signUp: async (email, password, fullName, role = 'user') => {
         set({ loading: true, error: null })
-        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-        })
+        try {
+            const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        role: role
+                    }
+                }
+            })
 
-        if (signUpError) {
-            set({ error: signUpError.message, loading: false })
-            return { error: signUpError }
-        }
+            if (signUpError) throw signUpError
 
-        if (user) {
-            // Create profile record
-            const { error: profileError } = await supabase
-                .from('profiles')
-                .insert([{ id: user.id, full_name: fullName, role }])
+            if (user) {
+                // If the user is created but maybe not logged in (due to email confirm), we still try to create the profile
+                // Supabase triggers are better for this, but we keep the frontend logic for now
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .upsert([{ id: user.id, full_name: fullName, role }])
 
-            if (profileError) {
-                set({ error: profileError.message, loading: false })
-                return { error: profileError }
+                if (profileError) {
+                    console.warn('Profile creation error:', profileError)
+                    // We don't throw here because the user was created, but we inform
+                }
             }
-        }
 
-        set({ loading: false })
-        return { user }
+            set({ loading: false })
+            return { user, error: null }
+        } catch (err) {
+            set({ error: err.message, loading: false })
+            return { user: null, error: err }
+        }
     },
 
     signIn: async (email, password) => {
         set({ loading: true, error: null })
-        const { data: { user }, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        })
+        try {
+            const { data: { user }, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            })
 
-        if (error) {
-            set({ error: error.message, loading: false })
-            return { error }
+            if (error) throw error
+
+            if (user) {
+                await get().fetchProfile(user.id)
+                set({ user, loading: false })
+            }
+            return { user, error: null }
+        } catch (err) {
+            set({ error: err.message, loading: false })
+            return { user: null, error: err }
         }
-
-        if (user) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single()
-
-            set({ user, profile, loading: false })
-        }
-
-        return { user }
     },
 
     signOut: async () => {
@@ -70,12 +76,20 @@ export const useAuthStore = create((set) => ({
     },
 
     fetchProfile: async (userId) => {
-        const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single()
+        if (!userId) return
+        try {
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .maybeSingle()
 
-        if (!error) set({ profile })
+            if (error) throw error
+            set({ profile })
+            return profile
+        } catch (err) {
+            console.error('Error fetching profile:', err)
+            return null
+        }
     }
 }))
