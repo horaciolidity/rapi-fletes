@@ -19,12 +19,17 @@ const FreightMap = ({
     const [isSimulating, setIsSimulating] = useState(false)
 
     useEffect(() => {
-        if (pickup && dropoff) {
-            setIsSimulating(true)
-            const timer = setTimeout(() => setIsSimulating(false), 1500)
-            return () => clearTimeout(timer)
+        if (pickup?.address && dropoff?.address) {
+            // Only simulate if we don't have distance/duration yet
+            if (!propDistance || !propDuration) {
+                setIsSimulating(true)
+                const timer = setTimeout(() => setIsSimulating(false), 1000)
+                return () => clearTimeout(timer)
+            } else {
+                setIsSimulating(false)
+            }
         }
-    }, [pickup, dropoff])
+    }, [pickup?.address, dropoff?.address, propDistance, propDuration])
 
     return (
         <div className="relative w-full h-full min-h-[500px] bg-slate-900 overflow-hidden border border-white/10 shadow-2xl rounded-3xl">

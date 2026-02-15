@@ -109,6 +109,8 @@ export const useBookingStore = create((set, get) => ({
                         dropoff_lng: dropoff.lng,
                         category_id: selectedCategory.id,
                         estimated_price: estimate,
+                        distance: get().distance,
+                        duration: get().duration,
                         status: 'pending'
                     }
                 ])

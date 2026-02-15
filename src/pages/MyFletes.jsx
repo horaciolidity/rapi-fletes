@@ -156,6 +156,8 @@ const MyFletes = () => {
                                     <FreightMap
                                         pickup={{ address: selectedFlete.pickup_address, lat: selectedFlete.pickup_lat, lng: selectedFlete.pickup_lng }}
                                         dropoff={{ address: selectedFlete.dropoff_address, lat: selectedFlete.dropoff_lat, lng: selectedFlete.dropoff_lng }}
+                                        distance={selectedFlete.distance}
+                                        duration={selectedFlete.duration}
                                     />
 
                                     {/* Map Overlays */}

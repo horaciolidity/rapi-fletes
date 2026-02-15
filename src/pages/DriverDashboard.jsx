@@ -259,6 +259,8 @@ const DriverDashboard = () => {
                                     <FreightMap
                                         pickup={selectedFlete ? { address: selectedFlete.pickup_address, lat: selectedFlete.pickup_lat, lng: selectedFlete.pickup_lng } : null}
                                         dropoff={selectedFlete ? { address: selectedFlete.dropoff_address, lat: selectedFlete.dropoff_lat, lng: selectedFlete.dropoff_lng } : null}
+                                        distance={selectedFlete?.distance}
+                                        duration={selectedFlete?.duration}
                                     />
                                     <div className="absolute bottom-10 right-10 p-6 bg-slate-950/80 backdrop-blur-xl rounded-3xl border border-white/10 text-right">
                                         <p className="text-[10px] font-black text-slate-600 uppercase mb-1">Estatus del GPS</p>
