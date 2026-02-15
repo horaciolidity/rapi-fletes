@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Navigation, Truck, ChevronRight, Search, CreditCard, Clock, CheckCircle2, AlertTriangle, ChevronLeft, Loader2, LocatingBeacon, Target } from 'lucide-react'
+import { MapPin, Navigation, Truck, ChevronRight, Search, CreditCard, Clock, CheckCircle2, AlertTriangle, ChevronLeft, Loader2, Target, ArrowRight } from 'lucide-react'
 import FreightMap from '../components/map/FreightMap'
 import { useBookingStore } from '../store/useBookingStore'
 import { useAuthStore } from '../store/useAuthStore'
@@ -33,7 +33,6 @@ const Booking = () => {
             async (pos) => {
                 const { latitude, longitude } = pos.coords
                 try {
-                    // Reverse geocoding with Nominatim (OSM) - free
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
                     const data = await res.json()
                     const address = data.display_name || `${latitude}, ${longitude}`
@@ -361,16 +360,6 @@ const Booking = () => {
                     {/* Right Panel: Map */}
                     <div className="flex-grow flex flex-col min-h-[500px] lg:h-auto rounded-[3rem] overflow-hidden border border-white/5 relative shadow-2xl">
                         <FreightMap />
-
-                        {/* Map Overlay Controls (Simulation) */}
-                        <div className="absolute top-8 right-8 flex flex-col gap-3">
-                            <button className="w-12 h-12 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
-                                <Search className="w-5 h-5" />
-                            </button>
-                            <button className="w-12 h-12 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
-                                <Clock className="w-5 h-5" />
-                            </button>
-                        </div>
                     </div>
 
                 </div>
