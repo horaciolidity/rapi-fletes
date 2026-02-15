@@ -3,8 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Navigation, Truck, Loader2 } from 'lucide-react'
 import { useBookingStore } from '../../store/useBookingStore'
 
-const FreightMap = () => {
-    const { pickup, dropoff, distance, duration } = useBookingStore()
+const FreightMap = ({
+    pickup: propPickup,
+    dropoff: propDropoff,
+    distance: propDistance,
+    duration: propDuration
+}) => {
+    // Falls back to store if props are not provided (legacy/booking behavior)
+    const storeData = useBookingStore()
+    const pickup = propPickup || storeData.pickup
+    const dropoff = propDropoff || storeData.dropoff
+    const distance = propDistance || storeData.distance
+    const duration = propDuration || storeData.duration
+
     const [isSimulating, setIsSimulating] = useState(false)
 
     useEffect(() => {
@@ -141,7 +152,7 @@ const FreightMap = () => {
                         <div className="p-1.5 bg-primary-500/20 rounded-lg">
                             <MapPin className="w-4 h-4 text-primary-400" />
                         </div>
-                        <p className="text-sm font-medium text-slate-300">Ingresa una dirección de recogida para comenzar</p>
+                        <p className="text-sm font-medium text-slate-300">Selecciona una misión para ver la ruta</p>
                     </div>
                 </div>
             )}
