@@ -9,7 +9,7 @@ import { useAuthStore } from '../store/useAuthStore'
 import { useNavigate } from 'react-router-dom'
 
 const AdminDashboard = () => {
-    const { user, profile } = useAuthStore()
+    const { user, profile, loading: authLoading } = useAuthStore()
     const {
         stats, pendingDrivers, allFletes, loading,
         fetchStats, fetchPendingDrivers, fetchAllFletes, verifyDriver, fetchDriverLeaderboard
@@ -19,6 +19,7 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview') // overview, drivers, fletes
 
     useEffect(() => {
+        if (authLoading) return
         if (!user || profile?.role !== 'admin') {
             navigate('/')
             return
@@ -28,26 +29,35 @@ const AdminDashboard = () => {
         fetchPendingDrivers()
         fetchAllFletes()
         fetchDriverLeaderboard().then(setLeaderboard)
-    }, [user, profile])
+    }, [user, profile, authLoading])
 
     const handleVerify = async (id, status) => {
         await verifyDriver(id, status)
     }
 
-    if (!profile || profile.role !== 'admin') return null
+    if (authLoading || !profile || profile.role !== 'admin') return (
+        <div className="min-h-screen flex items-center justify-center bg-black">
+            <Loader2 className="w-16 h-16 text-primary-500 animate-spin" />
+        </div>
+    )
 
     return (
-        <div className="pt-24 pb-12 min-h-screen bg-slate-950 px-6">
-            <div className="container mx-auto max-w-7xl">
+        <div className="pt-32 pb-12 min-h-screen bg-black px-10 font-sans">
+            <div className="container mx-auto max-w-[1700px]">
 
-                {/* Header Section */}
-                <header className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase">Panel de Control</h1>
-                            <span className="bg-red-500 text-[10px] font-black uppercase px-3 py-1 rounded-full italic tracking-widest shadow-lg shadow-red-500/20">ADMIN</span>
+                {/* Tactical Header */}
+                <header className="flex flex-col md:flex-row justify-between items-end gap-10 mb-16">
+                    <div className="flex items-center gap-8">
+                        <div className="w-20 h-20 bg-secondary-600 rounded-[2rem] flex items-center justify-center shadow-[0_0_40px_rgba(234,88,12,0.3)]">
+                            <ShieldAlert className="w-10 h-10 text-black" />
                         </div>
-                        <p className="text-slate-500 font-medium italic">Gestión global de la plataforma RapiFletes.</p>
+                        <div>
+                            <div className="flex items-center gap-4 mb-2">
+                                <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">ALPHA<br /><span className="text-secondary-600">COMMAND</span></h1>
+                                <span className="bg-red-600 text-[10px] font-black uppercase px-4 py-1.5 rounded-full italic tracking-widest shadow-xl shadow-red-600/20 border border-white/10">NIVEL ADMIN</span>
+                            </div>
+                            <p className="text-zinc-700 font-black italic uppercase tracking-[0.4em] text-[10px]">Gestión táctica de infraestructura logística global</p>
+                        </div>
                     </div>
                 </header>
 
@@ -79,35 +89,35 @@ const AdminDashboard = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 {/* Leaderboard */}
                                 <div className="lg:col-span-1 glass-card p-8 bg-slate-900/40">
-                                    <h3 className="text-xl font-black italic uppercase italic tracking-widest mb-8 flex items-center gap-3">
-                                        <TrendingUp className="text-primary-500" /> Top Choferes
+                                    <h3 className="text-xl font-black italic uppercase tracking-widest mb-8 flex items-center gap-3 text-white">
+                                        <TrendingUp className="text-primary-500" /> TOP OPERADORES
                                     </h3>
                                     <div className="space-y-4">
                                         {leaderboard.length > 0 ? leaderboard.map((driver, i) => (
-                                            <div key={i} className="flex items-center justify-between p-4 bg-slate-950/50 rounded-2xl border border-white/5">
+                                            <div key={i} className="flex items-center justify-between p-5 bg-black border border-white/5 rounded-2xl">
                                                 <div className="flex items-center gap-4">
-                                                    <span className="text-xs font-black text-slate-700 w-4">#{i + 1}</span>
-                                                    <span className="text-sm font-bold text-slate-200">{driver.name}</span>
+                                                    <span className="text-[10px] font-black text-zinc-800 w-4">#{i + 1}</span>
+                                                    <span className="text-xs font-bold text-zinc-400 italic uppercase">{driver.name}</span>
                                                 </div>
-                                                <span className="text-xs font-black text-primary-400 bg-primary-500/10 px-3 py-1 rounded-full">{driver.count} viajes</span>
+                                                <span className="text-[9px] font-black text-primary-500 bg-primary-500/10 px-3 py-1 rounded-full uppercase italic">MISIONES: {driver.count}</span>
                                             </div>
                                         )) : (
-                                            <p className="text-slate-600 text-xs italic text-center py-10">Sin datos de viajes completados</p>
+                                            <p className="text-zinc-600 text-[10px] italic text-center py-10 font-black uppercase tracking-widest">Sin datos de despliegue</p>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Recent Activity Log */}
-                                <div className="lg:col-span-2 glass-card p-8 bg-slate-900/40">
-                                    <h3 className="text-xl font-black italic uppercase italic tracking-widest mb-8 flex items-center gap-3">
-                                        <Clock className="text-secondary-500" /> Actividad Reciente
+                                <div className="lg:col-span-2 glass-card p-10 bg-zinc-950/40">
+                                    <h3 className="text-xl font-black italic uppercase tracking-widest mb-8 flex items-center gap-3 text-white">
+                                        <Clock className="text-secondary-500" /> LOG DE ACTIVIDAD
                                     </h3>
                                     <div className="space-y-4">
                                         {allFletes.slice(0, 5).map((flete, i) => (
-                                            <div key={i} className="flex items-center justify-between p-4 border-b border-white/5 last:border-0 hover:bg-white/5 rounded-xl transition-colors">
-                                                <div className="flex gap-4 items-center">
-                                                    <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-500">
-                                                        <Truck size={20} />
+                                            <div key={i} className="flex items-center justify-between p-6 bg-black border border-white/5 rounded-[2rem] hover:border-primary-500/30 transition-all group">
+                                                <div className="flex gap-6 items-center">
+                                                    <div className="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center text-zinc-700 group-hover:bg-primary-500 group-hover:text-black transition-all">
+                                                        <Truck className="w-6 h-6" />
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-bold text-white">{flete.profiles?.full_name}</p>
@@ -213,8 +223,8 @@ const AdminDashboard = () => {
                                                 </td>
                                                 <td className="p-6">
                                                     <span className={`text-[9px] font-black uppercase px-2 py-1 rounded italic tracking-widest ${flete.status === 'completed' ? 'bg-green-500/10 text-green-500' :
-                                                            flete.status === 'pending' ? 'bg-amber-500/10 text-amber-500' :
-                                                                'bg-slate-800 text-slate-400'
+                                                        flete.status === 'pending' ? 'bg-amber-500/10 text-amber-500' :
+                                                            'bg-slate-800 text-slate-400'
                                                         }`}>
                                                         {flete.status}
                                                     </span>
@@ -237,9 +247,9 @@ const AdminDashboard = () => {
 const TabButton = ({ active, onClick, icon, label }) => (
     <button
         onClick={onClick}
-        className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-[11px] tracking-widest transition-all shadow-xl ${active
-                ? 'bg-primary-600 text-white shadow-primary-600/20 translate-y-[-2px]'
-                : 'bg-slate-900/50 text-slate-500 hover:text-slate-300 border border-white/5'
+        className={`flex items-center gap-4 px-10 py-5 rounded-full font-black text-[10px] tracking-[0.2em] transition-all shadow-xl italic uppercase ${active
+            ? 'bg-primary-500 text-black shadow-primary-500/20 scale-105'
+            : 'bg-zinc-900 text-zinc-600 hover:text-white border border-white/5'
             }`}
     >
         {icon} {label}
@@ -247,16 +257,18 @@ const TabButton = ({ active, onClick, icon, label }) => (
 )
 
 const StatCard = ({ label, value, icon, trend }) => (
-    <div className="glass-card p-6 bg-slate-900/40 border-white/5 hover:border-white/10 transition-all group">
-        <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-slate-950 rounded-2xl border border-white/5 group-hover:scale-110 transition-transform">
+    <div className="glass-card p-8 bg-zinc-950/40 border-zinc-900 hover:border-primary-500/30 transition-all group overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-primary-500/5 blur-3xl rounded-full" />
+        <div className="flex justify-between items-start mb-8 relative z-10">
+            <div className="w-14 h-14 bg-zinc-900 rounded-2xl border border-white/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary-500 group-hover:text-black transition-all">
                 {icon}
             </div>
-            <span className={`text-[10px] font-black ${trend.startsWith('+') ? 'text-green-500' : 'text-slate-500'} bg-white/5 px-2 py-1 rounded italic`}>{trend}</span>
+            <span className={`text-[9px] font-black ${trend.startsWith('+') ? 'text-green-500' : 'text-zinc-600'} bg-black/40 px-3 py-1 rounded-full italic border border-white/5`}>{trend}</span>
         </div>
-        <p className="text-3xl font-black text-white italic tracking-tighter mb-1">{value}</p>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">{label}</p>
+        <p className="text-4xl font-black text-white italic tracking-tighter mb-2 relative z-10 uppercase">{value}</p>
+        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-700 italic relative z-10">{label}</p>
     </div>
 )
 
 export default AdminDashboard
+    ```

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { Truck } from 'lucide-react'
 import Landing from './pages/Landing'
 import Auth from './pages/Auth'
 import Booking from './pages/Booking'
@@ -10,8 +11,10 @@ import Navbar from './components/layout/Navbar'
 import { useAuthStore } from './store/useAuthStore'
 import { supabase } from './api/supabase'
 
-function App() {
+const AppContent = () => {
   const { setUser, fetchProfile } = useAuthStore()
+  const location = useLocation()
+  const isAuthPage = location.pathname === '/auth'
 
   useEffect(() => {
     // Check for active session
@@ -33,39 +36,62 @@ function App() {
   }, [])
 
   return (
-    <Router>
-      <div className="flex flex-col min-h-screen bg-slate-950 text-white selection:bg-primary-500 selection:text-white">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/auth" element={<Auth />} />
-            {/* Alias for /auth to prevent 404s reported by user */}
-            <Route path="/login" element={<Navigate to="/auth" replace />} />
-            <Route path="/signup" element={<Navigate to="/auth" replace />} />
+    <div className="flex flex-col min-h-screen bg-black text-white selection:bg-primary-500 selection:text-white">
+      {!isAuthPage && <Navbar />}
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<Auth />} />
+          {/* Alias to prevent 404s */}
+          <Route path="/login" element={<Navigate to="/auth" replace />} />
+          <Route path="/register" element={<Navigate to="/auth" replace />} />
+          <Route path="/signup" element={<Navigate to="/auth" replace />} />
 
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/driver" element={<DriverDashboard />} />
-            <Route path="/my-fletes" element={<MyFletes />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/booking" element={<Booking />} />
+          <Route path="/driver" element={<DriverDashboard />} />
+          <Route path="/my-fletes" element={<MyFletes />} />
+          <Route path="/admin" element={<AdminDashboard />} />
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
 
-        <footer className="py-12 bg-black/40 border-t border-white/5">
-          <div className="container mx-auto px-6 text-center text-slate-500 text-sm">
-            <div className="flex justify-center gap-8 mb-6">
-              <a href="#" className="hover:text-primary-400 transition-colors">Términos</a>
-              <a href="#" className="hover:text-primary-400 transition-colors">Privacidad</a>
-              <a href="#" className="hover:text-primary-400 transition-colors">Soporte</a>
+      {!isAuthPage && (
+        <footer className="py-20 bg-zinc-950 border-t border-zinc-900 relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-primary-500/50 to-transparent" />
+          <div className="container mx-auto px-10 text-center relative z-10">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-10 mb-16">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-primary-500 rounded-lg">
+                  <Truck className="w-5 h-5 text-black" />
+                </div>
+                <span className="text-xl font-black italic uppercase tracking-tighter">Rapi<span className="text-primary-500">Fletes</span></span>
+              </div>
+              <div className="flex gap-10">
+                <a href="#" className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-primary-500 transition-colors italic">Términos Operativos</a>
+                <a href="#" className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-primary-500 transition-colors italic">Protocolos de Privacidad</a>
+                <a href="#" className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-primary-500 transition-colors italic">HQ Soporte</a>
+              </div>
             </div>
-            <p>© 2026 Rapi Fletes. Todos los derechos reservados.</p>
-            <p className="mt-2 font-black text-xs uppercase tracking-[0.2em] text-slate-700">Moviendo el futuro</p>
+            <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-800 italic">© 2026 RapiFletes Inc - Inteligencia en Movimiento</p>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest italic">SISTEMAS OPERATIVOS NOMINALES</span>
+              </div>
+            </div>
           </div>
         </footer>
-      </div>
+      )}
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   )
 }

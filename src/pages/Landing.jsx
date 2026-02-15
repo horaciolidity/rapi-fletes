@@ -15,28 +15,7 @@ const Landing = () => {
 
     return (
         <div className="min-h-screen bg-black text-white selection:bg-primary-500 selection:text-black font-sans">
-            {/* Nav Mockup */}
-            <nav className="fixed top-0 left-0 w-full z-[100] px-10 py-8 flex justify-between items-center pointer-events-none">
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-4 pointer-events-auto"
-                >
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-secondary-600 rounded-full flex items-center justify-center p-2.5 shadow-2xl shadow-primary-500/20">
-                        <Truck className="w-full h-full text-black" />
-                    </div>
-                    <span className="text-2xl font-black italic uppercase tracking-tighter">Rapi<span className="text-primary-500">Fletes</span></span>
-                </motion.div>
 
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex gap-4 pointer-events-auto"
-                >
-                    <Link to="/login" className="px-8 py-3 bg-zinc-900 border border-white/5 rounded-full text-xs font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">Ingresar</Link>
-                    <Link to="/register" className="px-8 py-3 bg-primary-500 text-black rounded-full text-xs font-black uppercase tracking-widest hover:bg-primary-400 transition-all shadow-xl shadow-primary-500/20">Registrarse</Link>
-                </motion.div>
-            </nav>
 
             {/* Hero Section */}
             <section className="relative min-h-screen pt-40 pb-32 overflow-hidden flex flex-col justify-center items-center">
@@ -161,10 +140,7 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="py-20 border-t border-white/5 text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700 italic">© 2026 RapiFletes Inc - El Mañana en Logística Hoy</p>
-            </footer>
+
         </div>
     )
 }
