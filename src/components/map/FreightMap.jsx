@@ -196,6 +196,21 @@ const MapController = ({ pickup, dropoff, autoDetectLocation, driverLocation }) 
     return null
 }
 
+const RecenterControl = () => {
+    const map = useMap()
+    return (
+        <div className="absolute top-6 right-6 z-[1000] flex flex-col gap-2">
+            <button
+                onClick={() => map.locate({ setView: true, maxZoom: 16 })}
+                className="p-3 bg-black/80 backdrop-blur-md border border-white/10 rounded-2xl text-white hover:text-primary-500 transition-all shadow-xl pointer-events-auto group"
+                title="Mi ubicación"
+            >
+                <Crosshair className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            </button>
+        </div>
+    )
+}
+
 // Live tracking subscriber
 const LiveTrackingUpdater = ({ fleteId, onLocationUpdate }) => {
     useEffect(() => {
@@ -357,6 +372,7 @@ const FreightMap = ({
                 <ResizeMap />
                 <MapController pickup={pickup} dropoff={dropoff} autoDetectLocation={autoDetectLocation} driverLocation={driverLocation} />
                 <ClickHandler onClick={onMapClick} />
+                <RecenterControl />
 
                 {pickup && dropoff && <RoutingMachine pickup={pickup} dropoff={dropoff} onRouteFound={handleRouteFound} />}
 
@@ -467,20 +483,6 @@ const FreightMap = ({
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* Manual Recenter Control */}
-            <div className="absolute top-6 right-6 z-[1000] flex flex-col gap-2">
-                <button
-                    onClick={() => {
-                        const map = document.querySelector('.leaflet-container')?._leaflet_map
-                        if (map) map.locate({ setView: true, maxZoom: 16 })
-                    }}
-                    className="p-3 bg-black/80 backdrop-blur-md border border-white/10 rounded-2xl text-white hover:text-primary-500 transition-all shadow-xl pointer-events-auto group"
-                    title="Mi ubicación"
-                >
-                    <Crosshair className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                </button>
-            </div>
         </div>
     )
 }

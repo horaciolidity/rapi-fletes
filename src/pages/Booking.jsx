@@ -33,15 +33,16 @@ const Booking = () => {
         fetchCategories()
         // Auto-detect location on first load if no pickup is set
         if (!pickup && !pAddress) {
-            handleGeolocation()
+            handleGeolocation(true) // Silent detect
         }
         return () => resetBooking()
     }, [])
 
-    const handleGeolocation = () => {
+    const handleGeolocation = (silent = false) => {
         if (!navigator.geolocation) return
-        setIsLocating(true)
+        if (!silent) setIsLocating(true)
         setGeoError(null)
+
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 const { latitude, longitude } = pos.coords
@@ -73,10 +74,13 @@ const Booking = () => {
             },
             (error) => {
                 setIsLocating(false)
-                if (error.code === 1) { // PERMISSION_DENIED
-                    setGeoError("Acceso a ubicación denegado. Puedes buscar manualmente o tocar el mapa.")
-                } else {
-                    setGeoError("No pudimos detectar tu ubicación. Intenta buscarla manualmente.")
+                // Only show visible error if user manually clicked the button
+                if (!silent) {
+                    if (error.code === 1) { // PERMISSION_DENIED
+                        setGeoError("Acceso a ubicación denegado. Puedes buscar manualmente o tocar el mapa.")
+                    } else {
+                        setGeoError("No pudimos detectar tu ubicación. Intenta buscarla manualmente.")
+                    }
                 }
                 if (error.code !== 1) console.warn("Geolocation warning:", error.message)
             },
@@ -169,6 +173,7 @@ const Booking = () => {
             }
             setSearchResults([])
             setActiveSearch(null)
+            setGeoError(null)
         } catch (err) {
             console.error("Map click geocoding error", err)
         }
@@ -189,6 +194,7 @@ const Booking = () => {
         }
         setSearchResults([])
         setActiveSearch(null)
+        setGeoError(null)
     }
 
     const handleConfirmBooking = async () => {
@@ -206,11 +212,7 @@ const Booking = () => {
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch min-h-[600px] lg:min-h-[850px]">
 
                     {/* Left Panel: Booking Flow */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="w-full lg:w-[480px] flex flex-col"
-                    >
+                    <div className="w-full lg:w-[480px] flex flex-col">
                         <div className="glass-card flex-grow p-6 md:p-10 flex flex-col relative overflow-hidden bg-zinc-950/60 border-zinc-900 shadow-[0_40px_100px_rgba(0,0,0,0.9)]">
                             <div className="absolute top-0 right-0 w-2 md:w-3 h-full bg-gradient-to-b from-primary-500 to-secondary-600" />
 
@@ -252,7 +254,7 @@ const Booking = () => {
                                                     <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4 flex justify-between items-center italic">
                                                         <span>01. ORIGEN</span>
                                                         <button
-                                                            onClick={handleGeolocation}
+                                                            onClick={() => handleGeolocation(false)}
                                                             className="flex items-center gap-2 text-primary-500 hover:text-white transition-all uppercase tracking-widest"
                                                         >
                                                             {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Target className="w-4 h-4" />}
@@ -510,20 +512,16 @@ const Booking = () => {
                                 </AnimatePresence>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* Right Panel: Map */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex-grow flex flex-col min-h-[500px] lg:h-auto rounded-[4rem] overflow-hidden border-8 border-zinc-950 relative shadow-[0_40px_100px_rgba(0,0,0,0.9)]"
-                    >
+                    <div className="flex-grow flex flex-col min-h-[600px] rounded-[4rem] overflow-hidden border-8 border-zinc-950 relative shadow-[0_40px_100px_rgba(0,0,0,0.9)] bg-zinc-900">
                         <FreightMap
                             autoDetectLocation={true}
                             showActiveDrivers={true}
                             onMapClick={handleMapClick}
                         />
-                    </motion.div>
+                    </div>
 
                 </div>
             </div >
