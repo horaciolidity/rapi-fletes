@@ -85,10 +85,30 @@ export const useAuthStore = create((set, get) => ({
                 .maybeSingle()
 
             if (error) throw error
+
+            if (!profile) {
+                // If profile doesn't exist, create it (handles older accounts)
+                const { data: { user } } = await supabase.auth.getUser()
+                const newProfile = {
+                    id: userId,
+                    full_name: user?.user_metadata?.full_name || 'Usuario',
+                    role: user?.user_metadata?.role || 'user'
+                }
+                const { data: createdProfile, error: createError } = await supabase
+                    .from('profiles')
+                    .upsert([newProfile])
+                    .select()
+                    .single()
+
+                if (createError) throw createError
+                set({ profile: createdProfile })
+                return createdProfile
+            }
+
             set({ profile })
             return profile
         } catch (err) {
-            console.error('Error fetching profile:', err)
+            console.error('Error fetching/creating profile:', err)
             return null
         }
     },
