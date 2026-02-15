@@ -87,13 +87,15 @@ const Booking = () => {
         }
         try {
             // Bias results based on the other point if available
-            let url = `https://photon.komoot.io/api?q=${encodeURIComponent(query)}&limit=6`
+            let url = `https://photon.komoot.io/api?q=${encodeURIComponent(query)}&limit=6&lang=es`
 
             // Apply location bias for more relevant local results (Origin -> Destination biasing)
             if (type === 'dropoff' && pickup) {
                 url += `&lat=${pickup.lat}&lon=${pickup.lng}`
             } else if (type === 'pickup' && dropoff) {
                 url += `&lat=${dropoff.lat}&lon=${dropoff.lng}`
+            } else {
+                url += `&lat=-34.6037&lon=-58.3816`
             }
 
             const res = await fetch(url)
@@ -130,6 +132,41 @@ const Booking = () => {
             setActiveSearch(type)
         } catch (err) {
             console.error("Search API error", err)
+        }
+    }
+
+    const handleMapClick = async (latlng) => {
+        if (step !== 1) return
+
+        // Determine which field to update
+        let typeToUpdate = activeSearch || (pickup ? 'dropoff' : 'pickup')
+
+        try {
+            const res = await fetch(`https://photon.komoot.io/reverse?lon=${latlng.lng}&lat=${latlng.lat}`)
+            if (!res.ok) throw new Error("Reverse geocoding failed")
+            const data = await res.json()
+
+            let address = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`
+            if (data && data.features && data.features.length > 0) {
+                const props = data.features[0].properties
+                address = [props.name, props.street, props.housenumber, props.city]
+                    .filter(Boolean)
+                    .join(', ')
+            }
+
+            const item = { address, lat: latlng.lat, lng: latlng.lng }
+
+            if (typeToUpdate === 'pickup') {
+                setPAddress(address)
+                setPickup(item)
+            } else {
+                setDAddress(address)
+                setDropoff(item)
+            }
+            setSearchResults([])
+            setActiveSearch(null)
+        } catch (err) {
+            console.error("Map click geocoding error", err)
         }
     }
 
@@ -224,23 +261,31 @@ const Booking = () => {
                                                             className="input-field pl-16"
                                                             placeholder="Indica la calle y altura exacta..."
                                                             value={pAddress}
+                                                            onFocus={() => setActiveSearch('pickup')}
                                                             onChange={(e) => {
                                                                 setPAddress(e.target.value)
                                                                 searchAddress(e.target.value, 'pickup')
                                                             }}
                                                         />
                                                     </div>
-                                                    {activeSearch === 'pickup' && searchResults.length > 0 && (
+                                                    {activeSearch === 'pickup' && (
                                                         <div className="absolute z-[100] left-0 right-0 top-full mt-4 bg-zinc-950 border border-white/5 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.9)] overflow-hidden backdrop-blur-3xl">
-                                                            {searchResults.map((r, i) => (
-                                                                <button
-                                                                    key={i}
-                                                                    onClick={() => selectResult(r)}
-                                                                    className="w-full text-left p-6 hover:bg-white/5 border-b border-white/5 text-[10px] font-black uppercase text-zinc-500 hover:text-primary-500 transition-colors tracking-tight"
-                                                                >
-                                                                    {r.display_name}
-                                                                </button>
-                                                            ))}
+                                                            {searchResults.length > 0 ? (
+                                                                searchResults.map((r, i) => (
+                                                                    <button
+                                                                        key={i}
+                                                                        onClick={() => selectResult(r)}
+                                                                        className="w-full text-left p-6 hover:bg-white/5 border-b border-white/5 text-[10px] font-black uppercase text-zinc-500 hover:text-primary-500 transition-colors tracking-tight"
+                                                                    >
+                                                                        {r.display_name}
+                                                                    </button>
+                                                                ))
+                                                            ) : pAddress.length >= 3 && (
+                                                                <div className="p-8 text-center">
+                                                                    <p className="text-[10px] font-black text-zinc-700 uppercase mb-3">¿No encuentras la dirección?</p>
+                                                                    <p className="text-xs text-primary-500 font-bold italic uppercase">Toca el punto de origen directamente en el mapa</p>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>
@@ -253,23 +298,31 @@ const Booking = () => {
                                                             className="input-field pl-16"
                                                             placeholder="¿A dónde nos dirigimos hoy?"
                                                             value={dAddress}
+                                                            onFocus={() => setActiveSearch('dropoff')}
                                                             onChange={(e) => {
                                                                 setDAddress(e.target.value)
                                                                 searchAddress(e.target.value, 'dropoff')
                                                             }}
                                                         />
                                                     </div>
-                                                    {activeSearch === 'dropoff' && searchResults.length > 0 && (
+                                                    {activeSearch === 'dropoff' && (
                                                         <div className="absolute z-[100] left-0 right-0 top-full mt-4 bg-zinc-950 border border-white/5 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.9)] overflow-hidden backdrop-blur-3xl">
-                                                            {searchResults.map((r, i) => (
-                                                                <button
-                                                                    key={i}
-                                                                    onClick={() => selectResult(r)}
-                                                                    className="w-full text-left p-6 hover:bg-white/5 border-b border-white/5 text-[10px] font-black uppercase text-zinc-500 hover:text-primary-500 transition-colors tracking-tight"
-                                                                >
-                                                                    {r.display_name}
-                                                                </button>
-                                                            ))}
+                                                            {searchResults.length > 0 ? (
+                                                                searchResults.map((r, i) => (
+                                                                    <button
+                                                                        key={i}
+                                                                        onClick={() => selectResult(r)}
+                                                                        className="w-full text-left p-6 hover:bg-white/5 border-b border-white/5 text-[10px] font-black uppercase text-zinc-500 hover:text-primary-500 transition-colors tracking-tight"
+                                                                    >
+                                                                        {r.display_name}
+                                                                    </button>
+                                                                ))
+                                                            ) : dAddress.length >= 3 && (
+                                                                <div className="p-8 text-center">
+                                                                    <p className="text-[10px] font-black text-zinc-700 uppercase mb-3">¿No encuentras la dirección?</p>
+                                                                    <p className="text-xs text-primary-500 font-bold italic uppercase">Toca el punto de entrega directamente en el mapa</p>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>
@@ -456,7 +509,11 @@ const Booking = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         className="flex-grow flex flex-col min-h-[500px] lg:h-auto rounded-[4rem] overflow-hidden border-8 border-zinc-950 relative shadow-[0_40px_100px_rgba(0,0,0,0.9)]"
                     >
-                        <FreightMap autoDetectLocation={true} showActiveDrivers={true} />
+                        <FreightMap
+                            autoDetectLocation={true}
+                            showActiveDrivers={true}
+                            onMapClick={handleMapClick}
+                        />
                     </motion.div>
 
                 </div>

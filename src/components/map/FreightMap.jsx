@@ -255,6 +255,20 @@ const LiveTrackingUpdater = ({ fleteId, onLocationUpdate }) => {
     return null
 }
 
+// Map click handler
+const ClickHandler = ({ onClick }) => {
+    const map = useMap()
+    useEffect(() => {
+        if (!onClick) return
+        const handleClick = (e) => {
+            onClick(e.latlng)
+        }
+        map.on('click', handleClick)
+        return () => map.off('click', handleClick)
+    }, [map, onClick])
+    return null
+}
+
 const FreightMap = ({
     pickup: propPickup,
     dropoff: propDropoff,
@@ -264,7 +278,8 @@ const FreightMap = ({
     showActiveDrivers = false,
     enableLiveTracking = false,
     fleteId = null,
-    driverLocation: propDriverLocation = null
+    driverLocation: propDriverLocation = null,
+    onMapClick = null
 }) => {
     const storeData = useBookingStore()
     const { activeDrivers, fetchActiveDrivers, getDriversNearLocation } = useDriverLocationStore()
@@ -342,6 +357,7 @@ const FreightMap = ({
 
                 <ResizeMap />
                 <MapController pickup={pickup} dropoff={dropoff} autoDetectLocation={autoDetectLocation} driverLocation={driverLocation} />
+                <ClickHandler onClick={onMapClick} />
 
                 {pickup && dropoff && <RoutingMachine pickup={pickup} dropoff={dropoff} onRouteFound={handleRouteFound} />}
 
