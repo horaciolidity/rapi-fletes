@@ -117,5 +117,19 @@ export const useDriverStore = create((set, get) => ({
             .order('created_at', { ascending: false })
 
         return data || []
+    },
+
+    updateLocation: async (driverId, lat, lng) => {
+        const { error } = await supabase
+            .from('profiles')
+            .update({
+                last_location_lat: lat,
+                last_location_lng: lng,
+                updated_at: new Date()
+            })
+            .eq('id', driverId)
+
+        if (error) console.error('Error updating driver location:', error)
     }
 }))
+

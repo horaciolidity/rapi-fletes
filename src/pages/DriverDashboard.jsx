@@ -47,6 +47,27 @@ const DriverDashboard = () => {
         }
     }, [profile?.verification_status])
 
+    // Live Tracking side-effect
+    useEffect(() => {
+        let watchId = null
+        if (profile?.verification_status === 'verified' && activeFlete) {
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition(
+                    (pos) => {
+                        const { latitude, longitude } = pos.coords
+                        useDriverStore.getState().updateLocation(user.id, latitude, longitude)
+                    },
+                    (err) => console.error("Error watching location", err),
+                    { enableHighAccuracy: true, distanceFilter: 10 }
+                )
+            }
+        }
+        return () => {
+            if (watchId) navigator.geolocation.clearWatch(watchId)
+        }
+    }, [activeFlete, profile?.verification_status])
+
+
     const handleVerificationSubmit = async (e) => {
         e.preventDefault()
         setIsSubmitting(true)
@@ -293,6 +314,8 @@ const DriverDashboard = () => {
                                         dropoff={selectedFlete ? { address: selectedFlete.dropoff_address, lat: selectedFlete.dropoff_lat, lng: selectedFlete.dropoff_lng } : null}
                                         distance={selectedFlete?.distance}
                                         duration={selectedFlete?.duration}
+                                        autoDetectLocation={true}
+                                        showActiveDrivers={false}
                                     />
 
                                     {/* Map Overlays */}

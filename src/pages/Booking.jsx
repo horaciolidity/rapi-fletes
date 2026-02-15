@@ -30,8 +30,13 @@ const Booking = () => {
 
     useEffect(() => {
         fetchCategories()
+        // Auto-detect location on first load if no pickup is set
+        if (!pickup && !pAddress) {
+            handleGeolocation()
+        }
         return () => resetBooking()
     }, [])
+
 
     const handleGeolocation = () => {
         if (!navigator.geolocation) return
@@ -394,15 +399,7 @@ const Booking = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         className="flex-grow flex flex-col min-h-[500px] lg:h-auto rounded-[4rem] overflow-hidden border-8 border-zinc-950 relative shadow-[0_40px_100px_rgba(0,0,0,0.9)]"
                     >
-                        <FreightMap />
-
-                        {/* Map HUD Overlay */}
-                        <div className="absolute top-10 right-10 flex flex-col gap-4">
-                            <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-3xl flex items-center gap-4">
-                                <div className="w-3 h-3 bg-red-500 rounded-full animate-ping" />
-                                <span className="text-[9px] font-black uppercase tracking-widest text-white italic">MAPA EN TIEMPO REAL</span>
-                            </div>
-                        </div>
+                        <FreightMap autoDetectLocation={true} showActiveDrivers={true} />
                     </motion.div>
 
                 </div>

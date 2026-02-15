@@ -157,6 +157,8 @@ const MyFletes = () => {
                                         dropoff={{ address: selectedFlete.dropoff_address, lat: selectedFlete.dropoff_lat, lng: selectedFlete.dropoff_lng }}
                                         distance={selectedFlete.distance}
                                         duration={selectedFlete.duration}
+                                        enableLiveTracking={['accepted', 'picked_up'].includes(selectedFlete.status)}
+                                        fleteId={selectedFlete.id}
                                     />
 
                                     {/* Map HUD */}
