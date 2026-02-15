@@ -36,8 +36,8 @@ const Navbar = () => {
 
                 {/* Logo Profesional */}
                 <Link to="/" className="flex items-center gap-5 group relative">
-                    <div className="w-14 h-14 bg-primary-500 rounded-[1.5rem] flex items-center justify-center transform group-hover:rotate-[15deg] group-hover:scale-110 transition-all duration-700 shadow-[0_0_30px_rgba(245,158,11,0.3)]">
-                        <Truck className="w-7 h-7 text-black" />
+                    <div className="w-14 h-14 rounded-[1.2rem] overflow-hidden flex items-center justify-center transform group-hover:rotate-[5deg] group-hover:scale-110 transition-all duration-700 shadow-[0_0_30px_rgba(245,158,11,0.3)] border-2 border-primary-500/20">
+                        <img src="/imagenes/1.jpg" alt="Rapi Fletes" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col">
                         <span className="text-3xl font-black tracking-tighter uppercase italic leading-none text-white">RAPI<span className="text-primary-500">FLETES</span></span>

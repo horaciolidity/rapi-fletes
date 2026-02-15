@@ -45,11 +45,21 @@ const Booking = () => {
             async (pos) => {
                 const { latitude, longitude } = pos.coords
                 try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+                    // Use Photon for reverse geocoding as it's more permissive with CORS
+                    const res = await fetch(`https://photon.komoot.io/reverse/?lon=${longitude}&lat=${latitude}`)
                     const data = await res.json()
-                    const address = data.display_name || `${latitude}, ${longitude}`
-                    setPAddress(address)
-                    setPickup({ address, lat: latitude, lng: longitude })
+
+                    if (data.features && data.features.length > 0) {
+                        const feature = data.features[0]
+                        const props = feature.properties
+                        const address = [props.name, props.street, props.city, props.state].filter(Boolean).join(', ')
+                        setPAddress(address)
+                        setPickup({ address, lat: latitude, lng: longitude })
+                    } else {
+                        const address = `${latitude}, ${longitude}`
+                        setPAddress(address)
+                        setPickup({ address, lat: latitude, lng: longitude })
+                    }
                 } catch (err) {
                     console.error("Geocoding error", err)
                     setPickup({ address: "Ubicación Actual", lat: latitude, lng: longitude })
@@ -62,14 +72,25 @@ const Booking = () => {
     }
 
     const searchAddress = async (query, type) => {
-        if (query.length < 4) {
+        if (query.length < 3) {
             setSearchResults([])
             return
         }
         try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`)
+            // Use Photon for search as it supports CORS better than Nominatim
+            const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=es`)
             const data = await res.json()
-            setSearchResults(data)
+
+            // Map Photon features to Nominatim-like structure for the UI
+            const results = data.features.map(f => ({
+                display_name: [f.properties.name, f.properties.street, f.properties.district, f.properties.city, f.properties.state]
+                    .filter(Boolean)
+                    .join(', '),
+                lat: f.geometry.coordinates[1],
+                lon: f.geometry.coordinates[0]
+            }))
+
+            setSearchResults(results)
             setActiveSearch(type)
         } catch (err) {
             console.error("Search error", err)

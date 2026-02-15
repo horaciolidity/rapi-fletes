@@ -19,10 +19,24 @@ const Landing = () => {
 
             {/* Hero Section */}
             <section className="relative min-h-screen pt-40 pb-32 overflow-hidden flex flex-col justify-center items-center">
-                {/* Visual Elements */}
-                <motion.div style={{ y: y1 }} className="absolute inset-0 -z-10">
-                    <div className="absolute top-[10%] left-[5%] w-[500px] h-[500px] bg-primary-500/5 blur-[120px] rounded-full animate-float" />
-                    <div className="absolute bottom-[10%] right-[5%] w-[600px] h-[600px] bg-secondary-600/5 blur-[150px] rounded-full" />
+                {/* Visual Elements - Background Video */}
+                <div className="absolute inset-0 -z-10">
+                    <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover opacity-60 scale-110"
+                    >
+                        <source src="/imagenes/1.mp4" type="video/mp4" />
+                    </video>
+                    <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-black z-10" />
+                    <div className="absolute inset-0 bg-black/60 z-0" />
+                </div>
+
+                <motion.div style={{ y: y1 }} className="absolute inset-0 -z-10 pointer-events-none">
+                    <div className="absolute top-[10%] left-[5%] w-[500px] h-[500px] bg-primary-500/10 blur-[120px] rounded-full animate-float" />
+                    <div className="absolute bottom-[10%] right-[5%] w-[600px] h-[600px] bg-secondary-600/10 blur-[150px] rounded-full" />
                 </motion.div>
 
                 <div className="container mx-auto px-6 text-center z-10">
