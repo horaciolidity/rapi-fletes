@@ -4,6 +4,7 @@ import Landing from './pages/Landing'
 import Auth from './pages/Auth'
 import Booking from './pages/Booking'
 import DriverDashboard from './pages/DriverDashboard'
+import AdminDashboard from './pages/AdminDashboard'
 import MyFletes from './pages/MyFletes'
 import Navbar from './components/layout/Navbar'
 import { useAuthStore } from './store/useAuthStore'
@@ -46,6 +47,7 @@ function App() {
             <Route path="/booking" element={<Booking />} />
             <Route path="/driver" element={<DriverDashboard />} />
             <Route path="/my-fletes" element={<MyFletes />} />
+            <Route path="/admin" element={<AdminDashboard />} />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -26,7 +26,12 @@ const Navbar = () => {
         {
             name: 'MIS PEDIDOS',
             path: '/my-fletes',
-            show: user && profile?.role !== 'driver',
+            show: user && profile?.role !== 'driver' && profile?.role !== 'admin',
+        },
+        {
+            name: 'PANEL ADMIN',
+            path: '/admin',
+            show: profile?.role === 'admin',
         },
     ]
 
@@ -77,7 +82,9 @@ const Navbar = () => {
                                 <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1">{profile?.full_name?.split(' ')[0] || 'Cargando...'}</p>
                                 <div className="flex items-center gap-1.5">
                                     <ShieldCheck className="w-3 h-3 text-primary-500" />
-                                    <p className="text-[8px] text-slate-500 uppercase tracking-[0.2em] font-black">{profile?.role === 'driver' ? 'Chofer' : 'Cliente'}</p>
+                                    <p className="text-[8px] text-slate-500 uppercase tracking-[0.2em] font-black">
+                                        {profile?.role === 'driver' ? 'Chofer' : profile?.role === 'admin' ? 'Administrador' : 'Cliente'}
+                                    </p>
                                 </div>
                             </div>
 
@@ -85,6 +92,12 @@ const Navbar = () => {
 
                             {profile?.role === 'driver' && (
                                 <Link to="/driver" className="p-2 bg-amber-500/10 text-amber-500 rounded-lg hover:bg-amber-500 hover:text-white transition-all">
+                                    <LayoutDashboard className="w-4 h-4" />
+                                </Link>
+                            )}
+
+                            {profile?.role === 'admin' && (
+                                <Link to="/admin" className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all">
                                     <LayoutDashboard className="w-4 h-4" />
                                 </Link>
                             )}
