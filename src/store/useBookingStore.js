@@ -124,6 +124,23 @@ export const useBookingStore = create((set, get) => ({
         }
     },
 
+    subscribeToFleteUpdates: (userId) => {
+        const channel = supabase
+            .channel(`fletes_user_${userId}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'fletes',
+                filter: `user_id=eq.${userId}`
+            }, (payload) => {
+                // Refresh list when an update occurs
+                get().fetchMyFletes(userId)
+            })
+            .subscribe()
+
+        return channel
+    },
+
     resetBooking: () => set({
         pickup: null,
         dropoff: null,
