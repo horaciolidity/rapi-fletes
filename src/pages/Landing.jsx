@@ -1,8 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Truck, MapPin, Shield, CreditCard, Clock, ChevronRight } from 'lucide-react'
+import { Truck, MapPin, Shield, CreditCard, Clock, ChevronRight, Loader2 } from 'lucide-react'
+import { useBookingStore } from '../store/useBookingStore'
 
 const Landing = () => {
+    const { categories, fetchCategories, loading } = useBookingStore()
+
+    useEffect(() => {
+        fetchCategories()
+    }, [])
+
     return (
         <div className="min-h-screen text-slate-100 selection:bg-primary-500 selection:text-white">
             {/* Hero Section */}
@@ -71,12 +78,19 @@ const Landing = () => {
                     <h2 className="text-4xl font-bold text-center mb-16 underline decoration-primary-500/30 underline-offset-8">
                         Categorías disponibles
                     </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <CategoryCard name="Eco Flete" type="Utilitario" price="$$" time="15 min" />
-                        <CategoryCard name="Flete Hogar" type="Mudanza Mediana" price="$$$" time="20 min" />
-                        <CategoryCard name="Flete Industrial" type="Camión Pesado" price="$$$$" time="45 min" />
-                        <CategoryCard name="Flete Express" type="Moto/Auto" price="$" time="10 min" />
-                    </div>
+
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-20 gap-4">
+                            <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+                            <p className="text-slate-400 animate-pulse">Cargando flota...</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {categories.map((cat) => (
+                                <CategoryCard key={cat.id} category={cat} />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
         </div>
@@ -96,21 +110,20 @@ const FeatureCard = ({ icon, title, description }) => (
     </motion.div>
 )
 
-const CategoryCard = ({ name, type, price, time }) => (
-    <div className="glass-card p-6 border-transparent hover:border-primary-500/50 transition-all cursor-pointer">
+const CategoryCard = ({ category }) => (
+    <div className="glass-card p-6 border-transparent hover:border-primary-500/50 transition-all cursor-pointer group">
         <div className="w-full h-40 bg-slate-800 rounded-lg mb-6 overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-transparent" />
-            {/* Image placeholder would go here */}
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
                 <Truck className="w-16 h-16 text-slate-600 opacity-50" />
             </div>
         </div>
-        <h4 className="text-xl font-bold mb-1">{name}</h4>
-        <p className="text-sm text-slate-500 mb-4">{type}</p>
+        <h4 className="text-xl font-bold mb-1">{category.name}</h4>
+        <p className="text-sm text-slate-500 mb-4 line-clamp-2 h-10">{category.description}</p>
         <div className="flex justify-between items-center text-sm font-medium">
-            <span className="text-primary-400">{price}</span>
+            <span className="text-primary-400">Desde ${category.base_price}</span>
             <span className="text-slate-400 flex items-center gap-1">
-                <Clock className="w-4 h-4" /> {time}
+                <Clock className="w-4 h-4" /> Activo
             </span>
         </div>
     </div>
