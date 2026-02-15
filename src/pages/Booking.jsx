@@ -45,55 +45,91 @@ const Booking = () => {
             async (pos) => {
                 const { latitude, longitude } = pos.coords
                 try {
-                    // Use Photon for reverse geocoding as it's more permissive with CORS
-                    const res = await fetch(`https://photon.komoot.io/reverse/?lon=${longitude}&lat=${latitude}`)
+                    // Use Photon for reverse geocoding
+                    const res = await fetch(`https://photon.komoot.io/reverse?lon=${longitude}&lat=${latitude}`)
+                    if (!res.ok) throw new Error("Reverse geocoding failed")
                     const data = await res.json()
 
-                    if (data.features && data.features.length > 0) {
+                    if (data && data.features && data.features.length > 0) {
                         const feature = data.features[0]
                         const props = feature.properties
-                        const address = [props.name, props.street, props.city, props.state].filter(Boolean).join(', ')
+                        const address = [props.name, props.street, props.city, props.state]
+                            .filter((val, index, self) => val && self.indexOf(val) === index) // Unique values
+                            .join(', ')
                         setPAddress(address)
                         setPickup({ address, lat: latitude, lng: longitude })
                     } else {
-                        const address = `${latitude}, ${longitude}`
+                        const address = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
                         setPAddress(address)
                         setPickup({ address, lat: latitude, lng: longitude })
                     }
                 } catch (err) {
                     console.error("Geocoding error", err)
-                    setPickup({ address: "Ubicación Actual", lat: latitude, lng: longitude })
+                    const fallbackAddress = "Mi Ubicación Actual"
+                    setPAddress(fallbackAddress)
+                    setPickup({ address: fallbackAddress, lat: latitude, lng: longitude })
+                } finally {
+                    setIsLocating(false)
                 }
+            },
+            (error) => {
+                console.error("Geolocation error", error)
                 setIsLocating(false)
             },
-            () => setIsLocating(false),
-            { enableHighAccuracy: true }
+            { enableHighAccuracy: true, timeout: 5000 }
         )
     }
 
     const searchAddress = async (query, type) => {
-        if (query.length < 3) {
+        if (!query || query.length < 3) {
             setSearchResults([])
             return
         }
         try {
-            // Use Photon for search as it supports CORS better than Nominatim
-            const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=es`)
-            const data = await res.json()
+            // Bias results based on the other point if available
+            let url = `https://photon.komoot.io/api?q=${encodeURIComponent(query)}&limit=6`
 
-            // Map Photon features to Nominatim-like structure for the UI
-            const results = data.features.map(f => ({
-                display_name: [f.properties.name, f.properties.street, f.properties.district, f.properties.city, f.properties.state]
-                    .filter(Boolean)
-                    .join(', '),
-                lat: f.geometry.coordinates[1],
-                lon: f.geometry.coordinates[0]
-            }))
+            // Apply location bias for more relevant local results (Origin -> Destination biasing)
+            if (type === 'dropoff' && pickup) {
+                url += `&lat=${pickup.lat}&lon=${pickup.lng}`
+            } else if (type === 'pickup' && dropoff) {
+                url += `&lat=${dropoff.lat}&lon=${dropoff.lng}`
+            }
+
+            const res = await fetch(url)
+            if (!res.ok) {
+                console.warn("Photon search rejected", res.status)
+                return
+            }
+
+            const data = await res.json()
+            if (!data || !data.features) {
+                setSearchResults([])
+                return
+            }
+
+            // Map Photon features to a cleaner display structure
+            const results = data.features.map(f => {
+                const p = f.properties
+                const components = [
+                    p.name !== p.street ? p.name : null,
+                    p.street,
+                    p.housenumber,
+                    p.city,
+                    p.state
+                ].filter(Boolean)
+
+                return {
+                    display_name: components.join(', '),
+                    lat: f.geometry.coordinates[1],
+                    lon: f.geometry.coordinates[0]
+                }
+            })
 
             setSearchResults(results)
             setActiveSearch(type)
         } catch (err) {
-            console.error("Search error", err)
+            console.error("Search API error", err)
         }
     }
 
