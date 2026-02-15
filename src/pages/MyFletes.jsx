@@ -37,9 +37,9 @@ const MyFletes = () => {
         switch (status) {
             case 'pending': return { color: 'primary-500', label: 'Buscando Unidad', icon: Clock }
             case 'accepted': return { color: 'secondary-500', label: 'Unidad Asignada', icon: Truck }
-            case 'picked_up': return { color: 'primary-400', label: 'En Operación', icon: Activity }
-            case 'completed': return { color: 'green-500', label: 'Misión Exitosa', icon: CheckCircle2 }
-            case 'cancelled': return { color: 'red-500', label: 'Abortado', icon: XCircle }
+            case 'picked_up': return { color: 'primary-400', label: 'En Tránsito', icon: Activity }
+            case 'completed': return { color: 'green-500', label: 'Servicio Completado', icon: CheckCircle2 }
+            case 'cancelled': return { color: 'red-500', label: 'Cancelado', icon: XCircle }
             default: return { color: 'zinc-500', label: status, icon: Package }
         }
     }
@@ -63,13 +63,13 @@ const MyFletes = () => {
                             <HistoryIcon className="w-10 h-10 text-black" />
                         </div>
                         <div>
-                            <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">CENTRO DE<br /><span className="text-primary-500">CONTROL</span></h1>
-                            <p className="text-zinc-700 font-black italic mt-3 uppercase tracking-[0.4em] text-[10px]">Monitoreo táctico de misiones en curso</p>
+                            <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">MIS<br /><span className="text-primary-500">SERVICIOS</span></h1>
+                            <p className="text-zinc-700 font-black italic mt-3 uppercase tracking-[0.4em] text-[10px]">Seguimiento de servicios en tiempo real</p>
                         </div>
                     </div>
 
                     <Link to="/booking" className="premium-button group flex items-center gap-4">
-                        <span>NUEVO DESPLIEGUE</span>
+                        <span>NUEVO SERVICIO</span>
                         <Truck className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                     </Link>
                 </motion.header>
@@ -83,8 +83,8 @@ const MyFletes = () => {
                         className="lg:col-span-4 space-y-8 max-h-[850px] overflow-y-auto pr-4 scrollbar-none"
                     >
                         <div className="flex items-center justify-between mb-4">
-                            <span className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em]">REGISTRO OPERATIVO</span>
-                            <span className="px-3 py-1 bg-zinc-900 text-zinc-500 text-[8px] font-black rounded-full italic tracking-widest">{fletes.length} MISIONES</span>
+                            <span className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em]">HISTORIAL DE SERVICIOS</span>
+                            <span className="px-3 py-1 bg-zinc-900 text-zinc-500 text-[8px] font-black rounded-full italic tracking-widest">{fletes.length} SERVICIOS</span>
                         </div>
 
                         <AnimatePresence mode='popLayout'>
@@ -106,7 +106,7 @@ const MyFletes = () => {
                                                 <theme.icon className="w-6 h-6" />
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-[8px] font-black text-zinc-800 uppercase italic tracking-widest mb-1">PROTOCOLO</p>
+                                                <p className="text-[8px] font-black text-zinc-800 uppercase italic tracking-widest mb-1">ID SERVICIO</p>
                                                 <p className="text-[10px] font-black text-zinc-500 uppercase italic"># {flete.id.slice(0, 8)}</p>
                                             </div>
                                         </div>
@@ -136,7 +136,7 @@ const MyFletes = () => {
                         {fletes.length === 0 && !loading && (
                             <div className="text-center py-32 bg-zinc-950 rounded-[4rem] border-4 border-dashed border-zinc-900 opacity-20">
                                 <Package className="w-20 h-20 text-zinc-800 mx-auto mb-6" />
-                                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700 italic">ÁREA OPERATIVA VACÍA</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700 italic">ÁREA SIN SERVICIOS</p>
                             </div>
                         )}
                     </motion.div>
@@ -164,7 +164,7 @@ const MyFletes = () => {
                                         <div className="flex items-center gap-6">
                                             <div className="w-4 h-4 rounded-full bg-primary-500 animate-pulse shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
                                             <div>
-                                                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.4em] leading-none mb-2">SATELITE STATUS</p>
+                                                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.4em] leading-none mb-2">ESTADO ACTUAL</p>
                                                 <p className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">{getStatusTheme(selectedFlete.status).label}</p>
                                             </div>
                                         </div>
@@ -172,7 +172,7 @@ const MyFletes = () => {
 
                                     <div className="absolute bottom-12 right-12 p-8 bg-black/80 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 flex items-center gap-8 shadow-2xl">
                                         <div className="text-right">
-                                            <p className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.4em] leading-none mb-2">RECURSO ASIGNADO</p>
+                                            <p className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.4em] leading-none mb-2">VEHÍCULO ASIGNADO</p>
                                             <p className="text-xl font-black text-primary-500 italic uppercase tracking-tighter leading-none">{selectedFlete.vehicle_categories?.name}</p>
                                         </div>
                                         <div className="w-14 h-14 bg-primary-500 rounded-2xl flex items-center justify-center shadow-2xl">
@@ -208,7 +208,7 @@ const MyFletes = () => {
 
                                         <div className="mt-12 pt-10 border-t border-zinc-900 flex justify-between items-end">
                                             <div>
-                                                <p className="text-[8px] font-black text-zinc-700 uppercase mb-2">VALOR OPERATIVO</p>
+                                                <p className="text-[8px] font-black text-zinc-700 uppercase mb-2">COSTO DEL SERVICIO</p>
                                                 <div className="flex items-baseline gap-2">
                                                     <span className="text-6xl font-black text-primary-500 italic tracking-tighter">$ {selectedFlete.estimated_price}</span>
                                                     <span className="text-[10px] font-black text-zinc-800 uppercase italic">ARS</span>
@@ -221,7 +221,7 @@ const MyFletes = () => {
                                     <div className="glass-card p-12 bg-zinc-900/40 border-zinc-800">
                                         {selectedFlete.driver ? (
                                             <div className="h-full flex flex-col">
-                                                <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700 mb-10">RECURSO HUMANO ASIGNADO</h3>
+                                                <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700 mb-10">CONDUCTOR ASIGNADO</h3>
                                                 <div className="flex items-center gap-8 mb-12">
                                                     <div className="w-24 h-24 bg-black rounded-[2.5rem] border-2 border-primary-500 flex items-center justify-center overflow-hidden shadow-[0_0_40px_rgba(245,158,11,0.2)]">
                                                         <div className="w-full h-full bg-gradient-to-br from-primary-500/20 to-black flex items-center justify-center">
@@ -232,7 +232,7 @@ const MyFletes = () => {
                                                         <p className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none mb-3">{selectedFlete.driver.full_name}</p>
                                                         <div className="flex items-center gap-3">
                                                             <ShieldCheck className="w-5 h-5 text-primary-500" />
-                                                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic leading-none">CHOFER NIVEL ALPHA</span>
+                                                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic leading-none">CONDUCTOR VERIFICADO</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -242,7 +242,7 @@ const MyFletes = () => {
                                                         href={`tel:${selectedFlete.driver.phone}`}
                                                         className="premium-button w-full flex items-center justify-center gap-4 text-sm"
                                                     >
-                                                        <Phone className="w-6 h-6" /> COMUNICACIÓN DIRECTA
+                                                        <Phone className="w-6 h-6" /> CONTACTAR CONDUCTOR
                                                     </a>
                                                     <div className="p-5 bg-zinc-950 rounded-[2rem] border border-white/5 flex gap-4 items-center">
                                                         <Calendar className="w-6 h-6 text-zinc-800" />
@@ -253,8 +253,8 @@ const MyFletes = () => {
                                         ) : selectedFlete.status === 'cancelled' ? (
                                             <div className="h-full flex flex-col items-center justify-center text-center opacity-30 grayscale">
                                                 <XCircle className="w-24 h-24 text-red-500 mb-8" />
-                                                <h3 className="text-3xl font-black italic uppercase tracking-widest text-zinc-500 leading-none">MISIÓN ABORTADA</h3>
-                                                <p className="text-[10px] font-black text-zinc-800 uppercase tracking-widest mt-4">OPERACIÓN CANCELADA POR EL SISTEMA / USUARIO</p>
+                                                <h3 className="text-3xl font-black italic uppercase tracking-widest text-zinc-500 leading-none">SERVICIO CANCELADO</h3>
+                                                <p className="text-[10px] font-black text-zinc-800 uppercase tracking-widest mt-4">SERVICIO CANCELADO POR EL USUARIO</p>
                                             </div>
                                         ) : (
                                             <div className="h-full flex flex-col items-center justify-center text-center">
@@ -264,21 +264,21 @@ const MyFletes = () => {
                                                         <Clock className="w-12 h-12 text-primary-500 animate-spin-slow" />
                                                     </div>
                                                 </div>
-                                                <h3 className="text-4xl font-black italic uppercase tracking-tighter text-white mb-6 leading-none"> ESCANEANDO<br /><span className="text-zinc-800">PERÍMETRO</span></h3>
-                                                <p className="text-[10px] text-zinc-700 font-black uppercase tracking-[0.3em] italic mb-12">SINCRONIZANDO CON UNIDADES CERCANAS...</p>
+                                                <h3 className="text-4xl font-black italic uppercase tracking-tighter text-white mb-6 leading-none">BUSCANDO<br /><span className="text-zinc-800">CONDUCTOR</span></h3>
+                                                <p className="text-[10px] text-zinc-700 font-black uppercase tracking-[0.3em] italic mb-12">CONECTANDO CON CONDUCTORES CERCANOS...</p>
 
                                                 <div className="flex flex-col gap-6 w-full max-w-sm">
                                                     <button
                                                         onClick={() => {
-                                                            if (window.confirm('¿Desea abortar la misión actual?')) {
+                                                            if (window.confirm('¿Desea cancelar el servicio actual?')) {
                                                                 cancelFlete(selectedFlete.id)
                                                             }
                                                         }}
                                                         className="w-full py-5 border-2 border-red-500/20 text-red-500/40 font-black text-[10px] uppercase tracking-[0.3em] rounded-[1.5rem] hover:border-red-500 hover:text-red-500 hover:bg-red-500/10 transition-all flex items-center justify-center gap-3 italic"
                                                     >
-                                                        <XCircle className="w-5 h-5" /> ABORTAR MISIÓN
+                                                        <XCircle className="w-5 h-5" /> CANCELAR SERVICIO
                                                     </button>
-                                                    <Link to="/booking" className="text-[10px] font-black text-zinc-700 hover:text-primary-500 transition-all uppercase tracking-widest text-center italic">RECONFIGURAR EXTRACCIÓN</Link>
+                                                    <Link to="/booking" className="text-[10px] font-black text-zinc-700 hover:text-primary-500 transition-all uppercase tracking-widest text-center italic">MODIFICAR SOLICITUD</Link>
                                                 </div>
                                             </div>
                                         )}
@@ -312,7 +312,7 @@ const MyFletes = () => {
                 <div className="fixed bottom-10 right-10 z-[1000]">
                     <ChatWidget
                         fleteId={selectedFlete.id}
-                        receiverName={selectedFlete.driver?.full_name || "Chofer"}
+                        receiverName={selectedFlete.driver?.full_name || "Conductor"}
                     />
                 </div>
             )}

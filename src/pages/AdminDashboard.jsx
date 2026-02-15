@@ -45,7 +45,7 @@ const AdminDashboard = () => {
         <div className="pt-32 pb-12 min-h-screen bg-black px-10 font-sans">
             <div className="container mx-auto max-w-[1700px]">
 
-                {/* Tactical Header */}
+                {/* Header Profesional */}
                 <header className="flex flex-col md:flex-row justify-between items-end gap-10 mb-16">
                     <div className="flex items-center gap-8">
                         <div className="w-20 h-20 bg-secondary-600 rounded-[2rem] flex items-center justify-center shadow-[0_0_40px_rgba(234,88,12,0.3)]">
@@ -53,19 +53,19 @@ const AdminDashboard = () => {
                         </div>
                         <div>
                             <div className="flex items-center gap-4 mb-2">
-                                <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">ALPHA<br /><span className="text-secondary-600">COMMAND</span></h1>
-                                <span className="bg-red-600 text-[10px] font-black uppercase px-4 py-1.5 rounded-full italic tracking-widest shadow-xl shadow-red-600/20 border border-white/10">NIVEL ADMIN</span>
+                                <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">PANEL<br /><span className="text-secondary-600">ADMINISTRATIVO</span></h1>
+                                <span className="bg-secondary-600 text-[10px] font-black uppercase px-4 py-1.5 rounded-full italic tracking-widest shadow-xl shadow-secondary-600/20 border border-white/10">ADMINISTRADOR</span>
                             </div>
-                            <p className="text-zinc-700 font-black italic uppercase tracking-[0.4em] text-[10px]">Gestión táctica de infraestructura logística global</p>
+                            <p className="text-zinc-700 font-black italic uppercase tracking-[0.4em] text-[10px]">Gestión integral de servicios de transporte y logística</p>
                         </div>
                     </div>
                 </header>
 
                 {/* Tabs Navigation */}
                 <div className="flex gap-4 mb-10 overflow-x-auto pb-2 scrollbar-none">
-                    <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<Activity size={16} />} label="RESUMEN" />
-                    <TabButton active={activeTab === 'drivers'} onClick={() => setActiveTab('drivers')} icon={<Truck size={16} />} label={`CHOFERES (${pendingDrivers.length})`} />
-                    <TabButton active={activeTab === 'fletes'} onClick={() => setActiveTab('fletes')} icon={<Hash size={16} />} label="HISTORIAL" />
+                    <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<Activity size={16} />} label="RESUMEN GENERAL" />
+                    <TabButton active={activeTab === 'drivers'} onClick={() => setActiveTab('drivers')} icon={<Truck size={16} />} label={`CONDUCTORES (${pendingDrivers.length})`} />
+                    <TabButton active={activeTab === 'fletes'} onClick={() => setActiveTab('fletes')} icon={<Hash size={16} />} label="HISTORIAL DE SERVICIOS" />
                 </div>
 
                 {/* Main Content Area */}
@@ -90,7 +90,7 @@ const AdminDashboard = () => {
                                 {/* Leaderboard */}
                                 <div className="lg:col-span-1 glass-card p-8 bg-slate-900/40">
                                     <h3 className="text-xl font-black italic uppercase tracking-widest mb-8 flex items-center gap-3 text-white">
-                                        <TrendingUp className="text-primary-500" /> TOP OPERADORES
+                                        <TrendingUp className="text-primary-500" /> MEJORES CONDUCTORES
                                     </h3>
                                     <div className="space-y-4">
                                         {leaderboard.length > 0 ? leaderboard.map((driver, i) => (
@@ -99,10 +99,10 @@ const AdminDashboard = () => {
                                                     <span className="text-[10px] font-black text-zinc-800 w-4">#{i + 1}</span>
                                                     <span className="text-xs font-bold text-zinc-400 italic uppercase">{driver.name}</span>
                                                 </div>
-                                                <span className="text-[9px] font-black text-primary-500 bg-primary-500/10 px-3 py-1 rounded-full uppercase italic">MISIONES: {driver.count}</span>
+                                                <span className="text-[9px] font-black text-primary-500 bg-primary-500/10 px-3 py-1 rounded-full uppercase italic">VIAJES: {driver.count}</span>
                                             </div>
                                         )) : (
-                                            <p className="text-zinc-600 text-[10px] italic text-center py-10 font-black uppercase tracking-widest">Sin datos de despliegue</p>
+                                            <p className="text-zinc-600 text-[10px] italic text-center py-10 font-black uppercase tracking-widest">Sin datos disponibles</p>
                                         )}
                                     </div>
                                 </div>
@@ -110,7 +110,7 @@ const AdminDashboard = () => {
                                 {/* Recent Activity Log */}
                                 <div className="lg:col-span-2 glass-card p-10 bg-zinc-950/40">
                                     <h3 className="text-xl font-black italic uppercase tracking-widest mb-8 flex items-center gap-3 text-white">
-                                        <Clock className="text-secondary-500" /> LOG DE ACTIVIDAD
+                                        <Clock className="text-secondary-500" /> ACTIVIDAD RECIENTE
                                     </h3>
                                     <div className="space-y-4">
                                         {allFletes.slice(0, 5).map((flete, i) => (
@@ -144,7 +144,7 @@ const AdminDashboard = () => {
                             exit={{ opacity: 0, x: -20 }}
                             className="space-y-6"
                         >
-                            <h2 className="text-2xl font-black italic tracking-tighter uppercase text-white mb-8">Solicitudes de Verificación</h2>
+                            <h2 className="text-2xl font-black italic tracking-tighter uppercase text-white mb-8">Solicitudes de Verificación de Conductores</h2>
                             {pendingDrivers.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {pendingDrivers.map((driver) => (
@@ -182,7 +182,7 @@ const AdminDashboard = () => {
                             ) : (
                                 <div className="text-center py-20 bg-slate-900/20 rounded-[3rem] border-2 border-dashed border-white/5 text-slate-600">
                                     <CheckCircle className="mx-auto mb-4 opacity-20" size={48} />
-                                    <p className="font-black italic uppercase tracking-widest">No hay choferes pendientes de aprobación</p>
+                                    <p className="font-black italic uppercase tracking-widest">No hay conductores pendientes de aprobación</p>
                                 </div>
                             )}
                         </motion.div>
@@ -200,9 +200,9 @@ const AdminDashboard = () => {
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="bg-slate-900/80 border-b border-white/5">
-                                            <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">ID Viaje</th>
+                                            <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">ID Servicio</th>
                                             <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Cliente</th>
-                                            <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Chofer</th>
+                                            <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Conductor</th>
                                             <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Estado</th>
                                             <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Monto</th>
                                             <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Fecha</th>

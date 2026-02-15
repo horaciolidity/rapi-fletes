@@ -116,9 +116,9 @@ const Booking = () => {
                                     <div className="w-16 h-16 bg-primary-500 rounded-[2rem] flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)]">
                                         <Truck className="w-8 h-8 text-black" />
                                     </div>
-                                    <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white leading-none">PEDIDO<br /><span className="text-primary-500">TÁCTICO</span></h2>
+                                    <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white leading-none">SOLICITUD<br /><span className="text-primary-500">DE SERVICIO</span></h2>
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700">Iniciando protocolo de traslado</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700">Configurando detalles del transporte</p>
                             </header>
 
                             {/* Stepper */}
@@ -316,10 +316,10 @@ const Booking = () => {
                                                 </div>
 
                                                 <div className="pt-10 border-t border-zinc-900 flex flex-col items-center gap-4 relative z-10">
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700">INVERSIÓN LOGÍSTICA ESTIMADA</p>
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700">COSTO ESTIMADO DEL SERVICIO</p>
                                                     <div className="flex items-center gap-4">
                                                         <span className="text-6xl font-black italic text-primary-500 tracking-tighter shadow-primary-500/10">$ {estimate?.toFixed(0)}</span>
-                                                        <div className="px-3 py-1 bg-primary-500 text-black text-[9px] font-black rounded-full uppercase italic animate-pulse">Tarifa Blindada</div>
+                                                        <div className="px-3 py-1 bg-primary-500 text-black text-[9px] font-black rounded-full uppercase italic animate-pulse">Precio Fijo</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -342,7 +342,7 @@ const Booking = () => {
                                                 >
                                                     {loading ? <Loader2 className="w-8 h-8 animate-spin" /> : (
                                                         <>
-                                                            <span>DESPLEGAR UNIDAD</span> <ArrowRight className="w-7 h-7" />
+                                                            <span>CONFIRMAR SERVICIO</span> <ArrowRight className="w-7 h-7" />
                                                         </>
                                                     )}
                                                 </button>
@@ -370,16 +370,16 @@ const Booking = () => {
                                                 </motion.div>
                                             </div>
 
-                                            <h3 className="text-6xl font-black italic tracking-tighter uppercase mb-6 leading-[0.9] text-white">OPERACIÓN<br /><span className="text-primary-500">CONFIRMADA</span></h3>
+                                            <h3 className="text-6xl font-black italic tracking-tighter uppercase mb-6 leading-[0.9] text-white">SERVICIO<br /><span className="text-primary-500">CONFIRMADO</span></h3>
                                             <p className="text-zinc-500 text-sm font-bold leading-relaxed max-w-xs mx-auto italic uppercase tracking-tight mb-16">
-                                                Escaneando la red de choferes para asignar la unidad de <span className="text-white font-black">{selectedCategory?.name}</span> ideal.
+                                                Buscando conductores cercanos para asignar el vehículo <span className="text-white font-black">{selectedCategory?.name}</span> más adecuado.
                                             </p>
 
                                             <button
                                                 onClick={() => navigate('/my-fletes')}
                                                 className="premium-button w-full shadow-2xl shadow-primary-500/40"
                                             >
-                                                SEGUIMIENTO TÁCTICO
+                                                RASTREAR SERVICIO
                                             </button>
                                         </motion.div>
                                     )}
@@ -400,7 +400,7 @@ const Booking = () => {
                         <div className="absolute top-10 right-10 flex flex-col gap-4">
                             <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-3xl flex items-center gap-4">
                                 <div className="w-3 h-3 bg-red-500 rounded-full animate-ping" />
-                                <span className="text-[9px] font-black uppercase tracking-widest text-white italic">FEED SATELITAL EN VIVO</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-white italic">MAPA EN TIEMPO REAL</span>
                             </div>
                         </div>
                     </motion.div>

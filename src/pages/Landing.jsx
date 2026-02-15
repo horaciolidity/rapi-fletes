@@ -41,7 +41,7 @@ const Landing = () => {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
                             </span>
-                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 italic">Operaciones Activas 24/7</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 italic">Servicio Disponible 24/7</span>
                         </motion.div>
 
                         <h1 className="text-7xl md:text-[12rem] font-black mb-12 leading-[0.8] tracking-tighter italic uppercase flex flex-col items-center">
@@ -61,7 +61,7 @@ const Landing = () => {
                                 <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500" />
                             </Link>
                             <Link to="/register?role=driver" className="px-12 py-5 bg-zinc-900 text-white rounded-full text-sm font-black uppercase tracking-[0.2em] italic border border-white/5 hover:bg-zinc-800 transition-all">
-                                Quiero ser Chofer
+                                Quiero ser Conductor
                             </Link>
                         </div>
                     </motion.div>
@@ -87,7 +87,7 @@ const Landing = () => {
                     <div className="flex flex-col md:flex-row justify-between items-end mb-32 gap-10">
                         <div className="max-w-2xl">
                             <h2 className="text-6xl md:text-8xl font-black italic uppercase tracking-tighter mb-8 leading-none">LA FLOTA<br /><span className="text-zinc-800">MÁS MODERNA</span></h2>
-                            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm italic">Categorías adaptadas a cada misión operativa</p>
+                            <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm italic">Vehículos adaptados a cada necesidad de transporte</p>
                         </div>
                         <div className="w-32 h-32 border-8 border-primary-500 rounded-full flex items-center justify-center animate-spin-slow">
                             <Truck className="w-12 h-12 text-primary-500" />
@@ -123,18 +123,18 @@ const Landing = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
                         <FeatureCard
                             icon={<Shield className="w-10 h-10 text-primary-500" />}
-                            title="Seguridad Nivel Militar"
-                            desc="Protocolos de verificación rigurosos para cada unidad y chofer de nuestra red."
+                            title="Máxima Seguridad"
+                            desc="Verificación rigurosa de conductores y vehículos. Tu carga en manos confiables."
                         />
                         <FeatureCard
                             icon={<MapPin className="w-10 h-10 text-primary-500" />}
-                            title="Control Táctico"
-                            desc="Seguimiento GPS de alta precisión en tiempo real para tu tranquilidad total."
+                            title="Seguimiento en Vivo"
+                            desc="Rastreo GPS en tiempo real. Sabé dónde está tu carga en todo momento."
                         />
                         <FeatureCard
                             icon={<Clock className="w-10 h-10 text-primary-500" />}
-                            title="Despliegue Rápido"
-                            desc="Tiempo estimado de arribo menor a 15 minutos en el 90% de las zonas operativas."
+                            title="Servicio Rápido"
+                            desc="Llegamos en menos de 15 minutos en la mayoría de las zonas. Rapidez garantizada."
                         />
                     </div>
                 </div>

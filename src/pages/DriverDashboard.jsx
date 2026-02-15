@@ -94,8 +94,8 @@ const DriverDashboard = () => {
                         <div className="w-24 h-24 bg-primary-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-[0_0_50px_rgba(245,158,11,0.3)]">
                             <Car className="w-12 h-12 text-black" />
                         </div>
-                        <h1 className="text-5xl font-black italic tracking-tighter uppercase mb-6 text-white leading-none">ALTA DE<br /><span className="text-primary-500">UNIDAD</span></h1>
-                        <p className="text-zinc-500 font-bold italic uppercase tracking-tight">Registro táctico de recurso móvil profesional</p>
+                        <h1 className="text-5xl font-black italic tracking-tighter uppercase mb-6 text-white leading-none">REGISTRO DE<br /><span className="text-primary-500">CONDUCTOR</span></h1>
+                        <p className="text-zinc-500 font-bold italic uppercase tracking-tight">Registro profesional de conductor y vehículo</p>
                     </header>
                     <form onSubmit={handleVerificationSubmit} className="space-y-10">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -113,7 +113,7 @@ const DriverDashboard = () => {
                             </div>
                         </div>
                         <button type="submit" disabled={isSubmitting} className="premium-button w-full">
-                            {isSubmitting ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : 'DESPLEGAR SOLICITUD'}
+                            {isSubmitting ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : 'ENVIAR SOLICITUD'}
                         </button>
                     </form>
                 </motion.div>
@@ -130,8 +130,8 @@ const DriverDashboard = () => {
                         <Clock className="w-16 h-16 text-primary-500 animate-spin-slow" />
                     </div>
                     <h2 className="text-6xl font-black italic tracking-tighter uppercase text-white mb-8 leading-none">AUDITORÍA<br /><span className="text-zinc-800">EN PROCESO</span></h2>
-                    <p className="text-zinc-500 font-bold italic mb-16 uppercase tracking-tight leading-relaxed max-w-sm mx-auto">Tu unidad está siendo validada por nuestros protocolos de seguridad. El acceso se activará en breve.</p>
-                    <button onClick={() => fetchProfile(user.id)} className="w-full bg-zinc-900 border-2 border-white/5 text-zinc-500 py-6 rounded-[2rem] font-black text-xs tracking-[0.3em] uppercase hover:text-white hover:border-primary-500/50 transition-all italic">RE-SINCRONIZAR ESTADO</button>
+                    <p className="text-zinc-500 font-bold italic mb-16 uppercase tracking-tight leading-relaxed max-w-sm mx-auto">Tu solicitud está siendo revisada por nuestro equipo. Te notificaremos cuando estés aprobado.</p>
+                    <button onClick={() => fetchProfile(user.id)} className="w-full bg-zinc-900 border-2 border-white/5 text-zinc-500 py-6 rounded-[2rem] font-black text-xs tracking-[0.3em] uppercase hover:text-white hover:border-primary-500/50 transition-all italic">ACTUALIZAR ESTADO</button>
                 </motion.div>
             </div>
         )
@@ -145,15 +145,15 @@ const DriverDashboard = () => {
                 <div className="flex flex-col md:flex-row justify-between items-end gap-10 mb-16">
                     <div>
                         <div className="flex items-center gap-6 mb-6">
-                            <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">PANEL ALPHA</h1>
+                            <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">PANEL CONDUCTOR</h1>
                             <div className="px-5 py-2 bg-primary-500 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-                                <span className="text-[10px] font-black text-black uppercase italic tracking-[0.2em]">CHOFER VERIFICADO</span>
+                                <span className="text-[10px] font-black text-black uppercase italic tracking-[0.2em]">CONDUCTOR VERIFICADO</span>
                             </div>
                         </div>
                         <div className="flex gap-10">
                             {[
                                 { id: 'marketplace', label: 'MARKETPLACE' },
-                                { id: 'history', label: 'HISTORIAL OPERATIVO' }
+                                { id: 'history', label: 'HISTORIAL DE SERVICIOS' }
                             ].map(tab => (
                                 <button
                                     key={tab.id}
@@ -169,7 +169,7 @@ const DriverDashboard = () => {
 
                     <div className="flex gap-6">
                         <div className="bg-zinc-950 px-10 py-6 rounded-[2.5rem] border border-zinc-900 text-right min-w-[200px] shadow-2xl">
-                            <p className="text-[10px] font-black text-zinc-800 uppercase italic tracking-widest mb-2">RENDIMIENTO</p>
+                            <p className="text-[10px] font-black text-zinc-800 uppercase italic tracking-widest mb-2">SERVICIOS COMPLETADOS</p>
                             <p className="text-5xl font-black text-white italic tracking-tighter leading-none">{completedHistory.length} <span className="text-xs text-zinc-700 not-italic uppercase">OK</span></p>
                         </div>
                     </div>
@@ -181,7 +181,7 @@ const DriverDashboard = () => {
                             {/* Horizontal Marketplace Scroll */}
                             <section>
                                 <div className="flex items-center justify-between mb-10 px-4">
-                                    <h2 className="text-[10px] font-black uppercase tracking-[0.6em] text-zinc-800 italic">TRANSMISIÓN DE CARGAS EN VIVO</h2>
+                                    <h2 className="text-[10px] font-black uppercase tracking-[0.6em] text-zinc-800 italic">SERVICIOS DISPONIBLES</h2>
                                     <div className="flex items-center gap-4">
                                         <div className="w-3 h-3 bg-red-500 rounded-full animate-ping" />
                                         <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">REAL-TIME DATA REDACTED</span>
@@ -202,7 +202,7 @@ const DriverDashboard = () => {
                                                     <Truck className="w-8 h-8" />
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-[8px] font-black text-zinc-800 uppercase italic tracking-widest mb-1">INVERSIÓN</p>
+                                                    <p className="text-[8px] font-black text-zinc-800 uppercase italic tracking-widest mb-1">GANANCIA</p>
                                                     <p className="text-4xl font-black text-white italic tracking-tighter">$ {flete.estimated_price}</p>
                                                 </div>
                                             </div>
@@ -236,18 +236,18 @@ const DriverDashboard = () => {
                                                     <header>
                                                         <div className="flex items-center gap-4 mb-4">
                                                             <span className="w-3 h-3 bg-primary-500 rounded-full animate-pulse" />
-                                                            <span className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] italic leading-none">MISIÓN #{selectedFlete.id.slice(0, 8)}</span>
+                                                            <span className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] italic leading-none">SERVICIO #{selectedFlete.id.slice(0, 8)}</span>
                                                         </div>
-                                                        <h3 className="text-5xl font-black italic uppercase tracking-tighter text-white leading-none">HOJA DE<br /><span className="text-primary-500">RUTA</span></h3>
+                                                        <h3 className="text-5xl font-black italic uppercase tracking-tighter text-white leading-none">DETALLES<br /><span className="text-primary-500">DEL VIAJE</span></h3>
                                                     </header>
 
                                                     <div className="space-y-8">
                                                         <div className="bg-zinc-900/50 p-6 rounded-[2rem] border border-white/5 flex flex-col items-center gap-3">
-                                                            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest italic leading-none">CONTRATANTE</p>
+                                                            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest italic leading-none">CLIENTE</p>
                                                             <p className="text-xl font-black text-white uppercase italic tracking-tighter leading-none">{selectedFlete.profiles?.full_name || "CLIENTE EXTERNO"}</p>
                                                         </div>
                                                         <div className="bg-zinc-900/50 p-6 rounded-[2rem] border border-white/5 flex flex-col items-center gap-3">
-                                                            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest italic leading-none">RECAUDACIÓN BRUTA</p>
+                                                            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest italic leading-none">PAGO DEL SERVICIO</p>
                                                             <p className="text-4xl font-black text-primary-500 italic tracking-tighter leading-none">$ {selectedFlete.estimated_price}</p>
                                                         </div>
                                                     </div>
@@ -256,7 +256,7 @@ const DriverDashboard = () => {
                                                 <div className="mt-16 space-y-6">
                                                     {selectedFlete.status === 'pending' ? (
                                                         <button onClick={() => handleAccept(selectedFlete.id)} className="premium-button w-full shadow-2xl shadow-primary-500/30">
-                                                            ACEPTAR COMISIÓN
+                                                            ACEPTAR SERVICIO
                                                         </button>
                                                     ) : (
                                                         <div className="space-y-6">
@@ -272,7 +272,7 @@ const DriverDashboard = () => {
                                                                 <a href={`tel:${selectedFlete.profiles?.phone || ''}`} className="py-5 bg-zinc-900 border border-white/5 text-white font-black italic text-[9px] uppercase rounded-[1.5rem] hover:bg-zinc-800 transition-all flex items-center justify-center gap-3 tracking-[0.2em] shadow-xl">
                                                                     <Phone className="w-4 h-4" /> LLAMAR
                                                                 </a>
-                                                                <button onClick={() => handleStatusChange(selectedFlete.id, 'cancelled')} className="py-5 border-2 border-red-500/20 text-red-500/50 font-black text-[9px] uppercase rounded-[1.5rem] hover:border-red-500 hover:text-red-500 transition-all tracking-[0.2em] italic">ABORTAR</button>
+                                                                <button onClick={() => handleStatusChange(selectedFlete.id, 'cancelled')} className="py-5 border-2 border-red-500/20 text-red-500/50 font-black text-[9px] uppercase rounded-[1.5rem] hover:border-red-500 hover:text-red-500 transition-all tracking-[0.2em] italic">CANCELAR</button>
                                                             </div>
                                                         </div>
                                                     )}
@@ -281,7 +281,7 @@ const DriverDashboard = () => {
                                         ) : (
                                             <div className="glass-card p-20 h-full bg-zinc-950/20 border-zinc-900 border-dashed border-4 flex flex-col items-center justify-center text-center opacity-10">
                                                 <Target className="w-24 h-24 text-zinc-800 mb-8" />
-                                                <h3 className="text-4xl font-black italic uppercase tracking-widest text-zinc-800 leading-none">SELECCIONE<br />OBJETIVO</h3>
+                                                <h3 className="text-4xl font-black italic uppercase tracking-widest text-zinc-800 leading-none">SELECCIONE<br />UN SERVICIO</h3>
                                             </div>
                                         )}
                                     </AnimatePresence>
@@ -313,7 +313,7 @@ const DriverDashboard = () => {
                                                     <Navigation className="w-8 h-8 text-primary-500" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-2 leading-none">RANGO OPERATIVO</p>
+                                                    <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-2 leading-none">DISTANCIA Y TIEMPO</p>
                                                     <p className="text-xl font-black text-white italic uppercase tracking-tighter leading-none">
                                                         {selectedFlete.distance ? `${selectedFlete.distance.toFixed(1)} KM` : '-- KM'}
                                                         <span className="mx-3 text-zinc-800">|</span>
@@ -332,9 +332,9 @@ const DriverDashboard = () => {
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="bg-zinc-950 border-b border-zinc-900">
-                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic">ID MISIÓN</th>
+                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic">ID SERVICIO</th>
                                             <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic">LOGÍSTICA / RUTA</th>
-                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-right">INVERSIÓN</th>
+                                            <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-right">GANANCIA</th>
                                             <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-right">FECHA</th>
                                             <th className="p-10 text-[10px] font-black uppercase text-zinc-800 tracking-[0.4em] italic text-center">STATUS</th>
                                         </tr>
