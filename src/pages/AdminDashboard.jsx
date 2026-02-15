@@ -271,4 +271,3 @@ const StatCard = ({ label, value, icon, trend }) => (
 )
 
 export default AdminDashboard
-    ```
