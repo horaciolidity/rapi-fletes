@@ -1,37 +1,55 @@
-# Rapi Fletes 🚚
+# Rapi Fletes - Uber de Fletes
 
-Plataforma profesional de fletes tipo "Uber", enfocada en logística de última milla con seguimiento en tiempo real.
+Una aplicación premium para la gestión de fletes y mudanzas, construida con React, Vite y Tailwind CSS v4.
 
-## Stack Tecnológico
-- **Frontend**: React, Vite, Tailwind CSS, Zustand, Mapbox.
-- **Backend**: Node.js, Express, Socket.IO, Prisma.
-- **Base de Datos**: PostgreSQL / SQLite (opcional para dev).
-- **Pagos**: Mercado Pago.
+## 🚀 Características
 
-## Instalación
+- **Diseño Premium**: Interfaz moderna con glassmorphism y animaciones fluidas.
+- **Categorías de Fletes**: Diferentes tipos de vehículos según la necesidad del usuario.
+- **Mapa Interactivo**: Previsualización de rutas y estados del viaje.
+- **Gestión de Estado**: Uso de Zustand para un flujo de reserva y autenticación eficiente.
+- **Supabase Core**: Integración lista para autenticación y base de datos en tiempo real.
+- **Pagos**: Estructura lista para integrar múltiples métodos de pago.
 
-### Backend
-1. `cd backend`
-2. `npm install`
-3. Configurar `.env` (DATABASE_URL, JWT_SECRET, etc)
-4. `npx prisma migrate dev`
-5. `npm run dev`
+## 🛠️ Tecnologías
 
-### Frontend
-1. `cd frontend`
-2. `npm install`
-3. Configurar `.env` (VITE_API_URL)
-4. `npm run dev`
+- **Frontend**: React 19 + Vite
+- **Estilos**: Tailwind CSS v4 + Framer Motion
+- **Iconos**: Lucide React
+- **Estado**: Zustand
+- **Backend**: Supabase (Auth + DB)
+- **Deployment**: Vercel
 
-## Roles de Usuario
-- **Usuario (Cliente)**: Solicita fletes, cotiza en tiempo real, paga con MP.
-- **Fletero**: Acepta pedidos, navega en el mapa, reporta estado.
-- **Administrador**: Gestión de usuarios, comisiones y reportes.
+## ⚙️ Configuración
 
-## Características Principales
-- 📍 Mapa interactivo con cálculo de ruta.
-- 💬 Chat en tiempo real entre cliente y fletero.
-- 💳 Integración con Checkout Pro de Mercado Pago.
-- 🎁 Sistema de referidos por códigos únicos.
-- 📱 Diseño Mobile First de alta fidelidad.
+1. **Instalar dependencias**:
+   ```bash
+   npm install
+   ```
+
+2. **Variables de Entorno**:
+   Crea un archivo `.env` en la raíz con las siguientes variables:
+   ```env
+   VITE_SUPABASE_URL=tu_url_de_supabase
+   VITE_SUPABASE_ANON_KEY=tu_clave_anon_de_supabase
+   ```
+
+3. **Ejecutar en desarrollo**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Despliegue**:
+   - Pushea el código a GitHub.
+   - Conecta el repositorio en Vercel.
+   - Agrega las variables de entorno en el panel de Vercel.
+
+## 📂 Estructura de Archivos
+
+- `src/api`: Clientes de servicios externos.
+- `src/components`: UI atómica y componentes de diseño.
+- `src/features`: Lógica de negocio dividida por dominios (Auth, Booking, Payments).
+- `src/store`: Almacenes de estado global (Zustand).
+- `src/pages`: Páginas principales de la aplicación.
+- `src/hooks`: Hooks personalizados para lógica reutilizable.
 # rapi-fletes
