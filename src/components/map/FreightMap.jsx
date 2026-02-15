@@ -165,8 +165,7 @@ const MapController = ({ pickup, dropoff, autoDetectLocation, driverLocation }) 
     // Handle geolocation errors or denials gracefully
     useEffect(() => {
         const onLocationError = (e) => {
-            console.warn("Map Geolocation error:", e.message)
-            // If user denies or it fails, center on a default visible point (BA)
+            if (e.code !== 1) console.warn("Map Geolocation error:", e.message)
             if (!pickup) {
                 map.setView([-34.6037, -58.3816], 13)
             }

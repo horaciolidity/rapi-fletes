@@ -20,6 +20,7 @@ const Booking = () => {
     const [isLocating, setIsLocating] = useState(false)
     const [searchResults, setSearchResults] = useState([])
     const [activeSearch, setActiveSearch] = useState(null) // 'pickup' or 'dropoff'
+    const [geoError, setGeoError] = useState(null)
 
     useEffect(() => {
         if (profile?.role === 'driver') {
@@ -37,15 +38,14 @@ const Booking = () => {
         return () => resetBooking()
     }, [])
 
-
     const handleGeolocation = () => {
         if (!navigator.geolocation) return
         setIsLocating(true)
+        setGeoError(null)
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 const { latitude, longitude } = pos.coords
                 try {
-                    // Use Photon for reverse geocoding
                     const res = await fetch(`https://photon.komoot.io/reverse?lon=${longitude}&lat=${latitude}`)
                     if (!res.ok) throw new Error("Reverse geocoding failed")
                     const data = await res.json()
@@ -54,7 +54,7 @@ const Booking = () => {
                         const feature = data.features[0]
                         const props = feature.properties
                         const address = [props.name, props.street, props.city, props.state]
-                            .filter((val, index, self) => val && self.indexOf(val) === index) // Unique values
+                            .filter((val, index, self) => val && self.indexOf(val) === index)
                             .join(', ')
                         setPAddress(address)
                         setPickup({ address, lat: latitude, lng: longitude })
@@ -64,7 +64,6 @@ const Booking = () => {
                         setPickup({ address, lat: latitude, lng: longitude })
                     }
                 } catch (err) {
-                    console.error("Geocoding error", err)
                     const fallbackAddress = "Mi Ubicación Actual"
                     setPAddress(fallbackAddress)
                     setPickup({ address: fallbackAddress, lat: latitude, lng: longitude })
@@ -73,8 +72,13 @@ const Booking = () => {
                 }
             },
             (error) => {
-                console.error("Geolocation error", error)
                 setIsLocating(false)
+                if (error.code === 1) { // PERMISSION_DENIED
+                    setGeoError("Acceso a ubicación denegado. Puedes buscar manualmente o tocar el mapa.")
+                } else {
+                    setGeoError("No pudimos detectar tu ubicación. Intenta buscarla manualmente.")
+                }
+                if (error.code !== 1) console.warn("Geolocation warning:", error.message)
             },
             { enableHighAccuracy: true, timeout: 5000 }
         )
@@ -268,6 +272,11 @@ const Booking = () => {
                                                             }}
                                                         />
                                                     </div>
+                                                    {geoError && (
+                                                        <div className="mt-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-[10px] text-red-400 font-bold uppercase italic">
+                                                            {geoError}
+                                                        </div>
+                                                    )}
                                                     {activeSearch === 'pickup' && (
                                                         <div className="absolute z-[100] left-0 right-0 top-full mt-4 bg-zinc-950 border border-white/5 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.9)] overflow-hidden backdrop-blur-3xl">
                                                             {searchResults.length > 0 ? (
