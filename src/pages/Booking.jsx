@@ -31,10 +31,8 @@ const Booking = () => {
 
     useEffect(() => {
         fetchCategories()
-        // Auto-detect location on first load if no pickup is set
-        if (!pickup && !pAddress) {
-            handleGeolocation(true) // Silent detect
-        }
+        // Silent location detection on mount
+        handleGeolocation(true)
         return () => resetBooking()
     }, [])
 
@@ -47,15 +45,15 @@ const Booking = () => {
             async (pos) => {
                 const { latitude, longitude } = pos.coords
                 try {
+                    // Optimized reverse geocoding
                     const res = await fetch(`https://photon.komoot.io/reverse?lon=${longitude}&lat=${latitude}`)
                     if (!res.ok) throw new Error("Reverse geocoding failed")
                     const data = await res.json()
 
                     if (data && data.features && data.features.length > 0) {
-                        const feature = data.features[0]
-                        const props = feature.properties
-                        const address = [props.name, props.street, props.city, props.state]
-                            .filter((val, index, self) => val && self.indexOf(val) === index)
+                        const props = data.features[0].properties
+                        const address = [props.name, props.street, props.housenumber, props.city]
+                            .filter(Boolean)
                             .join(', ')
                         setPAddress(address)
                         setPickup({ address, lat: latitude, lng: longitude })
@@ -65,7 +63,7 @@ const Booking = () => {
                         setPickup({ address, lat: latitude, lng: longitude })
                     }
                 } catch (err) {
-                    const fallbackAddress = "Mi Ubicación Actual"
+                    const fallbackAddress = "Mi Ubicación"
                     setPAddress(fallbackAddress)
                     setPickup({ address: fallbackAddress, lat: latitude, lng: longitude })
                 } finally {
@@ -74,15 +72,13 @@ const Booking = () => {
             },
             (error) => {
                 setIsLocating(false)
-                // Only show visible error if user manually clicked the button
                 if (!silent) {
-                    if (error.code === 1) { // PERMISSION_DENIED
-                        setGeoError("Acceso a ubicación denegado. Puedes buscar manualmente o tocar el mapa.")
+                    if (error.code === 1) {
+                        setGeoError("Ubicación bloqueada. Habilita permisos en tu navegador o selecciona en el mapa.")
                     } else {
-                        setGeoError("No pudimos detectar tu ubicación. Intenta buscarla manualmente.")
+                        setGeoError("No pudimos obtener tu ubicación exacta.")
                     }
                 }
-                if (error.code !== 1) console.warn("Geolocation warning:", error.message)
             },
             { enableHighAccuracy: true, timeout: 5000 }
         )
@@ -94,21 +90,21 @@ const Booking = () => {
             return
         }
         try {
-            // Bias results based on the other point if available
-            let url = `https://photon.komoot.io/api?q=${encodeURIComponent(query)}&limit=6&lang=es`
+            // REMOVED 'lang=es' because it's causing 400 Bad Request on public Photon API
+            let url = `https://photon.komoot.io/api?q=${encodeURIComponent(query)}&limit=6`
 
-            // Apply location bias for more relevant local results (Origin -> Destination biasing)
+            // Biasing search based on current location or other point
             if (type === 'dropoff' && pickup) {
                 url += `&lat=${pickup.lat}&lon=${pickup.lng}`
             } else if (type === 'pickup' && dropoff) {
                 url += `&lat=${dropoff.lat}&lon=${dropoff.lng}`
             } else {
-                url += `&lat=-34.6037&lon=-58.3816`
+                url += `&lat=-34.6037&lon=-58.3816` // Bias to BA by default
             }
 
             const res = await fetch(url)
             if (!res.ok) {
-                console.warn("Photon search rejected", res.status)
+                console.warn("Photon search error:", res.status)
                 return
             }
 
@@ -118,19 +114,14 @@ const Booking = () => {
                 return
             }
 
-            // Map Photon features to a cleaner display structure
             const results = data.features.map(f => {
                 const p = f.properties
-                const components = [
-                    p.name !== p.street ? p.name : null,
-                    p.street,
-                    p.housenumber,
-                    p.city,
-                    p.state
-                ].filter(Boolean)
-
+                const label = [p.name, p.street, p.housenumber, p.city, p.state]
+                    .filter(Boolean)
+                    .filter((val, i, arr) => arr.indexOf(val) === i)
+                    .join(', ')
                 return {
-                    display_name: components.join(', '),
+                    display_name: label,
                     lat: f.geometry.coordinates[1],
                     lon: f.geometry.coordinates[0]
                 }
@@ -139,14 +130,12 @@ const Booking = () => {
             setSearchResults(results)
             setActiveSearch(type)
         } catch (err) {
-            console.error("Search API error", err)
+            console.error("Geocoding service unavailable", err)
         }
     }
 
     const handleMapClick = async (latlng) => {
         if (step !== 1) return
-
-        // Determine which field to update
         let typeToUpdate = activeSearch || (pickup ? 'dropoff' : 'pickup')
 
         try {
@@ -175,7 +164,7 @@ const Booking = () => {
             setActiveSearch(null)
             setGeoError(null)
         } catch (err) {
-            console.error("Map click geocoding error", err)
+            console.error("Geocoding failed", err)
         }
     }
 
@@ -209,30 +198,33 @@ const Booking = () => {
     return (
         <div className="pt-24 md:pt-32 pb-12 min-h-screen bg-black flex items-center justify-center font-sans overflow-x-hidden">
             <div className="container mx-auto px-4 md:px-10 max-w-[1600px] h-full relative z-10">
-                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch min-h-[600px] lg:min-h-[850px]">
+                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch min-h-[700px]">
 
                     {/* Left Panel: Booking Flow */}
                     <div className="w-full lg:w-[480px] flex flex-col">
-                        <div className="glass-card flex-grow p-6 md:p-10 flex flex-col relative overflow-hidden bg-zinc-950/60 border-zinc-900 shadow-[0_40px_100px_rgba(0,0,0,0.9)]">
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="glass-card flex-grow p-6 md:p-10 flex flex-col relative overflow-hidden bg-zinc-950/60 border-zinc-900 shadow-[20px_40px_100px_rgba(0,0,0,0.8)]"
+                        >
                             <div className="absolute top-0 right-0 w-2 md:w-3 h-full bg-gradient-to-b from-primary-500 to-secondary-600" />
 
-                            <header className="mb-8 md:mb-14">
+                            <header className="mb-8 md:mb-12">
                                 <div className="flex items-center gap-4 md:gap-6 mb-4">
-                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-primary-500 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-primary-500 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center shadow-xl">
                                         <Truck className="w-6 h-6 md:w-8 md:h-8 text-black" />
                                     </div>
-                                    <h2 className="text-2xl md:text-4xl font-black italic tracking-tighter uppercase text-white leading-none">SOLICITUD<br /><span className="text-primary-500">DE SERVICIO</span></h2>
+                                    <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase text-white leading-none">CONFIGURA<br /><span className="text-primary-500 text-4xl md:text-5xl">TU VIAJE</span></h2>
                                 </div>
-                                <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.5em] text-zinc-700 italic">Configurando detalles del transporte</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">Rapi Fletes • Logística Inteligente</p>
                             </header>
 
-                            {/* Stepper */}
                             {step < 4 && (
-                                <div className="flex items-center gap-3 md:gap-4 mb-8 md:mb-14">
+                                <div className="flex items-center gap-3 mb-10">
                                     {[1, 2, 3].map((s) => (
                                         <div
                                             key={s}
-                                            className={`h-2 md:h-3 flex-grow rounded-full transition-all duration-1000 ${s <= step ? 'bg-gradient-to-r from-primary-500 to-secondary-600 shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 'bg-zinc-900'}`}
+                                            className={`h-2 flex-grow rounded-full transition-all duration-700 ${s <= step ? 'bg-primary-500 shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 'bg-zinc-900'}`}
                                         />
                                     ))}
                                 </div>
@@ -240,34 +232,27 @@ const Booking = () => {
 
                             <div className="flex-grow flex flex-col">
                                 <AnimatePresence mode='wait'>
-                                    {/* Step 1: Locations */}
                                     {step === 1 && (
-                                        <motion.div
-                                            key="step1"
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 1.05 }}
-                                            className="space-y-12"
-                                        >
-                                            <div className="space-y-10">
+                                        <motion.div key="step1" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.02 }} className="space-y-8">
+                                            <div className="space-y-6">
                                                 <div className="relative">
-                                                    <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4 flex justify-between items-center italic">
-                                                        <span>01. ORIGEN</span>
+                                                    <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest mb-3 flex justify-between items-center italic">
+                                                        <span>01. PUNTO DE ORIGEN</span>
                                                         <button
                                                             onClick={() => handleGeolocation(false)}
-                                                            className="flex items-center gap-2 text-primary-500 hover:text-white transition-all uppercase tracking-widest"
+                                                            className="flex items-center gap-2 text-primary-500 hover:text-white transition-all text-[9px]"
                                                         >
-                                                            {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Target className="w-4 h-4" />}
-                                                            DETECTAR MI POSICIÓN
+                                                            {isLocating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Target className="w-3 h-3" />}
+                                                            MI UBICACIÓN
                                                         </button>
                                                     </label>
                                                     <div className="relative group">
-                                                        <MapPin className={`absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 transition-all duration-500 ${pickup ? 'text-primary-500 scale-110' : 'text-zinc-800'}`} />
+                                                        <MapPin className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-500 ${pickup ? 'text-primary-500 scale-110 shadow-glow' : 'text-zinc-700'}`} />
                                                         <input
-                                                            className="input-field pl-16"
-                                                            placeholder="Indica la calle y altura exacta..."
+                                                            className="input-field pl-14 h-14"
+                                                            placeholder="Indica calle y altura..."
                                                             value={pAddress}
-                                                            onFocus={() => setActiveSearch('pickup')}
+                                                            onFocus={() => { setGeoError(null); setActiveSearch('pickup'); }}
                                                             onChange={(e) => {
                                                                 setPAddress(e.target.value)
                                                                 searchAddress(e.target.value, 'pickup')
@@ -275,26 +260,22 @@ const Booking = () => {
                                                         />
                                                     </div>
                                                     {geoError && (
-                                                        <div className="mt-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-[10px] text-red-400 font-bold uppercase italic">
+                                                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-[10px] text-red-400 font-bold uppercase italic flex gap-3 items-center">
+                                                            <AlertTriangle className="w-4 h-4" />
                                                             {geoError}
-                                                        </div>
+                                                        </motion.div>
                                                     )}
                                                     {activeSearch === 'pickup' && (
-                                                        <div className="absolute z-[100] left-0 right-0 top-full mt-4 bg-zinc-950 border border-white/5 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.9)] overflow-hidden backdrop-blur-3xl">
+                                                        <div className="absolute z-[100] left-0 right-0 top-full mt-2 bg-zinc-950 border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden backdrop-blur-3xl">
                                                             {searchResults.length > 0 ? (
                                                                 searchResults.map((r, i) => (
-                                                                    <button
-                                                                        key={i}
-                                                                        onClick={() => selectResult(r)}
-                                                                        className="w-full text-left p-6 hover:bg-white/5 border-b border-white/5 text-[10px] font-black uppercase text-zinc-500 hover:text-primary-500 transition-colors tracking-tight"
-                                                                    >
+                                                                    <button key={i} onClick={() => selectResult(r)} className="w-full text-left p-5 hover:bg-white/5 border-b border-white/5 text-[10px] font-bold uppercase text-zinc-400 hover:text-primary-500 transition-colors">
                                                                         {r.display_name}
                                                                     </button>
                                                                 ))
                                                             ) : pAddress.length >= 3 && (
-                                                                <div className="p-8 text-center">
-                                                                    <p className="text-[10px] font-black text-zinc-700 uppercase mb-3">¿No encuentras la dirección?</p>
-                                                                    <p className="text-xs text-primary-500 font-bold italic uppercase">Toca el punto de origen directamente en el mapa</p>
+                                                                <div className="p-6 text-center">
+                                                                    <p className="text-[10px] font-black text-zinc-600 uppercase mb-2 italic">Sin resultados. Toca el mapa para marcar la ubicación.</p>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -302,14 +283,14 @@ const Booking = () => {
                                                 </div>
 
                                                 <div className="relative">
-                                                    <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4 block italic">02. DESTINO FINAL</label>
+                                                    <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest mb-3 block italic">02. DESTINO FINAL</label>
                                                     <div className="relative group">
-                                                        <Navigation className={`absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 transition-all duration-500 ${dropoff ? 'text-secondary-500 scale-110' : 'text-zinc-800'}`} />
+                                                        <Navigation className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-500 ${dropoff ? 'text-secondary-500 scale-110 shadow-glow' : 'text-zinc-700'}`} />
                                                         <input
-                                                            className="input-field pl-16"
-                                                            placeholder="¿A dónde nos dirigimos hoy?"
+                                                            className="input-field pl-14 h-14"
+                                                            placeholder="¿A dónde vamos?"
                                                             value={dAddress}
-                                                            onFocus={() => setActiveSearch('dropoff')}
+                                                            onFocus={() => { setGeoError(null); setActiveSearch('dropoff'); }}
                                                             onChange={(e) => {
                                                                 setDAddress(e.target.value)
                                                                 searchAddress(e.target.value, 'dropoff')
@@ -317,21 +298,16 @@ const Booking = () => {
                                                         />
                                                     </div>
                                                     {activeSearch === 'dropoff' && (
-                                                        <div className="absolute z-[100] left-0 right-0 top-full mt-4 bg-zinc-950 border border-white/5 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.9)] overflow-hidden backdrop-blur-3xl">
+                                                        <div className="absolute z-[100] left-0 right-0 top-full mt-2 bg-zinc-950 border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden backdrop-blur-3xl">
                                                             {searchResults.length > 0 ? (
                                                                 searchResults.map((r, i) => (
-                                                                    <button
-                                                                        key={i}
-                                                                        onClick={() => selectResult(r)}
-                                                                        className="w-full text-left p-6 hover:bg-white/5 border-b border-white/5 text-[10px] font-black uppercase text-zinc-500 hover:text-primary-500 transition-colors tracking-tight"
-                                                                    >
+                                                                    <button key={i} onClick={() => selectResult(r)} className="w-full text-left p-5 hover:bg-white/5 border-b border-white/5 text-[10px] font-bold uppercase text-zinc-400 hover:text-primary-500 transition-colors">
                                                                         {r.display_name}
                                                                     </button>
                                                                 ))
                                                             ) : dAddress.length >= 3 && (
-                                                                <div className="p-8 text-center">
-                                                                    <p className="text-[10px] font-black text-zinc-700 uppercase mb-3">¿No encuentras la dirección?</p>
-                                                                    <p className="text-xs text-primary-500 font-bold italic uppercase">Toca el punto de entrega directamente en el mapa</p>
+                                                                <div className="p-6 text-center">
+                                                                    <p className="text-[10px] font-black text-zinc-600 uppercase mb-2 italic">Sin resultados. Toca el mapa para marcar la ubicación.</p>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -339,198 +315,118 @@ const Booking = () => {
                                                 </div>
                                             </div>
 
-                                            <button
-                                                disabled={!pickup || !dropoff}
-                                                onClick={() => setStep(2)}
-                                                className="premium-button w-full flex items-center justify-center gap-6 mt-10"
-                                            >
-                                                <span>ELEGIR VEHÍCULO</span>
-                                                <ChevronRight className="w-7 h-7" />
+                                            <button disabled={!pickup || !dropoff} onClick={() => setStep(2)} className="premium-button w-full flex items-center justify-center gap-6 mt-6">
+                                                <span>CONTINUAR</span>
+                                                <ChevronRight className="w-6 h-6" />
                                             </button>
                                         </motion.div>
                                     )}
 
-                                    {/* Step 2: Categories */}
                                     {step === 2 && (
-                                        <motion.div
-                                            key="step2"
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -20 }}
-                                            className="space-y-8 h-full flex flex-col"
-                                        >
-                                            <div className="space-y-4 max-h-[480px] overflow-y-auto pr-2 scrollbar-none flex-grow">
+                                        <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                                            <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2 scrollbar-none">
                                                 {categories.map((cat, idx) => (
-                                                    <motion.button
-                                                        initial={{ opacity: 0, y: 20 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{ delay: idx * 0.1 }}
+                                                    <button
                                                         key={cat.id}
                                                         onClick={() => setCategory(cat)}
-                                                        className={`w-full p-5 md:p-6 rounded-[2rem] border-2 transition-all duration-500 text-left flex items-center gap-6 relative overflow-hidden group ${selectedCategory?.id === cat.id ? 'border-primary-500 bg-primary-500/10 shadow-[0_0_40px_rgba(245,158,11,0.1)]' : 'border-white/5 bg-zinc-900/40 hover:border-white/20'}`}
+                                                        className={`w-full p-6 rounded-[2rem] border-2 transition-all duration-300 text-left flex items-center gap-6 relative group ${selectedCategory?.id === cat.id ? 'border-primary-500 bg-primary-500/10 shadow-xl' : 'border-white/5 bg-zinc-900/40 hover:border-white/20'}`}
                                                     >
-                                                        {selectedCategory?.id === cat.id && (
-                                                            <div className="absolute top-0 right-0 p-4">
-                                                                <Star className="w-5 h-5 text-primary-500 fill-primary-500 shadow-xl" />
-                                                            </div>
-                                                        )}
-
-                                                        <div className={`w-14 h-14 rounded-[1.2rem] flex items-center justify-center shrink-0 transition-all duration-500 ${selectedCategory?.id === cat.id ? 'bg-primary-500 text-black shadow-2xl scale-110' : 'bg-black text-zinc-700 group-hover:bg-zinc-800'}`}>
-                                                            <Truck className="w-7 h-7" />
+                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all ${selectedCategory?.id === cat.id ? 'bg-primary-500 text-black shadow-lg scale-110' : 'bg-black text-zinc-700'}`}>
+                                                            <Truck className="w-6 h-6" />
                                                         </div>
                                                         <div className="flex-grow">
-                                                            <p className="font-black italic uppercase text-lg md:text-xl leading-tight mb-1 text-white">{cat.name}</p>
-                                                            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-2">{cat.description}</p>
-                                                            <p className="text-lg font-black text-primary-500 italic">$ {cat.base_price}</p>
+                                                            <p className="font-black italic uppercase text-lg text-white">{cat.name}</p>
+                                                            <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-wider">{cat.description}</p>
                                                         </div>
-                                                    </motion.button>
+                                                        <div className="text-right">
+                                                            <p className="text-xl font-black text-primary-500 italic">${cat.base_price}</p>
+                                                        </div>
+                                                    </button>
                                                 ))}
                                             </div>
-                                            <div className="flex gap-4 pt-6">
-                                                <button onClick={() => setStep(1)} className="p-6 bg-zinc-900 rounded-[2rem] border border-white/5 text-zinc-600 group hover:text-white transition-all">
-                                                    <ChevronLeft className="w-7 h-7 transition-transform group-hover:-translate-x-2" />
-                                                </button>
-                                                <button
-                                                    disabled={!selectedCategory}
-                                                    onClick={() => setStep(3)}
-                                                    className="premium-button flex-grow"
-                                                >
-                                                    RESUMEN FINAL
-                                                </button>
+                                            <div className="flex gap-4 pt-4">
+                                                <button onClick={() => setStep(1)} className="p-5 bg-zinc-900 rounded-3xl border border-white/5 text-zinc-500 hover:text-white transition-all"><ChevronLeft className="w-6 h-6" /></button>
+                                                <button disabled={!selectedCategory} onClick={() => setStep(3)} className="premium-button flex-grow">CONFIRMAR VEHÍCULO</button>
                                             </div>
                                         </motion.div>
                                     )}
 
-                                    {/* Step 3: Confirmation */}
                                     {step === 3 && (
-                                        <motion.div
-                                            key="step3"
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className="space-y-12"
-                                        >
-                                            <div className="bg-black rounded-[3rem] p-12 border border-zinc-900 space-y-10 relative overflow-hidden shadow-2xl">
-                                                <div className="absolute -top-10 -right-10 opacity-[0.05] pointer-events-none">
-                                                    <Clock className="w-64 h-64 text-primary-500" />
+                                        <motion.div key="step3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
+                                            <div className="bg-zinc-950 rounded-[3rem] p-8 border border-zinc-900 shadow-2xl space-y-8">
+                                                <div className="text-center pb-6 border-b border-zinc-900">
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-2">Vehículo Seleccionado</p>
+                                                    <p className="text-3xl font-black italic text-white uppercase">{selectedCategory?.name}</p>
                                                 </div>
 
-                                                <div className="space-y-6 relative z-10">
-                                                    <div className="bg-zinc-900/80 p-6 rounded-[2rem] border border-white/5 flex flex-col items-center gap-4">
-                                                        <Truck className="w-12 h-12 text-primary-500 mb-2" />
-                                                        <div className="text-center">
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">CATEGORÍA SELECCIONADA</p>
-                                                            <p className="text-3xl font-black italic text-white uppercase tracking-tighter">{selectedCategory?.name}</p>
+                                                <div className="space-y-6">
+                                                    <div className="flex gap-4">
+                                                        <div className="w-1.5 h-1.5 bg-primary-500 rounded-full mt-2" />
+                                                        <div>
+                                                            <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-1">Punto Origen</p>
+                                                            <p className="text-[11px] font-bold text-zinc-400 italic leading-snug">{pickup?.address}</p>
                                                         </div>
                                                     </div>
-
-                                                    <div className="space-y-8 py-6">
-                                                        <div className="flex gap-6 items-start">
-                                                            <div className="w-4 h-4 bg-primary-500 rounded-full border-4 border-black mt-1.5 shadow-[0_0_15px_rgba(245,158,11,1)]" />
-                                                            <div>
-                                                                <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-1">PUNTO DE RECOGIDA</p>
-                                                                <p className="text-xs font-black text-zinc-400 italic leading-snug">{pickup?.address}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-6 items-start">
-                                                            <div className="w-4 h-4 bg-secondary-600 rounded-full border-4 border-black mt-1.5 shadow-[0_0_15px_rgba(234,88,12,1)]" />
-                                                            <div>
-                                                                <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-1">DESTINO FINAL</p>
-                                                                <p className="text-xs font-black text-zinc-400 italic leading-snug">{dropoff?.address}</p>
-                                                            </div>
+                                                    <div className="flex gap-4">
+                                                        <div className="w-1.5 h-1.5 bg-secondary-500 rounded-full mt-2" />
+                                                        <div>
+                                                            <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-1">Punto Destino</p>
+                                                            <p className="text-[11px] font-bold text-zinc-400 italic leading-snug">{dropoff?.address}</p>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="pt-10 border-t border-zinc-900 flex flex-col items-center gap-4 relative z-10">
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700">COSTO ESTIMADO DEL SERVICIO</p>
-                                                    <div className="flex items-center gap-4">
-                                                        <span className="text-6xl font-black italic text-primary-500 tracking-tighter shadow-primary-500/10">$ {estimate?.toFixed(0)}</span>
-                                                        <div className="px-3 py-1 bg-primary-500 text-black text-[9px] font-black rounded-full uppercase italic animate-pulse">Precio Fijo</div>
-                                                    </div>
+                                                <div className="pt-8 border-t border-zinc-900 text-center">
+                                                    <p className="text-[10px] font-black text-zinc-600 uppercase mb-2">Total Estimado</p>
+                                                    <p className="text-5xl font-black italic text-primary-500 tracking-tighter">${estimate?.toFixed(0)}</p>
                                                 </div>
                                             </div>
 
                                             {error && (
-                                                <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-[2rem] text-red-500 text-[11px] font-black italic uppercase flex gap-4 text-center">
-                                                    <AlertTriangle className="w-5 h-5 shrink-0" />
-                                                    <p>{error}</p>
-                                                </div>
+                                                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-[11px] text-red-500 font-black italic uppercase text-center">{error}</div>
                                             )}
 
                                             <div className="flex gap-4">
-                                                <button onClick={() => setStep(2)} className="p-6 bg-zinc-900 rounded-[2rem] border border-white/5 text-zinc-600 hover:text-white transition-all">
-                                                    <ChevronLeft className="w-7 h-7" />
-                                                </button>
-                                                <button
-                                                    onClick={handleConfirmBooking}
-                                                    disabled={loading}
-                                                    className="premium-button flex-grow flex items-center justify-center gap-6"
-                                                >
-                                                    {loading ? <Loader2 className="w-8 h-8 animate-spin" /> : (
-                                                        <>
-                                                            <span>CONFIRMAR SERVICIO</span> <ArrowRight className="w-7 h-7" />
-                                                        </>
-                                                    )}
+                                                <button onClick={() => setStep(2)} className="p-5 bg-zinc-900 rounded-3xl border border-white/5 text-zinc-500"><ChevronLeft className="w-6 h-6" /></button>
+                                                <button onClick={handleConfirmBooking} disabled={loading} className="premium-button flex-grow flex items-center justify-center gap-4">
+                                                    {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><span>SOLICITAR AHORA</span> <ArrowRight className="w-6 h-6" /></>}
                                                 </button>
                                             </div>
                                         </motion.div>
                                     )}
 
-                                    {/* Step 4: Success */}
                                     {step === 4 && (
-                                        <motion.div
-                                            key="success"
-                                            initial={{ opacity: 0, scale: 0.8 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className="text-center py-10 flex flex-col items-center justify-center h-full"
-                                        >
-                                            <div className="relative mb-16">
-                                                <div className="absolute inset-0 bg-primary-500 blur-[80px] opacity-20 rounded-full animate-pulse" />
-                                                <motion.div
-                                                    initial={{ rotate: -180, scale: 0 }}
-                                                    animate={{ rotate: 0, scale: 1 }}
-                                                    transition={{ type: "spring", damping: 10, stiffness: 100 }}
-                                                    className="relative w-40 h-40 bg-black border-4 border-primary-500 rounded-[4rem] flex items-center justify-center shadow-[0_0_60px_rgba(245,158,11,0.4)]"
-                                                >
-                                                    <CheckCircle2 className="w-20 h-20 text-primary-500" />
-                                                </motion.div>
+                                        <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-10 flex flex-col items-center">
+                                            <div className="w-24 h-24 bg-primary-500/10 rounded-full flex items-center justify-center mb-8 border border-primary-500/30">
+                                                <CheckCircle2 className="w-12 h-12 text-primary-500" />
                                             </div>
-
-                                            <h3 className="text-6xl font-black italic tracking-tighter uppercase mb-6 leading-[0.9] text-white">SERVICIO<br /><span className="text-primary-500">CONFIRMADO</span></h3>
-                                            <p className="text-zinc-500 text-sm font-bold leading-relaxed max-w-xs mx-auto italic uppercase tracking-tight mb-16">
-                                                Buscando conductores cercanos para asignar el vehículo <span className="text-white font-black">{selectedCategory?.name}</span> más adecuado.
-                                            </p>
-
-                                            <button
-                                                onClick={() => navigate('/my-fletes')}
-                                                className="premium-button w-full shadow-2xl shadow-primary-500/40"
-                                            >
-                                                RASTREAR SERVICIO
-                                            </button>
+                                            <h3 className="text-4xl font-black italic text-white uppercase mb-4">SERVICIO<br /><span className="text-primary-500 text-5xl">SOLICITADO</span></h3>
+                                            <p className="text-zinc-500 text-xs font-bold uppercase tracking-tight mb-10 max-w-xs italic">Estamos asignando un conductor. Serás notificado en breve.</p>
+                                            <button onClick={() => navigate('/my-fletes')} className="premium-button w-full">ESTADO DEL PEDIDO</button>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
 
-                    {/* Right Panel: Map */}
-                    <div className="flex-grow flex flex-col min-h-[600px] rounded-[4rem] overflow-hidden border-8 border-zinc-950 relative shadow-[0_40px_100px_rgba(0,0,0,0.9)] bg-zinc-900">
+                    {/* Right Panel: Map Wrapper */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex-grow flex flex-col min-h-[500px] lg:min-h-0 bg-zinc-900 rounded-[3rem] overflow-hidden border-4 border-zinc-900 shadow-2xl relative"
+                    >
                         <FreightMap
                             autoDetectLocation={true}
                             showActiveDrivers={true}
                             onMapClick={handleMapClick}
                         />
-                    </div>
+                    </motion.div>
 
                 </div>
             </div >
 
-            {/* Background elements */}
-            < div className="absolute inset-0 pointer-events-none -z-10" >
-                <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-primary-500/5 blur-[200px] rounded-full" />
-                <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-secondary-600/5 blur-[180px] rounded-full" />
-            </div >
+            <div className="absolute inset-0 pointer-events-none -z-10 bg-[radial-gradient(circle_at_50%_50%,#1a1100_0%,#000000_100%)]" />
         </div >
     )
 }
