@@ -2,26 +2,50 @@ import { create } from 'zustand'
 import { supabase } from '../api/supabase'
 
 export const useBookingStore = create((set, get) => ({
+    fletes: [],
     categories: [],
-    pickup: null, // { address, lat, lng }
-    dropoff: null, // { address, lat, lng }
+    pickup: null,
+    dropoff: null,
     selectedCategory: null,
     estimate: null,
-    distance: null, // in km
-    duration: null, // in minutes
-    currentBooking: null,
+    distance: null,
+    duration: null,
     loading: false,
     error: null,
 
     fetchCategories: async () => {
-        set({ loading: true })
-        const { data, error } = await supabase
-            .from('vehicle_categories')
-            .select('*')
-            .order('id', { ascending: true })
+        set({ loading: true, error: null })
+        try {
+            const { data, error } = await supabase
+                .from('vehicle_categories')
+                .select('*')
+                .order('id', { ascending: true })
 
-        if (error) set({ error: error.message, loading: false })
-        else set({ categories: data, loading: false })
+            if (error) throw error
+            set({ categories: data, loading: false })
+        } catch (err) {
+            console.error('Error fetching categories:', err)
+            set({ error: "No se pudieron cargar las categorías. Verifica la conexión con Supabase.", loading: false })
+        }
+    },
+
+    fetchMyFletes: async (userId) => {
+        set({ loading: true, error: null })
+        try {
+            const { data, error } = await supabase
+                .from('fletes')
+                .select(`
+          *,
+          vehicle_categories (name, base_price)
+        `)
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+
+            if (error) throw error
+            set({ fletes: data, loading: false })
+        } catch (err) {
+            set({ error: err.message, loading: false })
+        }
     },
 
     setPickup: (location) => {
@@ -42,12 +66,8 @@ export const useBookingStore = create((set, get) => ({
     calculateRoute: () => {
         const { pickup, dropoff } = get()
         if (!pickup || !dropoff) return
-
-        // Mock route calculation (In real app, use Google Distance Matrix API)
-        // Simulating distance between two points
-        const mockDistance = Math.floor(Math.random() * 20) + 5 // 5-25 km
-        const mockDuration = mockDistance * 2 // ~2 mins per km
-
+        const mockDistance = Math.floor(Math.random() * 20) + 5
+        const mockDuration = mockDistance * 2
         set({ distance: mockDistance, duration: mockDuration })
         get().calculateEstimate()
     },
@@ -55,7 +75,6 @@ export const useBookingStore = create((set, get) => ({
     calculateEstimate: () => {
         const { selectedCategory, distance } = get()
         if (!selectedCategory || !distance) return
-
         const total = parseFloat(selectedCategory.base_price) + (parseFloat(selectedCategory.price_per_km) * distance)
         set({ estimate: total })
     },
@@ -68,32 +87,33 @@ export const useBookingStore = create((set, get) => ({
         }
 
         set({ loading: true, error: null })
-        const { data, error } = await supabase
-            .from('fletes')
-            .insert([
-                {
-                    user_id: userId,
-                    pickup_address: pickup.address,
-                    pickup_lat: pickup.lat,
-                    pickup_lng: pickup.lng,
-                    dropoff_address: dropoff.address,
-                    dropoff_lat: dropoff.lat,
-                    dropoff_lng: dropoff.lng,
-                    category_id: selectedCategory.id,
-                    estimated_price: estimate,
-                    status: 'pending'
-                }
-            ])
-            .select()
-            .single()
+        try {
+            const { data, error } = await supabase
+                .from('fletes')
+                .insert([
+                    {
+                        user_id: userId,
+                        pickup_address: pickup.address,
+                        pickup_lat: pickup.lat,
+                        pickup_lng: pickup.lng,
+                        dropoff_address: dropoff.address,
+                        dropoff_lat: dropoff.lat,
+                        dropoff_lng: dropoff.lng,
+                        category_id: selectedCategory.id,
+                        estimated_price: estimate,
+                        status: 'pending'
+                    }
+                ])
+                .select()
+                .single()
 
-        if (error) {
-            set({ error: error.message, loading: false })
+            if (error) throw error
+            set({ loading: false })
+            return data
+        } catch (err) {
+            set({ error: err.message, loading: false })
             return null
         }
-
-        set({ currentBooking: data, loading: false })
-        return data
     },
 
     resetBooking: () => set({
@@ -103,6 +123,6 @@ export const useBookingStore = create((set, get) => ({
         estimate: null,
         distance: null,
         duration: null,
-        currentBooking: null
+        error: null
     })
 }))
