@@ -35,6 +35,10 @@
   --animate-bounce-soft: bounceSoft 2s infinite;
   --animate-float: float 6s ease-in-out infinite;
 
+  /* Custom Shadows */
+  --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  --shadow-button: 0 10px 40px -10px rgba(245, 158, 11, 0.5);
+
   @keyframes float {
 
     0%,
@@ -103,11 +107,11 @@ body {
 
 @layer components {
   .glass-card {
-    @apply bg-zinc-900/60 backdrop-blur-2xl border border-white/5 shadow-[0_8px_32px_0_rgba(0, 0, 0, 0.8)] rounded-[2.5rem];
+    @apply bg-zinc-900/60 backdrop-blur-2xl border border-white/5 shadow-premium rounded-[2.5rem];
   }
 
   .premium-button {
-    @apply px-10 py-5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-400 hover:to-secondary-400 text-black font-black uppercase tracking-widest rounded-full transition-all duration-500 transform hover:scale-105 active:scale-95 shadow-[0_10px_40px_-10px_rgba(245, 158, 11, 0.5)] border-b-4 border-black/20 hover:border-b-0 hover:translate-y-[2px];
+    @apply px-10 py-5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-400 hover:to-secondary-400 text-black font-black uppercase tracking-widest rounded-full transition-all duration-500 transform hover:scale-105 active:scale-95 shadow-button border-b-4 border-black/20 hover:border-b-0 hover:translate-y-[2px];
   }
 
   .input-field {
