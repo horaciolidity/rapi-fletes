@@ -126,16 +126,34 @@ export const useBookingStore = create((set, get) => ({
         }
     },
 
+    cancelFlete: async (fleteId) => {
+        set({ loading: true, error: null })
+        const { data, error } = await supabase
+            .from('fletes')
+            .update({ status: 'cancelled', updated_at: new Date() })
+            .eq('id', fleteId)
+            .select()
+            .single()
+
+        if (error) {
+            set({ error: error.message, loading: false })
+            return null
+        }
+
+        set({ loading: false })
+        return data
+    },
+
     subscribeToFleteUpdates: (userId) => {
         const channel = supabase
             .channel(`fletes_user_${userId}`)
             .on('postgres_changes', {
-                event: 'UPDATE',
+                event: '*',
                 schema: 'public',
                 table: 'fletes',
                 filter: `user_id=eq.${userId}`
             }, (payload) => {
-                // Refresh list when an update occurs
+                // Refresh list when any change occurs
                 get().fetchMyFletes(userId)
             })
             .subscribe()

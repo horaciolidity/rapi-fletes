@@ -9,7 +9,7 @@ import ChatWidget from '../components/chat/ChatWidget'
 
 const MyFletes = () => {
     const { user } = useAuthStore()
-    const { fletes, fetchMyFletes, subscribeToFleteUpdates, loading, error } = useBookingStore()
+    const { fletes, fetchMyFletes, subscribeToFleteUpdates, cancelFlete, loading, error } = useBookingStore()
     const navigate = useNavigate()
     const [selectedFleteId, setSelectedFleteId] = useState(null)
 
@@ -268,7 +268,19 @@ const MyFletes = () => {
                                                 <h3 className="text-xl font-black italic uppercase tracking-widest text-white mb-4 leading-tight">Escaneando Unidades Proximas</h3>
                                                 <p className="text-[10px] text-slate-500 font-medium uppercase tracking-[0.2em] italic">Esperando que un chofer acepte la carga...</p>
 
-                                                <Link to="/booking" className="mt-12 text-[10px] font-black text-primary-500 hover:text-white transition-colors uppercase tracking-widest">¿Necesitas modificar el pedido?</Link>
+                                                <div className="flex flex-col gap-6 mt-12 w-full max-w-xs">
+                                                    <button
+                                                        onClick={() => {
+                                                            if (window.confirm('¿Estás seguro de que deseas cancelar este viaje?')) {
+                                                                cancelFlete(selectedFlete.id)
+                                                            }
+                                                        }}
+                                                        className="w-full py-4 border border-red-500/20 text-red-500 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
+                                                    >
+                                                        <XCircle className="w-4 h-4" /> CANCELAR MISIÓN
+                                                    </button>
+                                                    <Link to="/booking" className="text-[10px] font-black text-primary-500 hover:text-white transition-colors uppercase tracking-widest text-center">¿Necesitas modificar el pedido?</Link>
+                                                </div>
                                             </div>
                                         )}
                                     </div>

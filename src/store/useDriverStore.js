@@ -92,16 +92,15 @@ export const useDriverStore = create((set, get) => ({
 
     subscribeToNewFletes: () => {
         const channel = supabase
-            .channel('public:fletes')
+            .channel('fletes_marketplace')
             .on('postgres_changes', {
-                event: 'INSERT',
+                event: '*',
                 schema: 'public',
-                table: 'fletes',
-                filter: 'status=eq.pending'
+                table: 'fletes'
             }, (payload) => {
-                set((state) => ({
-                    availableFletes: [payload.new, ...state.availableFletes]
-                }))
+                // Whenever any flete changes, we refresh the marketplace list
+                // if it affects pending status. It's safer to just refetch.
+                get().fetchAvailableFletes()
             })
             .subscribe()
 
