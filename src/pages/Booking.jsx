@@ -124,36 +124,36 @@ const Booking = () => {
     }
 
     return (
-        <div className="pt-32 pb-12 min-h-screen bg-black flex items-center justify-center font-sans overflow-hidden">
-            <div className="container mx-auto px-10 max-w-[1600px] h-full relative z-10">
-                <div className="flex flex-col lg:flex-row gap-12 items-stretch min-h-[850px]">
+        <div className="pt-24 md:pt-32 pb-12 min-h-screen bg-black flex items-center justify-center font-sans overflow-x-hidden">
+            <div className="container mx-auto px-4 md:px-10 max-w-[1600px] h-full relative z-10">
+                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch min-h-[600px] lg:min-h-[850px]">
 
                     {/* Left Panel: Booking Flow */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="w-full lg:w-[500px] flex flex-col"
+                        className="w-full lg:w-[480px] flex flex-col"
                     >
-                        <div className="glass-card flex-grow p-12 flex flex-col relative overflow-hidden bg-zinc-950/60 border-zinc-900 shadow-[0_40px_100px_rgba(0,0,0,0.9)]">
-                            <div className="absolute top-0 right-0 w-4 h-full bg-gradient-to-b from-primary-500 to-secondary-600" />
+                        <div className="glass-card flex-grow p-6 md:p-12 flex flex-col relative overflow-hidden bg-zinc-950/60 border-zinc-900 shadow-[0_40px_100px_rgba(0,0,0,0.9)]">
+                            <div className="absolute top-0 right-0 w-2 md:w-3 h-full bg-gradient-to-b from-primary-500 to-secondary-600" />
 
-                            <header className="mb-14">
-                                <div className="flex items-center gap-6 mb-4">
-                                    <div className="w-16 h-16 bg-primary-500 rounded-[2rem] flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)]">
-                                        <Truck className="w-8 h-8 text-black" />
+                            <header className="mb-8 md:mb-14">
+                                <div className="flex items-center gap-4 md:gap-6 mb-4">
+                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-primary-500 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+                                        <Truck className="w-6 h-6 md:w-8 md:h-8 text-black" />
                                     </div>
-                                    <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white leading-none">SOLICITUD<br /><span className="text-primary-500">DE SERVICIO</span></h2>
+                                    <h2 className="text-2xl md:text-4xl font-black italic tracking-tighter uppercase text-white leading-none">SOLICITUD<br /><span className="text-primary-500">DE SERVICIO</span></h2>
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700">Configurando detalles del transporte</p>
+                                <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.5em] text-zinc-700 italic">Configurando detalles del transporte</p>
                             </header>
 
                             {/* Stepper */}
                             {step < 4 && (
-                                <div className="flex items-center gap-4 mb-14">
+                                <div className="flex items-center gap-3 md:gap-4 mb-8 md:mb-14">
                                     {[1, 2, 3].map((s) => (
                                         <div
                                             key={s}
-                                            className={`h-3 flex-grow rounded-full transition-all duration-1000 ${s <= step ? 'bg-gradient-to-r from-primary-500 to-secondary-600 shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 'bg-zinc-900'}`}
+                                            className={`h-2 md:h-3 flex-grow rounded-full transition-all duration-1000 ${s <= step ? 'bg-gradient-to-r from-primary-500 to-secondary-600 shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 'bg-zinc-900'}`}
                                         />
                                     ))}
                                 </div>

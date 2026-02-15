@@ -7,6 +7,7 @@ import Booking from './pages/Booking'
 import DriverDashboard from './pages/DriverDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import MyFletes from './pages/MyFletes'
+import Profile from './pages/Profile'
 import Navbar from './components/layout/Navbar'
 import { useAuthStore } from './store/useAuthStore'
 import { supabase } from './api/supabase'
@@ -48,6 +49,7 @@ const AppContent = () => {
           <Route path="/signup" element={<Navigate to="/auth" replace />} />
 
           <Route path="/booking" element={<Booking />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/driver" element={<DriverDashboard />} />
           <Route path="/my-fletes" element={<MyFletes />} />
           <Route path="/admin" element={<AdminDashboard />} />

@@ -18,30 +18,31 @@ const Landing = () => {
 
 
             {/* Hero Section */}
-            <section className="relative min-h-screen pt-40 pb-32 overflow-hidden flex flex-col justify-center items-center">
+            <section className="relative min-h-screen pt-32 md:pt-40 pb-20 md:pb-32 overflow-hidden flex flex-col justify-center items-center">
                 {/* Visual Elements - Background Video */}
-                <div className="absolute inset-0 -z-10">
+                <div className="absolute inset-0 -z-10 overflow-hidden">
                     <video
                         autoPlay
                         loop
                         muted
                         playsInline
-                        className="w-full h-full object-cover opacity-60 scale-110"
+                        className="w-full h-full object-cover opacity-40 md:opacity-50 scale-105"
                     >
                         <source src="/imagenes/1.mp4" type="video/mp4" />
                     </video>
-                    <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-black z-10" />
-                    <div className="absolute inset-0 bg-black/60 z-0" />
+                    {/* Simplified Overlays for better visibility and performance */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+                    <div className="absolute inset-0 bg-black/40" />
                 </div>
 
                 <motion.div style={{ y: y1 }} className="absolute inset-0 -z-10 pointer-events-none">
-                    <div className="absolute top-[10%] left-[5%] w-[500px] h-[500px] bg-primary-500/10 blur-[120px] rounded-full animate-float" />
-                    <div className="absolute bottom-[10%] right-[5%] w-[600px] h-[600px] bg-secondary-600/10 blur-[150px] rounded-full" />
+                    <div className="absolute top-[10%] left-[5%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-primary-500/10 blur-[100px] rounded-full animate-float" />
+                    <div className="absolute bottom-[10%] right-[5%] w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-secondary-600/10 blur-[120px] rounded-full" />
                 </motion.div>
 
                 <div className="container mx-auto px-6 text-center z-10">
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                     >
@@ -49,33 +50,33 @@ const Landing = () => {
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="inline-flex items-center gap-3 px-6 py-2 bg-zinc-900/80 border border-white/5 rounded-full mb-12 backdrop-blur-3xl shadow-2xl"
+                            className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-1.5 md:py-2 bg-zinc-950/80 border border-white/5 rounded-full mb-8 md:mb-12 backdrop-blur-3xl"
                         >
-                            <span className="flex h-3 w-3 relative">
+                            <span className="flex h-2 w-2 md:h-3 md:w-3 relative">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 md:h-3 md:w-3 bg-primary-500"></span>
                             </span>
-                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 italic">Servicio Disponible 24/7</span>
+                            <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-zinc-400 italic">Disponibilidad 24/7</span>
                         </motion.div>
 
-                        <h1 className="text-7xl md:text-[12rem] font-black mb-12 leading-[0.8] tracking-tighter italic uppercase flex flex-col items-center">
-                            <span className="flex items-baseline gap-4">
-                                RÁPIDO <ArrowRight className="w-16 h-16 md:w-32 md:h-32 text-primary-500 -rotate-45" />
+                        <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[10rem] font-black mb-8 md:mb-12 leading-[0.9] md:leading-[0.8] tracking-tighter italic uppercase flex flex-col items-center">
+                            <span className="flex items-baseline gap-3 md:gap-4">
+                                RÁPIDO <ArrowRight className="w-8 h-8 sm:w-16 sm:h-16 md:w-24 md:h-24 text-primary-500 -rotate-45" />
                             </span>
                             <span className="text-gradient">EFICIENTE</span>
                         </h1>
 
-                        <p className="text-xl md:text-2xl text-zinc-500 mb-16 max-w-3xl mx-auto leading-relaxed font-bold italic uppercase tracking-tight">
-                            La plataforma definitiva de fletes urbanos. <span className="text-white">Mudanzas, cargas pesadas y logística exprés</span> en segundos.
+                        <p className="text-sm md:text-xl lg:text-2xl text-zinc-500 mb-10 md:mb-16 max-w-2xl mx-auto leading-relaxed font-bold italic uppercase tracking-tight px-4">
+                            Fletes urbanos al instante. <span className="text-white font-black">Mudanzas y logística exprés</span> con seguimiento en tiempo real.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-                            <Link to="/booking" className="premium-button min-w-[300px] group flex items-center justify-center gap-6">
-                                <span>SOLICITAR UNIDAD</span>
-                                <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500" />
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8">
+                            <Link to="/booking" className="premium-button w-full sm:min-w-[250px] md:min-w-[300px] group flex items-center justify-center gap-4 md:gap-6 py-4 md:py-5">
+                                <span className="text-[10px] md:text-xs">SOLICITAR UNIDAD</span>
+                                <ArrowRight className="w-4 h-4 md:w-6 md:h-6 group-hover:translate-x-2 md:group-hover:translate-x-3 transition-transform duration-500" />
                             </Link>
-                            <Link to="/register?role=driver" className="px-12 py-5 bg-zinc-900 text-white rounded-full text-sm font-black uppercase tracking-[0.2em] italic border border-white/5 hover:bg-zinc-800 transition-all">
-                                Quiero ser Conductor
+                            <Link to="/auth" className="w-full sm:w-auto px-10 md:px-12 py-4 md:py-5 bg-zinc-900/50 backdrop-blur-xl text-white rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.2em] italic border border-white/5 hover:bg-zinc-800 transition-all">
+                                Ingresar como Chofer
                             </Link>
                         </div>
                     </motion.div>
