@@ -172,6 +172,10 @@ body {
   background: #18181b !important;
 }
 
+.map-tiles-bright {
+  filter: brightness(1.6) contrast(1.2) saturate(0.8) !important;
+}
+
 .leaflet-popup-content-wrapper {
   background: rgba(0, 0, 0, 0.95) !important;
   backdrop-filter: blur(20px);

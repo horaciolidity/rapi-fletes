@@ -186,6 +186,7 @@ const FreightMap = ({ pickup: propPickup, dropoff: propDropoff, autoDetectLocati
                 <TileLayer
                     attribution='&copy; OpenStreetMap'
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    className="map-tiles-bright"
                 />
 
                 <MapController pickup={pickup} dropoff={dropoff} autoDetectLocation={autoDetectLocation} />

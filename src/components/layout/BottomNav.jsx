@@ -1,14 +1,22 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Truck, History, User, Home, Map } from 'lucide-react'
+import { useAuthStore } from '../../store/useAuthStore'
 
 const BottomNav = () => {
     const navigate = useNavigate()
     const location = useLocation()
 
+    const { profile } = useAuthStore()
+    const isDriver = profile?.role === 'driver'
+
     const navItems = [
         { icon: Home, label: 'Inicio', path: '/' },
-        { icon: Map, label: 'Reserva', path: '/booking' },
+        {
+            icon: Map,
+            label: isDriver ? 'Viajes' : 'Reserva',
+            path: isDriver ? '/driver' : '/booking'
+        },
         { icon: History, label: 'Mis Fletes', path: '/my-fletes' },
         { icon: User, label: 'Perfil', path: '/profile' },
     ]

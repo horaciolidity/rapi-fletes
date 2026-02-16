@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User } from 'lucide-react'
+import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User, Search, X } from 'lucide-react'
 import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { useNavigate } from 'react-router-dom'
@@ -47,7 +47,6 @@ const DriverDashboard = () => {
         }
     }, [profile?.verification_status])
 
-    // Live Tracking side-effect
     useEffect(() => {
         let watchId = null
         if (profile?.verification_status === 'verified' && activeFlete) {
@@ -66,6 +65,10 @@ const DriverDashboard = () => {
             if (watchId) navigator.geolocation.clearWatch(watchId)
         }
     }, [activeFlete, profile?.verification_status])
+
+    useEffect(() => {
+        if (activeFlete) setActiveTab('active')
+    }, [activeFlete])
 
     const handleVerificationSubmit = async (e) => {
         e.preventDefault()
@@ -98,7 +101,7 @@ const DriverDashboard = () => {
         }
     }
 
-    const selectedFlete = activeFlete || availableFletes.find(f => f.id === selectedFleteId)
+    const currentFlete = activeFlete || availableFletes.find(f => f.id === selectedFleteId)
 
     if (!profile) return (
         <div className="min-h-screen flex items-center justify-center bg-black">
@@ -106,7 +109,6 @@ const DriverDashboard = () => {
         </div>
     )
 
-    // Verification Form (Mobile Optimized)
     if (profile.verification_status === 'none') {
         return (
             <div className="pb-24 pt-10 min-h-screen bg-black font-sans px-6">
@@ -117,7 +119,6 @@ const DriverDashboard = () => {
                         </div>
                         <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white">REGISTRO<br /><span className="text-primary-500">CONDUCTOR</span></h1>
                     </header>
-
                     <form onSubmit={handleVerificationSubmit} className="space-y-6">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Modelo / Marca</label>
@@ -140,7 +141,6 @@ const DriverDashboard = () => {
         )
     }
 
-    // Pending Verification
     if (profile.verification_status === 'pending') {
         return (
             <div className="pb-24 pt-10 min-h-screen bg-black font-sans px-6 flex flex-col items-center justify-center text-center">
@@ -153,168 +153,203 @@ const DriverDashboard = () => {
     }
 
     return (
-        <div className="pb-24 pt-10 min-h-screen bg-black font-sans selection:bg-primary-500">
-            <div className="container mx-auto px-6 max-w-md">
+        <div className="fixed inset-0 bg-black overflow-hidden font-sans">
+            {/* Background Map */}
+            <div className="absolute inset-0 z-0">
+                <FreightMap
+                    pickup={currentFlete ? { address: currentFlete.pickup_address, lat: currentFlete.pickup_lat, lng: currentFlete.pickup_lng } : null}
+                    dropoff={currentFlete ? { address: currentFlete.dropoff_address, lat: currentFlete.dropoff_lat, lng: currentFlete.dropoff_lng } : null}
+                    autoDetectLocation={true}
+                    showActiveDrivers={false}
+                />
+            </div>
 
-                {/* Driver Header */}
-                <div className="flex justify-between items-center mb-8 pt-10">
-                    <div>
-                        <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">PANEL<br /><span className="text-primary-500">CHOFER</span></h1>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-[8px] font-black text-zinc-700 uppercase italic mb-1">COMPLETADOS</p>
-                        <p className="text-2xl font-black text-white italic">{completedHistory.length}</p>
+            {/* Overlays */}
+            <div className="relative z-10 h-full pointer-events-none flex flex-col">
+                {/* Header Overlay */}
+                <div className="pt-16 px-6 pointer-events-auto">
+                    <div className="max-w-md mx-auto flex justify-between items-center">
+                        <div className="bg-black/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5">
+                            <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white leading-none">PANEL<br /><span className="text-primary-500">CHOFER</span></h1>
+                        </div>
+                        <div className="bg-black/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5 text-right">
+                            <p className="text-[8px] font-black text-zinc-500 uppercase italic leading-none mb-1">COMPLETADOS</p>
+                            <p className="text-xl font-black text-white italic leading-none">{completedHistory.length}</p>
+                        </div>
                     </div>
                 </div>
 
-                {/* Dashboard Tabs */}
-                <div className="flex bg-zinc-950 p-1 rounded-2xl border border-white/5 mb-8">
-                    {[
-                        { id: 'marketplace', label: 'PEDIDOS', icon: Truck },
-                        { id: 'active', label: 'ACTUAL', icon: Activity },
-                        { id: 'history', label: 'VIAJES', icon: History }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all ${activeTab === tab.id ? 'bg-primary-500 text-black' : 'text-zinc-600'}`}
-                        >
-                            <tab.icon className="w-4 h-4 mb-1" />
-                            <span className="text-[8px] font-black uppercase tracking-tight">{tab.label}</span>
-                        </button>
-                    ))}
-                </div>
+                {/* Main Content Area */}
+                <div className="flex-grow flex flex-col justify-end pb-28 px-4 pointer-events-auto">
+                    <div className="max-w-md mx-auto w-full space-y-4">
 
-                <AnimatePresence mode="wait">
-                    {activeTab === 'marketplace' && (
-                        <motion.div key="market" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-                            {availableFletes.length > 0 ? availableFletes.map((flete, idx) => (
-                                <motion.div
-                                    key={flete.id}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: idx * 0.05 }}
-                                    onClick={() => setSelectedFleteId(flete.id === selectedFleteId ? null : flete.id)}
-                                    className={`glass-card p-6 border-zinc-900 bg-zinc-950/80 transition-all ${selectedFleteId === flete.id ? 'border-primary-500 bg-primary-500/10' : ''}`}
+                        {/* Tab Switcher (Floating) */}
+                        <div className="flex bg-black/80 backdrop-blur-3xl p-1 rounded-2xl border border-white/5 mb-2 shadow-2xl">
+                            {[
+                                { id: 'marketplace', label: 'PEDIDOS', icon: Truck },
+                                { id: 'active', label: 'ACTUAL', icon: Activity },
+                                { id: 'history', label: 'VIAJES', icon: History }
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all ${activeTab === tab.id ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-600 hover:text-white'}`}
                                 >
-                                    <div className="flex justify-between items-start mb-6">
-                                        <Truck className={`w-6 h-6 ${selectedFleteId === flete.id ? 'text-primary-500' : 'text-zinc-800'}`} />
-                                        <div className="text-right">
-                                            <p className="text-[8px] font-black text-zinc-800 uppercase italic">ID: {flete.id.slice(0, 8)}</p>
-                                            <p className="text-xl font-black text-white italic tracking-tighter">$ {flete.estimated_price}</p>
-                                        </div>
-                                    </div>
+                                    <tab.icon className="w-4 h-4 mb-1" />
+                                    <span className="text-[8px] font-black uppercase tracking-tight">{tab.label}</span>
+                                </button>
+                            ))}
+                        </div>
 
-                                    <div className="space-y-3 mb-6">
-                                        <div className="flex items-center gap-3">
-                                            <MapPin className="w-3 h-3 text-primary-500 shrink-0" />
-                                            <p className="text-[10px] font-bold text-zinc-400 truncate italic uppercase">{flete.pickup_address}</p>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <Navigation className="w-3 h-1.5 text-secondary-500 shrink-0" />
-                                            <p className="text-[10px] font-bold text-zinc-400 truncate italic uppercase">{flete.dropoff_address}</p>
-                                        </div>
-                                    </div>
-
-                                    {selectedFleteId === flete.id && (
-                                        <motion.button
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            onClick={(e) => { e.stopPropagation(); handleAccept(flete.id); }}
-                                            className="w-full py-4 bg-primary-500 text-black font-black italic text-[10px] uppercase rounded-xl"
+                        <AnimatePresence mode="wait">
+                            {activeTab === 'marketplace' && (
+                                <motion.div
+                                    key="market"
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: 20, opacity: 0 }}
+                                    className="max-h-[50vh] overflow-y-auto space-y-3 pb-4 scrollbar-none"
+                                >
+                                    {availableFletes.length > 0 ? availableFletes.map((flete, idx) => (
+                                        <motion.div
+                                            key={flete.id}
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: idx * 0.05 }}
+                                            onClick={() => setSelectedFleteId(flete.id === selectedFleteId ? null : flete.id)}
+                                            className={`glass-card p-5 border-white/5 bg-black/90 backdrop-blur-3xl transition-all ${selectedFleteId === flete.id ? 'border-primary-500/50 ring-2 ring-primary-500/20' : ''}`}
                                         >
-                                            ACEPTAR VIAJE
-                                        </motion.button>
+                                            <div className="flex justify-between items-center mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`p-2 rounded-lg ${selectedFleteId === flete.id ? 'bg-primary-500 text-black' : 'bg-zinc-900 text-zinc-700'}`}>
+                                                        <Truck className="w-4 h-4" />
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">NUEVO PEDIDO</span>
+                                                </div>
+                                                <p className="text-xl font-black text-primary-500 italic">$ {flete.estimated_price}</p>
+                                            </div>
+
+                                            <div className="space-y-2 mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <MapPin className="w-3 h-3 text-primary-500 shrink-0" />
+                                                    <p className="text-[10px] font-bold text-white truncate italic uppercase">{flete.pickup_address}</p>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <Navigation className="w-3 h-1.5 text-secondary-500 shrink-0" />
+                                                    <p className="text-[10px] font-bold text-zinc-500 truncate italic uppercase">{flete.dropoff_address}</p>
+                                                </div>
+                                            </div>
+
+                                            {selectedFleteId === flete.id && (
+                                                <motion.button
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    onClick={(e) => { e.stopPropagation(); handleAccept(flete.id); }}
+                                                    className="premium-button w-full py-4 text-[11px]"
+                                                >
+                                                    ACEPTAR VIAJE
+                                                </motion.button>
+                                            )}
+                                        </motion.div>
+                                    )) : (
+                                        <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5">
+                                            <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4 text-zinc-800" />
+                                            <p className="text-[10px] font-black uppercase italic tracking-widest text-zinc-700">BUSCANDO PEDIDOS...</p>
+                                        </div>
                                     )}
                                 </motion.div>
-                            )) : (
-                                <div className="text-center py-20 grayscale opacity-20 border-2 border-dashed border-zinc-900 rounded-[2.5rem]">
-                                    <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
-                                    <p className="text-[10px] font-black uppercase italic tracking-widest">BUSCANDO PEDIDOS...</p>
-                                </div>
                             )}
-                        </motion.div>
-                    )}
 
-                    {activeTab === 'active' && (
-                        <motion.div key="active" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
-                            {activeFlete ? (
-                                <div className="space-y-6">
-                                    <div className="h-64 rounded-[2.5rem] overflow-hidden border-4 border-zinc-900 relative bg-zinc-900 shadow-2xl">
-                                        <FreightMap
-                                            pickup={{ address: activeFlete.pickup_address, lat: activeFlete.pickup_lat, lng: activeFlete.pickup_lng }}
-                                            dropoff={{ address: activeFlete.dropoff_address, lat: activeFlete.dropoff_lat, lng: activeFlete.dropoff_lng }}
-                                            autoDetectLocation={true}
-                                            showActiveDrivers={false}
-                                        />
-                                        <div className="absolute top-4 left-4 p-3 bg-black/80 backdrop-blur-xl rounded-xl border border-white/5 flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
-                                            <span className="text-[9px] font-black text-white italic uppercase tracking-widest">{activeFlete.status}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="glass-card p-8 space-y-6">
-                                        <div className="flex justify-between items-center">
-                                            <h3 className="text-2xl font-black italic text-white uppercase italic truncate mr-4">{activeFlete.profiles?.full_name || "MUDANZA"}</h3>
-                                            <p className="text-3xl font-black text-primary-500 italic tracking-tighter shrink-0">$ {activeFlete.estimated_price}</p>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-4">
-                                                <MapPin className="w-4 h-4 text-primary-500 shrink-0" />
-                                                <p className="text-[11px] font-black text-zinc-400 italic uppercase">#{activeFlete.pickup_address}</p>
+                            {activeTab === 'active' && (
+                                <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
+                                    {activeFlete ? (
+                                        <div className="glass-card p-6 bg-black/90 backdrop-blur-3xl border-primary-500/20 shadow-[0_-20px_50px_rgba(0,0,0,1)] space-y-6">
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                                                    <span className="text-[11px] font-black text-primary-500 uppercase italic tracking-widest">VIAJE EN CURSO</span>
+                                                </div>
+                                                <span className="px-3 py-1 bg-zinc-900 border border-white/5 rounded-full text-[9px] font-bold text-zinc-500 uppercase italic">{activeFlete.status}</span>
                                             </div>
-                                            <div className="flex items-center gap-4">
-                                                <Navigation className="w-4 h-4 text-secondary-500 shrink-0" />
-                                                <p className="text-[11px] font-black text-zinc-400 italic uppercase">#{activeFlete.dropoff_address}</p>
+
+                                            <div className="flex justify-between items-center bg-zinc-900/50 p-4 rounded-2xl">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center">
+                                                        <User className="w-5 h-5 text-zinc-600" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-sm font-black italic text-white uppercase">{activeFlete.profiles?.full_name || "MUDANZA"}</h3>
+                                                        <p className="text-[9px] font-black text-zinc-500 italic">CLIENTE</p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-3xl font-black text-primary-500 italic tracking-tighter shrink-0">$ {activeFlete.estimated_price}</p>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
+                                                    <MapPin className="w-4 h-4 text-primary-500 shrink-0 mt-0.5" />
+                                                    <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.pickup_address}</p>
+                                                </div>
+                                                <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
+                                                    <Navigation className="w-4 h-4 text-secondary-500 shrink-0 mt-0.5" />
+                                                    <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.dropoff_address}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-3">
+                                                {activeFlete.status === 'accepted' && (
+                                                    <button onClick={() => handleStatusChange(activeFlete.id, 'picked_up')} className="premium-button flex-grow py-5 text-[11px]">MARCAR RECOGIDA</button>
+                                                )}
+                                                {activeFlete.status === 'picked_up' && (
+                                                    <button onClick={() => handleStatusChange(activeFlete.id, 'completed')} className="w-full py-5 bg-primary-500 text-black font-black italic text-[12px] uppercase rounded-2xl shadow-xl shadow-primary-500/20">CONFIRMAR ENTREGA</button>
+                                                )}
+                                                <a href={`tel:${activeFlete.profiles?.phone || ''}`} className="p-5 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl">
+                                                    <Phone className="w-5 h-5" />
+                                                </a>
                                             </div>
                                         </div>
-
-                                        <div className="flex gap-3 pt-4">
-                                            {activeFlete.status === 'accepted' && (
-                                                <button onClick={() => handleStatusChange(activeFlete.id, 'picked_up')} className="premium-button flex-grow">A CARGAR</button>
-                                            )}
-                                            {activeFlete.status === 'picked_up' && (
-                                                <button onClick={() => handleStatusChange(activeFlete.id, 'completed')} className="w-full py-5 bg-primary-500 text-black font-black italic text-[12px] uppercase rounded-2xl shadow-xl shadow-primary-500/20">ENTREGADO</button>
-                                            )}
-                                            <a href={`tel:${activeFlete.profiles?.phone || ''}`} className="p-5 bg-zinc-900 rounded-2xl border border-white/5 text-white">
-                                                <Phone className="w-5 h-5" />
-                                            </a>
+                                    ) : (
+                                        <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5">
+                                            <Activity className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
+                                            <p className="text-[10px] font-black uppercase italic tracking-widest text-zinc-700">SIN VIAJE ACTIVO</p>
                                         </div>
-                                    </div>
-
-                                    <ChatWidget fleteId={activeFlete.id} receiverName={activeFlete.profiles?.full_name || "Cliente"} />
-                                </div>
-                            ) : (
-                                <div className="text-center py-20 grayscale opacity-20 border-2 border-dashed border-zinc-900 rounded-[2.5rem]">
-                                    <Activity className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
-                                    <p className="text-[10px] font-black uppercase italic tracking-widest">SIN VIAJE ACTIVO</p>
-                                </div>
+                                    )}
+                                </motion.div>
                             )}
-                        </motion.div>
-                    )}
 
-                    {activeTab === 'history' && (
-                        <motion.div key="history" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-3">
-                            {completedHistory.map((f) => (
-                                <div key={f.id} className="p-5 bg-zinc-950 border border-zinc-900 rounded-2xl flex justify-between items-center">
-                                    <div>
-                                        <p className="text-[10px] font-black text-zinc-400 italic uppercase leading-tight mb-1">{f.dropoff_address}</p>
-                                        <p className="text-[8px] font-black text-zinc-700 uppercase italic">{new Date(f.created_at).toLocaleDateString()}</p>
-                                    </div>
-                                    <p className="text-xl font-black text-white italic">$ {f.estimated_price}</p>
-                                </div>
-                            ))}
-                            {completedHistory.length === 0 && (
-                                <div className="text-center py-20 grayscale opacity-20 border-2 border-dashed border-zinc-900 rounded-[2.5rem]">
-                                    <History className="w-10 h-10 text-zinc-800 mx-auto mb-4" />
-                                    <p className="text-[10px] font-black uppercase italic tracking-widest">HISTORIAL VACÍO</p>
-                                </div>
+                            {activeTab === 'history' && (
+                                <motion.div key="history" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="max-h-[50vh] overflow-y-auto space-y-2 pb-4 scrollbar-none">
+                                    {completedHistory.map((f) => (
+                                        <div key={f.id} className="p-5 bg-black/90 backdrop-blur-3xl border border-white/5 rounded-2xl flex justify-between items-center">
+                                            <div className="max-w-[70%]">
+                                                <p className="text-[10px] font-black text-zinc-300 italic uppercase leading-tight mb-1 truncate">{f.dropoff_address}</p>
+                                                <p className="text-[8px] font-black text-zinc-600 uppercase italic">{new Date(f.created_at).toLocaleDateString()}</p>
+                                            </div>
+                                            <p className="text-xl font-black text-primary-500 italic">$ {f.estimated_price}</p>
+                                        </div>
+                                    ))}
+                                    {completedHistory.length === 0 && (
+                                        <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5">
+                                            <History className="w-10 h-10 text-zinc-800 mx-auto mb-4" />
+                                            <p className="text-[10px] font-black uppercase italic tracking-widest text-zinc-700">HISTORIAL VACÍO</p>
+                                        </div>
+                                    )}
+                                </motion.div>
                             )}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                        </AnimatePresence>
+                    </div>
+                </div>
             </div>
+
+            {/* Chat Widget integrated into the flow if active voyage */}
+            {activeFlete && ['accepted', 'picked_up'].includes(activeFlete.status) && (
+                <div className="fixed bottom-32 right-6 z-50 pointer-events-auto">
+                    <ChatWidget fleteId={activeFlete.id} receiverName={activeFlete.profiles?.full_name || "Cliente"} />
+                </div>
+            )}
+
+            {/* Background elements */}
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black to-transparent pointer-events-none z-[5]" />
         </div>
     )
 }
