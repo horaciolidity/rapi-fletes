@@ -4,10 +4,13 @@ import { User, Phone, Mail, Camera, Save, Loader2, ShieldCheck, Truck, MapPin, S
 import { useAuthStore } from '../store/useAuthStore'
 import { useNotificationStore } from '../store/useNotificationStore'
 import { useNavigate } from 'react-router-dom'
+import { useThemeStore } from '../store/useThemeStore'
+import { Moon, Sun } from 'lucide-react'
 
 const Profile = () => {
     const { user, profile, updateProfile, fetchProfile, signOut } = useAuthStore()
     const { addNotification } = useNotificationStore()
+    const { theme, toggleTheme } = useThemeStore()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState({ type: '', text: '' })
@@ -152,6 +155,20 @@ const Profile = () => {
                                 <span className="text-xs font-black text-zinc-400 uppercase italic tracking-wider">Seguridad</span>
                             </div>
                             <ChevronRight className="w-4 h-4 text-zinc-800" />
+                        </button>
+                        <button
+                            onClick={toggleTheme}
+                            className={`w-full flex items-center justify-between p-5 hover:bg-zinc-900/50 transition-colors border-t border-white/5`}
+                        >
+                            <div className="flex items-center gap-4">
+                                {theme === 'dark' ? <Moon className="w-5 h-5 text-zinc-500" /> : <Sun className="w-5 h-5 text-primary-500" />}
+                                <span className={`text-xs font-black uppercase italic tracking-wider ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                                    Modo {theme === 'dark' ? 'Oscuro' : 'Claro'}
+                                </span>
+                            </div>
+                            <div className={`w-12 h-6 rounded-full p-1 transition-colors ${theme === 'dark' ? 'bg-zinc-800' : 'bg-primary-500'} relative`}>
+                                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${theme === 'dark' ? 'translate-x-0' : 'translate-x-6'}`} />
+                            </div>
                         </button>
                         <button className="w-full flex items-center justify-between p-5 hover:bg-zinc-900/50 transition-colors">
                             <div className="flex items-center gap-4">

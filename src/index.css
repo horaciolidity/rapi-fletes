@@ -10,7 +10,6 @@
   --color-primary-300: #fcd34d;
   --color-primary-400: #fbbf24;
   --color-primary-500: #f59e0b;
-  /* Yellow/Amber base */
   --color-primary-600: #d97706;
   --color-primary-700: #b45309;
   --color-primary-800: #92400e;
@@ -23,7 +22,6 @@
   --color-secondary-300: #fdba74;
   --color-secondary-400: #fb923c;
   --color-secondary-500: #f97316;
-  /* Orange base */
   --color-secondary-600: #ea580c;
   --color-secondary-700: #c2410c;
   --color-secondary-800: #9a3412;
@@ -100,13 +98,27 @@
 }
 
 :root {
+  --bg-color: #000000;
+  --text-color: rgba(255, 255, 255, 0.92);
+  --card-bg: rgba(9, 9, 11, 0.8);
+}
+
+:root.light {
+  --bg-color: #f7f9fc;
+  --text-color: #0f172a;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  color-scheme: light;
+}
+
+:root.dark {
+  --bg-color: #000000;
+  --text-color: rgba(255, 255, 255, 0.92);
+  --card-bg: rgba(9, 9, 11, 0.8);
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #000000;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -114,13 +126,15 @@ body {
   min-width: 320px;
   min-height: 100vh;
   overflow-x: hidden;
-  background: radial-gradient(circle at top right, #111111, #000000);
-  background-attachment: fixed;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 @layer components {
   .glass-card {
-    @apply bg-zinc-950/80 backdrop-blur-3xl border border-white/5 shadow-2xl rounded-[2.5rem];
+    @apply backdrop-blur-3xl border border-white/5 shadow-2xl rounded-[2.5rem];
+    background-color: var(--card-bg);
   }
 
   .premium-button {
@@ -128,7 +142,9 @@ body {
   }
 
   .input-field {
-    @apply w-full px-8 py-5 bg-zinc-900 border border-white/5 rounded-[1.8rem] focus:border-primary-500/50 outline-none transition-all placeholder:text-zinc-700 text-white font-bold italic;
+    @apply w-full px-8 py-5 border border-white/5 rounded-[1.8rem] focus:border-primary-500/50 outline-none transition-all placeholder:text-zinc-700 font-bold italic;
+    background-color: var(--bg-color);
+    color: var(--text-color);
   }
 
   .text-gradient {
@@ -150,7 +166,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: var(--bg-color);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -158,8 +174,8 @@ body {
   border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
 }
 
 .scrollbar-none::-webkit-scrollbar {
@@ -172,70 +188,17 @@ body {
   background: #18181b !important;
 }
 
+.leaflet-popup-content-wrapper {
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
 .map-tiles-bright {
   filter: brightness(1.6) contrast(1.2) saturate(0.8) !important;
 }
 
-.leaflet-popup-content-wrapper {
-  background: rgba(0, 0, 0, 0.95) !important;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-}
-
-.leaflet-popup-tip {
-  background: rgba(0, 0, 0, 0.95) !important;
-}
-
-.leaflet-popup-content {
-  margin: 0;
-  padding: 0;
-}
-
-/* Custom Marker Animations */
-@keyframes pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
-}
-
-.custom-marker,
-.truck-marker {
-  animation: none;
-  transition: transform 0.3s ease;
-}
-
-.custom-marker:hover,
-.truck-marker:hover {
-  transform: scale(1.15) !important;
-  z-index: 1000 !important;
-}
-
-/* Leaflet Controls Dark Theme */
-.leaflet-control-zoom a {
-  background: rgba(0, 0, 0, 0.8) !important;
-  color: #f59e0b !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.leaflet-control-zoom a:hover {
-  background: rgba(245, 158, 11, 0.2) !important;
-  color: #fbbf24 !important;
-}
-
-.leaflet-control-attribution {
-  background: rgba(0, 0, 0, 0.6) !important;
-  color: rgba(255, 255, 255, 0.5) !important;
-  font-size: 9px !important;
-  padding: 4px 8px !important;
-  border-radius: 8px !important;
+.light .map-tiles-bright {
+  filter: brightness(1) contrast(1.1) !important;
 }

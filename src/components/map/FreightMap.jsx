@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Navigation, Truck, Loader2, Crosshair, Radio, Activity } from 'lucide-react'
 import { useBookingStore } from '../../store/useBookingStore'
 import { useDriverLocationStore } from '../../store/useDriverLocationStore'
+import { useThemeStore } from '../../store/useThemeStore'
 import { supabase } from '../../api/supabase'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -155,6 +156,7 @@ const FreightMap = ({ pickup: propPickup, dropoff: propDropoff, autoDetectLocati
     const storeData = useBookingStore()
     const { activeDrivers, fetchActiveDrivers, getDriversNearLocation } = useDriverLocationStore()
 
+    const { theme } = useThemeStore()
     const pickup = propPickup || storeData.pickup
     const dropoff = propDropoff || storeData.dropoff
 
@@ -185,7 +187,10 @@ const FreightMap = ({ pickup: propPickup, dropoff: propDropoff, autoDetectLocati
             >
                 <TileLayer
                     attribution='&copy; OpenStreetMap'
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    url={theme === 'dark'
+                        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                        : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    }
                     className="map-tiles-bright"
                 />
 
