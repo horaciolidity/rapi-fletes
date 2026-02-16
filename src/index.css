@@ -107,19 +107,27 @@ body {
 
 @layer components {
   .glass-card {
-    @apply bg-zinc-900/60 backdrop-blur-2xl border border-white/5 shadow-premium rounded-[2.5rem];
+    @apply bg-zinc-950/80 backdrop-blur-3xl border border-white/5 shadow-2xl rounded-[2.5rem];
   }
 
   .premium-button {
-    @apply px-10 py-5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-400 hover:to-secondary-400 text-black font-black uppercase tracking-widest rounded-full transition-all duration-500 transform hover:scale-105 active:scale-95 shadow-button border-b-4 border-black/20 hover:border-b-0 hover:translate-y-[2px];
+    @apply px-10 py-5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-400 hover:to-secondary-400 text-black font-black uppercase tracking-widest rounded-full transition-all duration-500 transform hover:scale-[1.02] active:scale-95 shadow-button border-b-4 border-black/20;
   }
 
   .input-field {
-    @apply w-full px-8 py-5 bg-zinc-900/80 border border-white/5 rounded-[2rem] focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 outline-none transition-all placeholder:text-zinc-600 text-white font-bold italic;
+    @apply w-full px-8 py-5 bg-zinc-900 border border-white/5 rounded-[1.8rem] focus:border-primary-500/50 outline-none transition-all placeholder:text-zinc-700 text-white font-bold italic;
   }
 
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-secondary-500;
+  }
+
+  .shadow-glow {
+    @apply shadow-[0_0_30px_rgba(245, 158, 11, 0.2)];
+  }
+
+  .active-scale {
+    @apply active:scale-90 transition-transform duration-200;
   }
 }
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History } from 'lucide-react'
+import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User } from 'lucide-react'
 import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { useNavigate } from 'react-router-dom'
@@ -15,7 +15,7 @@ const DriverDashboard = () => {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [selectedFleteId, setSelectedFleteId] = useState(null)
     const [completedHistory, setCompletedHistory] = useState([])
-    const [activeTab, setActiveTab] = useState('marketplace') // marketplace, history
+    const [activeTab, setActiveTab] = useState('marketplace') // marketplace, active, history
     const [formData, setFormData] = useState({
         vehicle_model: '',
         vehicle_year: '',
@@ -67,7 +67,6 @@ const DriverDashboard = () => {
         }
     }, [activeFlete, profile?.verification_status])
 
-
     const handleVerificationSubmit = async (e) => {
         e.preventDefault()
         setIsSubmitting(true)
@@ -88,12 +87,14 @@ const DriverDashboard = () => {
     const handleAccept = async (id) => {
         await acceptFlete(id, user.id)
         setSelectedFleteId(null)
+        setActiveTab('active')
     }
 
     const handleStatusChange = async (id, status) => {
         await updateFleteStatus(id, status)
         if (status === 'completed') {
             fetchDriverHistory(user.id).then(setCompletedHistory)
+            setActiveTab('marketplace')
         }
     }
 
@@ -101,317 +102,219 @@ const DriverDashboard = () => {
 
     if (!profile) return (
         <div className="min-h-screen flex items-center justify-center bg-black">
-            <Loader2 className="w-16 h-16 text-primary-500 animate-spin" />
+            <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
         </div>
     )
 
+    // Verification Form (Mobile Optimized)
     if (profile.verification_status === 'none') {
         return (
-            <div className="pt-24 md:pt-32 pb-12 min-h-screen bg-black px-4 md:px-6 flex items-center justify-center font-sans relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-primary-500/5 blur-[80px] md:blur-[120px] rounded-full animate-float" />
-
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-3xl w-full glass-card p-8 md:p-16 bg-zinc-950/60 border-zinc-900 shadow-[0_40px_100px_rgba(0,0,0,0.9)] relative z-10">
-                    <header className="mb-10 md:mb-16 text-center">
-                        <div className="w-16 h-16 md:w-24 md:h-24 bg-primary-500 rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 md:mb-10 shadow-[0_0_50px_rgba(245,158,11,0.3)]">
-                            <Car className="w-8 h-8 md:w-12 md:h-12 text-black" />
+            <div className="pb-24 pt-10 min-h-screen bg-black font-sans px-6">
+                <div className="max-w-md mx-auto py-10">
+                    <header className="mb-10">
+                        <div className="w-16 h-16 bg-primary-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-primary-500/20">
+                            <Car className="w-8 h-8 text-black" />
                         </div>
-                        <h1 className="text-3xl md:text-5xl font-black italic tracking-tighter uppercase mb-4 md:mb-6 text-white leading-none">REGISTRO DE<br /><span className="text-primary-500">CONDUCTOR</span></h1>
-                        <p className="text-[10px] md:text-xs text-zinc-500 font-bold italic uppercase tracking-tight">Registro profesional de conductor y vehículo</p>
+                        <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white">REGISTRO<br /><span className="text-primary-500">CONDUCTOR</span></h1>
                     </header>
-                    <form onSubmit={handleVerificationSubmit} className="space-y-8 md:space-y-10">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-                            <div className="space-y-3 md:space-y-4">
-                                <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700 px-2 md:px-4 italic">01. MODELO / MARCA</label>
-                                <input className="input-field py-4 md:py-6" placeholder="EJ: MERCEDEZ SPRINTER 2024" value={formData.vehicle_model} onChange={e => setFormData({ ...formData, vehicle_model: e.target.value })} required />
-                            </div>
-                            <div className="space-y-3 md:space-y-4">
-                                <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700 px-2 md:px-4 italic">02. DOMINIO / PATENTE</label>
-                                <input className="input-field py-4 md:py-6 uppercase" placeholder="ABC-123-XY" value={formData.license_plate} onChange={e => setFormData({ ...formData, license_plate: e.target.value })} required />
-                            </div>
-                            <div className="col-span-full space-y-3 md:space-y-4">
-                                <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700 px-2 md:px-4 italic">03. WHATSAPP DE TRABAJO</label>
-                                <input className="input-field py-4 md:py-6" placeholder="+54 9 11 0000-0000" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
-                            </div>
+
+                    <form onSubmit={handleVerificationSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Modelo / Marca</label>
+                            <input className="input-field py-4" placeholder="EJ: SPRINTER 2024" value={formData.vehicle_model} onChange={e => setFormData({ ...formData, vehicle_model: e.target.value })} required />
                         </div>
-                        <button type="submit" disabled={isSubmitting} className="premium-button w-full py-5 md:py-8">
-                            {isSubmitting ? <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto" /> : 'ENVIAR SOLICITUD'}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Patente</label>
+                            <input className="input-field py-4 uppercase" placeholder="ABC-123-XY" value={formData.license_plate} onChange={e => setFormData({ ...formData, license_plate: e.target.value })} required />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">WhatsApp</label>
+                            <input className="input-field py-4" placeholder="+54 9 11 ..." value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
+                        </div>
+                        <button type="submit" disabled={isSubmitting} className="premium-button w-full py-5">
+                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'ENVIAR SOLICITUD'}
                         </button>
                     </form>
-                </motion.div>
+                </div>
             </div>
         )
     }
 
+    // Pending Verification
     if (profile.verification_status === 'pending') {
         return (
-            <div className="pt-24 md:pt-32 pb-12 min-h-screen bg-black px-6 flex items-center justify-center font-sans relative overflow-hidden text-center">
-                <div className="absolute inset-0 bg-primary-500/2 opacity-10 pointer-events-none" />
-                <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl w-full glass-card p-10 md:p-20 bg-zinc-950/80 border-zinc-900 shadow-2xl">
-                    <div className="w-24 h-24 md:w-32 md:h-32 bg-zinc-900 rounded-[2rem] md:rounded-[3rem] flex items-center justify-center mx-auto mb-8 md:mb-12 border-2 border-primary-500/20">
-                        <Clock className="w-10 h-10 md:w-16 md:h-16 text-primary-500 animate-spin-slow" />
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-white mb-6 md:mb-8 leading-none">AUDITORÍA<br /><span className="text-zinc-800">EN PROCESO</span></h2>
-                    <p className="text-xs md:text-sm text-zinc-500 font-bold italic mb-10 md:mb-16 uppercase tracking-tight leading-relaxed max-w-sm mx-auto">Tu solicitud está siendo revisada por nuestro equipo técnico.</p>
-                    <button onClick={() => fetchProfile(user.id)} className="w-full bg-zinc-900 border border-white/5 text-zinc-500 py-5 md:py-6 rounded-2xl md:rounded-[2rem] font-black text-[10px] tracking-[0.3em] uppercase hover:text-white hover:border-primary-500/50 transition-all italic">ACTUALIZAR ESTADO</button>
-                </motion.div>
+            <div className="pb-24 pt-10 min-h-screen bg-black font-sans px-6 flex flex-col items-center justify-center text-center">
+                <Clock className="w-12 h-12 text-primary-500 animate-spin-slow mb-6" />
+                <h2 className="text-3xl font-black italic uppercase text-white mb-2">AUDITORÍA<br />EN CURSO</h2>
+                <p className="text-[11px] text-zinc-600 font-bold uppercase italic tracking-widest leading-relaxed max-w-xs">Estamos verificando tus datos. Te notificaremos pronto.</p>
+                <button onClick={() => fetchProfile(user.id)} className="mt-10 text-primary-500 text-[10px] font-black uppercase underline italic tracking-widest">ACTUALIZAR ESTADO</button>
             </div>
         )
     }
 
     return (
-        <div className="pt-24 md:pt-32 pb-12 min-h-screen bg-black font-sans">
-            <div className="container mx-auto px-6 md:px-10 max-w-[1700px]">
+        <div className="pb-24 pt-10 min-h-screen bg-black font-sans selection:bg-primary-500">
+            <div className="container mx-auto px-6 max-w-md">
 
-                {/* Dashboard Control Bar */}
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 md:gap-10 mb-12 md:mb-16">
-                    <div className="w-full">
-                        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 mb-8">
-                            <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase leading-none">PANEL CHOFER</h1>
-                            <div className="px-4 md:px-5 py-1.5 md:py-2 bg-primary-500 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-                                <span className="text-[8px] md:text-[10px] font-black text-black uppercase italic tracking-[0.2em]">VERIFICADO</span>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-6 md:gap-10">
-                            {[
-                                { id: 'marketplace', label: 'MARKETPLACE' },
-                                { id: 'history', label: 'HISTORIAL' }
-                            ].map(tab => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`text-[10px] md:text-xs font-black uppercase tracking-[0.3em] md:tracking-[0.4em] transition-all relative py-2 italic ${activeTab === tab.id ? 'text-primary-500' : 'text-zinc-700 hover:text-zinc-400'}`}
-                                >
-                                    {tab.label}
-                                    {activeTab === tab.id && <motion.div layoutId="tab-underline" className="absolute -bottom-1 left-0 right-0 h-1 bg-primary-500 rounded-full" />}
-                                </button>
-                            ))}
-                        </div>
+                {/* Driver Header */}
+                <div className="flex justify-between items-center mb-8 pt-10">
+                    <div>
+                        <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">PANEL<br /><span className="text-primary-500">CHOFER</span></h1>
                     </div>
-
-                    <div className="flex w-full lg:w-auto">
-                        <div className="w-full lg:w-auto bg-zinc-950 px-8 md:px-10 py-4 md:py-6 rounded-2xl md:rounded-[2.5rem] border border-zinc-900 text-right md:min-w-[200px] shadow-2xl">
-                            <p className="text-[8px] md:text-[10px] font-black text-zinc-800 uppercase italic tracking-widest mb-1 md:mb-2">COMPLETADOS</p>
-                            <p className="text-3xl md:text-5xl font-black text-white italic tracking-tighter leading-none">{completedHistory.length} <span className="text-[10px] md:text-xs text-zinc-700 not-italic uppercase">OK</span></p>
-                        </div>
+                    <div className="text-right">
+                        <p className="text-[8px] font-black text-zinc-700 uppercase italic mb-1">COMPLETADOS</p>
+                        <p className="text-2xl font-black text-white italic">{completedHistory.length}</p>
                     </div>
                 </div>
 
+                {/* Dashboard Tabs */}
+                <div className="flex bg-zinc-950 p-1 rounded-2xl border border-white/5 mb-8">
+                    {[
+                        { id: 'marketplace', label: 'PEDIDOS', icon: Truck },
+                        { id: 'active', label: 'ACTUAL', icon: Activity },
+                        { id: 'history', label: 'VIAJES', icon: History }
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all ${activeTab === tab.id ? 'bg-primary-500 text-black' : 'text-zinc-600'}`}
+                        >
+                            <tab.icon className="w-4 h-4 mb-1" />
+                            <span className="text-[8px] font-black uppercase tracking-tight">{tab.label}</span>
+                        </button>
+                    ))}
+                </div>
+
                 <AnimatePresence mode="wait">
-                    {activeTab === 'marketplace' ? (
-                        <motion.div key="market" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-12 md:space-y-16">
-                            {/* Horizontal Marketplace Scroll */}
-                            <section>
-                                <div className="flex items-center justify-between mb-8 md:mb-10 px-2 lg:px-4">
-                                    <h2 className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] md:tracking-[0.6em] text-zinc-800 italic">SERVICIOS EN TU ZONA</h2>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full animate-ping" />
-                                        <span className="text-[7px] md:text-[8px] font-black text-zinc-600 uppercase tracking-widest">REAL-TIME FEED</span>
+                    {activeTab === 'marketplace' && (
+                        <motion.div key="market" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+                            {availableFletes.length > 0 ? availableFletes.map((flete, idx) => (
+                                <motion.div
+                                    key={flete.id}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    onClick={() => setSelectedFleteId(flete.id === selectedFleteId ? null : flete.id)}
+                                    className={`glass-card p-6 border-zinc-900 bg-zinc-950/80 transition-all ${selectedFleteId === flete.id ? 'border-primary-500 bg-primary-500/10' : ''}`}
+                                >
+                                    <div className="flex justify-between items-start mb-6">
+                                        <Truck className={`w-6 h-6 ${selectedFleteId === flete.id ? 'text-primary-500' : 'text-zinc-800'}`} />
+                                        <div className="text-right">
+                                            <p className="text-[8px] font-black text-zinc-800 uppercase italic">ID: {flete.id.slice(0, 8)}</p>
+                                            <p className="text-xl font-black text-white italic tracking-tighter">$ {flete.estimated_price}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="flex gap-6 md:gap-10 overflow-x-auto pb-8 md:pb-10 scrollbar-none snap-x h-auto min-h-[300px]">
-                                    {availableFletes.length > 0 ? availableFletes.map((flete, idx) => (
-                                        <motion.div
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ delay: idx * 0.1 }}
-                                            key={flete.id}
-                                            onClick={() => setSelectedFleteId(flete.id)}
-                                            className={`flex-shrink-0 w-[280px] md:w-[380px] snap-start glass-card p-5 md:p-8 border-2 transition-all duration-500 cursor-pointer flex flex-col justify-between relative overflow-hidden ${selectedFleteId === flete.id || activeFlete?.id === flete.id ? 'border-primary-500 bg-primary-500/10 shadow-[0_40px_80px_rgba(0,0,0,0.8)] scale-[0.98]' : 'border-zinc-900 bg-zinc-950/40 hover:border-zinc-800'}`}
+
+                                    <div className="space-y-3 mb-6">
+                                        <div className="flex items-center gap-3">
+                                            <MapPin className="w-3 h-3 text-primary-500 shrink-0" />
+                                            <p className="text-[10px] font-bold text-zinc-400 truncate italic uppercase">{flete.pickup_address}</p>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <Navigation className="w-3 h-1.5 text-secondary-500 shrink-0" />
+                                            <p className="text-[10px] font-bold text-zinc-400 truncate italic uppercase">{flete.dropoff_address}</p>
+                                        </div>
+                                    </div>
+
+                                    {selectedFleteId === flete.id && (
+                                        <motion.button
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            onClick={(e) => { e.stopPropagation(); handleAccept(flete.id); }}
+                                            className="w-full py-4 bg-primary-500 text-black font-black italic text-[10px] uppercase rounded-xl"
                                         >
-                                            <div className="flex justify-between items-start mb-8">
-                                                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-[1.5rem] flex items-center justify-center border transition-all duration-500 ${selectedFleteId === flete.id ? 'bg-primary-500 text-black border-transparent shadow-xl' : 'bg-black text-zinc-700 border-white/5'}`}>
-                                                    <Truck className="w-6 h-6 md:w-8 md:h-8" />
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-[7px] md:text-[8px] font-black text-zinc-800 uppercase italic tracking-widest mb-1">GANANCIA</p>
-                                                    <p className="text-2xl md:text-4xl font-black text-white italic tracking-tighter leading-none">$ {flete.estimated_price}</p>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-4 md:space-y-6">
-                                                <div className="flex items-center gap-4 md:gap-5">
-                                                    <MapPin className="w-4 h-4 md:w-5 md:h-5 text-primary-500 shrink-0" />
-                                                    <p className="text-[10px] md:text-xs font-black text-zinc-500 line-clamp-1 italic uppercase tracking-tight">{flete.pickup_address}</p>
-                                                </div>
-                                                <div className="flex items-center gap-4 md:gap-5">
-                                                    <Navigation className="w-4 h-4 md:w-5 md:h-5 text-secondary-600 shrink-0" />
-                                                    <p className="text-[10px] md:text-xs font-black text-zinc-500 line-clamp-1 italic uppercase tracking-tight">{flete.dropoff_address}</p>
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    )) : (
-                                        <div className="w-full bg-zinc-950/40 rounded-3xl md:rounded-[4rem] border-4 border-dashed border-zinc-900 flex flex-col items-center justify-center text-zinc-800 italic p-12 md:p-20 grayscale opacity-20">
-                                            <Loader2 className="w-12 h-12 md:w-20 md:h-20 animate-spin mb-6 md:mb-8" />
-                                            <p className="text-xs md:text-xl font-black uppercase tracking-[0.4em] text-center">ESPERANDO NUEVOS VIAJES</p>
-                                        </div>
+                                            ACEPTAR VIAJE
+                                        </motion.button>
                                     )}
+                                </motion.div>
+                            )) : (
+                                <div className="text-center py-20 grayscale opacity-20 border-2 border-dashed border-zinc-900 rounded-[2.5rem]">
+                                    <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
+                                    <p className="text-[10px] font-black uppercase italic tracking-widest">BUSCANDO PEDIDOS...</p>
                                 </div>
-                            </section>
-
-                            {/* Detailed Orientation & Map */}
-                            <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-stretch min-h-[600px] lg:min-h-[700px]">
-                                <div className="lg:col-span-1 h-full order-2 lg:order-1">
-                                    <AnimatePresence mode="wait">
-                                        {selectedFlete ? (
-                                            <motion.div key={selectedFlete.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="glass-card p-6 md:p-10 h-full bg-zinc-950 border-primary-500/20 flex flex-col shadow-[0_45px_100px_rgba(0,0,0,0.9)]">
-                                                <div className="flex-grow space-y-8 md:space-y-12">
-                                                    <header>
-                                                        <div className="flex items-center gap-3 mb-3 md:mb-4">
-                                                            <span className="w-2 h-2 md:w-3 md:h-3 bg-primary-500 rounded-full animate-pulse" />
-                                                            <span className="text-[8px] md:text-[10px] font-black text-zinc-800 uppercase tracking-[0.4em] md:tracking-[0.5em] italic leading-none truncate">ID: {selectedFlete.id.slice(0, 12)}</span>
-                                                        </div>
-                                                        <h3 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter text-white leading-none">DATOS DEL<br /><span className="text-primary-500">SERVICIO</span></h3>
-                                                    </header>
-
-                                                    <div className="space-y-6 md:space-y-8">
-                                                        <div className="bg-zinc-900/50 p-4 md:p-6 rounded-xl md:rounded-[2rem] border border-white/5 flex flex-col items-center gap-2 md:gap-3">
-                                                            <p className="text-[8px] md:text-[10px] font-black text-zinc-700 uppercase tracking-widest italic leading-none">CLIENTE</p>
-                                                            <p className="text-lg md:text-xl font-black text-white uppercase italic tracking-tighter leading-none">{selectedFlete.profiles?.full_name || "MUDANZA"}</p>
-                                                        </div>
-                                                        <div className="bg-zinc-900/50 p-4 md:p-6 rounded-xl md:rounded-[2rem] border border-white/5 flex flex-col items-center gap-2 md:gap-3">
-                                                            <p className="text-[8px] md:text-[10px] font-black text-zinc-700 uppercase tracking-widest italic leading-none">VALOR ESTIMADO</p>
-                                                            <p className="text-3xl md:text-4xl font-black text-primary-500 italic tracking-tighter leading-none">$ {selectedFlete.estimated_price}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-10 space-y-4">
-                                                    {selectedFlete.status === 'pending' ? (
-                                                        <button onClick={() => handleAccept(selectedFlete.id)} className="premium-button w-full shadow-2xl shadow-primary-500/30">
-                                                            ACEPTAR SERVICIO
-                                                        </button>
-                                                    ) : (
-                                                        <div className="space-y-6">
-                                                            {selectedFlete.status === 'accepted' && (
-                                                                <button onClick={() => handleStatusChange(selectedFlete.id, 'picked_up')} className="premium-button w-full">REGISTRAR CARGA</button>
-                                                            )}
-                                                            {selectedFlete.status === 'picked_up' && (
-                                                                <button onClick={() => handleStatusChange(selectedFlete.id, 'completed')} className="w-full py-6 bg-primary-500 text-black font-black italic text-sm uppercase rounded-[2rem] shadow-[0_0_40px_rgba(245,158,11,0.4)] transition-all hover:scale-[1.02]">
-                                                                    FINALIZAR ENTREGA
-                                                                </button>
-                                                            )}
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                <a href={`tel:${selectedFlete.profiles?.phone || ''}`} className="py-5 bg-zinc-900 border border-white/5 text-white font-black italic text-[9px] uppercase rounded-[1.5rem] hover:bg-zinc-800 transition-all flex items-center justify-center gap-3 tracking-[0.2em] shadow-xl">
-                                                                    <Phone className="w-4 h-4" /> LLAMAR
-                                                                </a>
-                                                                <button onClick={() => handleStatusChange(selectedFlete.id, 'cancelled')} className="py-5 border-2 border-red-500/20 text-red-500/50 font-black text-[9px] uppercase rounded-[1.5rem] hover:border-red-500 hover:text-red-500 transition-all tracking-[0.2em] italic">CANCELAR</button>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </motion.div>
-                                        ) : (
-                                            <div className="glass-card p-20 h-full bg-zinc-950/20 border-zinc-900 border-dashed border-4 flex flex-col items-center justify-center text-center opacity-10">
-                                                <Target className="w-24 h-24 text-zinc-800 mb-8" />
-                                                <h3 className="text-4xl font-black italic uppercase tracking-widest text-zinc-800 leading-none">SELECCIONE<br />UN SERVICIO</h3>
-                                            </div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-
-                                <div className="lg:col-span-2 min-h-[600px] lg:h-auto rounded-[4rem] overflow-hidden border-8 border-zinc-950 relative bg-zinc-900 shadow-[0_50px_100px_rgba(0,0,0,0.9)]">
-                                    <FreightMap
-                                        pickup={selectedFlete ? { address: selectedFlete.pickup_address, lat: selectedFlete.pickup_lat, lng: selectedFlete.pickup_lng } : null}
-                                        dropoff={selectedFlete ? { address: selectedFlete.dropoff_address, lat: selectedFlete.dropoff_lat, lng: selectedFlete.dropoff_lng } : null}
-                                        distance={selectedFlete?.distance}
-                                        duration={selectedFlete?.duration}
-                                        autoDetectLocation={true}
-                                        showActiveDrivers={false}
-                                    />
-
-                                    {/* Map Overlays */}
-                                    <div className="absolute top-10 right-10 flex flex-col gap-4">
-                                        <div className="bg-black/90 backdrop-blur-3xl border border-white/10 p-6 rounded-[2rem] flex flex-col items-end gap-2 shadow-2xl">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-3 h-3 bg-red-500 rounded-full animate-ping" />
-                                                <span className="text-[10px] font-black text-white italic tracking-[0.3em] leading-none uppercase">SAT-FEED LIVE</span>
-                                            </div>
-                                            <p className="text-[8px] font-black text-zinc-800 uppercase tracking-widest italic">ENCRYPTION: AES-256</p>
-                                        </div>
-                                    </div>
-
-                                    {selectedFlete && (
-                                        <div className="absolute bottom-10 left-10 p-8 bg-black/90 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 border-l-8 border-l-primary-500 shadow-2xl max-w-sm">
-                                            <div className="flex gap-6 items-center flex-col md:flex-row">
-                                                <div className="w-16 h-16 bg-zinc-900 rounded-3xl flex items-center justify-center shrink-0 border border-white/5">
-                                                    <Navigation className="w-8 h-8 text-primary-500" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mb-2 leading-none">DISTANCIA Y TIEMPO</p>
-                                                    <p className="text-xl font-black text-white italic uppercase tracking-tighter leading-none">
-                                                        {selectedFlete.distance ? `${selectedFlete.distance.toFixed(1)} KM` : '-- KM'}
-                                                        <span className="mx-3 text-zinc-800">|</span>
-                                                        {selectedFlete.duration ? `${selectedFlete.duration.toFixed(0)} MIN` : '-- MIN'}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
+                            )}
                         </motion.div>
-                    ) : (
-                        <motion.div key="history" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                            <div className="hidden md:grid grid-cols-12 gap-4 px-8 py-4 bg-zinc-900/50 rounded-2xl border border-white/5">
-                                <div className="col-span-2 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic">ID SERVICIO</div>
-                                <div className="col-span-5 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic">LOGÍSTICA / RUTA</div>
-                                <div className="col-span-2 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic text-right">GANANCIA</div>
-                                <div className="col-span-2 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic text-right">FECHA</div>
-                                <div className="col-span-1 text-[10px] font-black uppercase text-zinc-600 tracking-widest italic text-center">STATUS</div>
-                            </div>
+                    )}
 
-                            <div className="space-y-3">
-                                {completedHistory.map((f) => (
-                                    <div key={f.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-5 md:px-8 md:py-6 bg-zinc-950 border border-zinc-900 rounded-[1.5rem] md:rounded-[2rem] hover:border-zinc-800 transition-all group">
-                                        <div className="md:col-span-2 flex items-center justify-between md:block">
-                                            <span className="md:hidden text-[8px] font-black text-zinc-800 uppercase italic">ID</span>
-                                            <p className="text-[10px] font-black text-zinc-600 tracking-[0.2em] italic group-hover:text-primary-500 transition-colors">#{f.id.slice(0, 8)}</p>
+                    {activeTab === 'active' && (
+                        <motion.div key="active" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
+                            {activeFlete ? (
+                                <div className="space-y-6">
+                                    <div className="h-64 rounded-[2.5rem] overflow-hidden border-4 border-zinc-900 relative bg-zinc-900 shadow-2xl">
+                                        <FreightMap
+                                            pickup={{ address: activeFlete.pickup_address, lat: activeFlete.pickup_lat, lng: activeFlete.pickup_lng }}
+                                            dropoff={{ address: activeFlete.dropoff_address, lat: activeFlete.dropoff_lat, lng: activeFlete.dropoff_lng }}
+                                            autoDetectLocation={true}
+                                            showActiveDrivers={false}
+                                        />
+                                        <div className="absolute top-4 left-4 p-3 bg-black/80 backdrop-blur-xl rounded-xl border border-white/5 flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                                            <span className="text-[9px] font-black text-white italic uppercase tracking-widest">{activeFlete.status}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="glass-card p-8 space-y-6">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="text-2xl font-black italic text-white uppercase italic truncate mr-4">{activeFlete.profiles?.full_name || "MUDANZA"}</h3>
+                                            <p className="text-3xl font-black text-primary-500 italic tracking-tighter shrink-0">$ {activeFlete.estimated_price}</p>
                                         </div>
 
-                                        <div className="md:col-span-5 space-y-1">
-                                            <p className="text-xs font-black text-zinc-400 italic uppercase tracking-tight truncate">{f.pickup_address}</p>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 group-hover:bg-primary-500 transition-colors" />
-                                                <p className="text-[9px] text-zinc-600 italic truncate uppercase font-bold tracking-tight">Hacia → {f.dropoff_address}</p>
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-4">
+                                                <MapPin className="w-4 h-4 text-primary-500 shrink-0" />
+                                                <p className="text-[11px] font-black text-zinc-400 italic uppercase">#{activeFlete.pickup_address}</p>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <Navigation className="w-4 h-4 text-secondary-500 shrink-0" />
+                                                <p className="text-[11px] font-black text-zinc-400 italic uppercase">#{activeFlete.dropoff_address}</p>
                                             </div>
                                         </div>
 
-                                        <div className="md:col-span-2 flex items-center justify-between md:justify-end">
-                                            <span className="md:hidden text-[8px] font-black text-zinc-800 uppercase italic">GANANCIA</span>
-                                            <span className="text-xl md:text-2xl font-black italic text-white group-hover:text-primary-500 transition-colors tracking-tighter">$ {f.estimated_price}</span>
-                                        </div>
-
-                                        <div className="md:col-span-2 flex items-center justify-between md:justify-end">
-                                            <span className="md:hidden text-[8px] font-black text-zinc-800 uppercase italic">FECHA</span>
-                                            <p className="text-[10px] font-black text-zinc-700 uppercase italic tracking-widest">{new Date(f.created_at).toLocaleDateString()}</p>
-                                        </div>
-
-                                        <div className="md:col-span-1 flex items-center justify-between md:justify-center">
-                                            <span className="md:hidden text-[8px] font-black text-zinc-800 uppercase italic">STATUS</span>
-                                            <span className="px-3 py-1 bg-zinc-900 text-green-500 text-[8px] font-black uppercase italic rounded-full border border-green-500/20 group-hover:border-green-500/40 transition-all">OK</span>
+                                        <div className="flex gap-3 pt-4">
+                                            {activeFlete.status === 'accepted' && (
+                                                <button onClick={() => handleStatusChange(activeFlete.id, 'picked_up')} className="premium-button flex-grow">A CARGAR</button>
+                                            )}
+                                            {activeFlete.status === 'picked_up' && (
+                                                <button onClick={() => handleStatusChange(activeFlete.id, 'completed')} className="w-full py-5 bg-primary-500 text-black font-black italic text-[12px] uppercase rounded-2xl shadow-xl shadow-primary-500/20">ENTREGADO</button>
+                                            )}
+                                            <a href={`tel:${activeFlete.profiles?.phone || ''}`} className="p-5 bg-zinc-900 rounded-2xl border border-white/5 text-white">
+                                                <Phone className="w-5 h-5" />
+                                            </a>
                                         </div>
                                     </div>
-                                ))}
 
-                                {completedHistory.length === 0 && (
-                                    <div className="p-20 text-center italic text-zinc-800 font-black uppercase tracking-[0.5em] text-[10px] grayscale opacity-20 bg-zinc-950/40 rounded-[3rem] border-2 border-dashed border-zinc-900 transition-all">
-                                        SIN REGISTROS DE VIAJES
+                                    <ChatWidget fleteId={activeFlete.id} receiverName={activeFlete.profiles?.full_name || "Cliente"} />
+                                </div>
+                            ) : (
+                                <div className="text-center py-20 grayscale opacity-20 border-2 border-dashed border-zinc-900 rounded-[2.5rem]">
+                                    <Activity className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
+                                    <p className="text-[10px] font-black uppercase italic tracking-widest">SIN VIAJE ACTIVO</p>
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'history' && (
+                        <motion.div key="history" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-3">
+                            {completedHistory.map((f) => (
+                                <div key={f.id} className="p-5 bg-zinc-950 border border-zinc-900 rounded-2xl flex justify-between items-center">
+                                    <div>
+                                        <p className="text-[10px] font-black text-zinc-400 italic uppercase leading-tight mb-1">{f.dropoff_address}</p>
+                                        <p className="text-[8px] font-black text-zinc-700 uppercase italic">{new Date(f.created_at).toLocaleDateString()}</p>
                                     </div>
-                                )}
-                            </div>
+                                    <p className="text-xl font-black text-white italic">$ {f.estimated_price}</p>
+                                </div>
+                            ))}
+                            {completedHistory.length === 0 && (
+                                <div className="text-center py-20 grayscale opacity-20 border-2 border-dashed border-zinc-900 rounded-[2.5rem]">
+                                    <History className="w-10 h-10 text-zinc-800 mx-auto mb-4" />
+                                    <p className="text-[10px] font-black uppercase italic tracking-widest">HISTORIAL VACÍO</p>
+                                </div>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
-
-            {/* Chat Widget Floating Refined */}
-            {activeFlete && ['accepted', 'picked_up'].includes(activeFlete.status) && (
-                <div className="fixed bottom-12 right-12 z-[2000]">
-                    <ChatWidget
-                        fleteId={activeFlete.id}
-                        receiverName={activeFlete.profiles?.full_name || "Cliente"}
-                    />
-                </div>
-            )}
         </div>
     )
 }

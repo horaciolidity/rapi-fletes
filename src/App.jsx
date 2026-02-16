@@ -9,6 +9,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import MyFletes from './pages/MyFletes'
 import Profile from './pages/Profile'
 import Navbar from './components/layout/Navbar'
+import BottomNav from './components/layout/BottomNav'
 import { useAuthStore } from './store/useAuthStore'
 import { supabase } from './api/supabase'
 
@@ -37,13 +38,13 @@ const AppContent = () => {
   }, [])
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white selection:bg-primary-500 selection:text-white">
+    <div className="flex flex-col min-h-screen bg-black text-white selection:bg-primary-500 selection:text-white max-w-md mx-auto relative md:max-w-none shadow-2xl shadow-primary-500/5">
       {!isAuthPage && <Navbar />}
-      <main className="flex-grow">
+
+      <main className={`flex-grow overflow-y-auto ${!isAuthPage ? 'pb-24 pt-16' : ''}`}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
-          {/* Alias to prevent 404s */}
           <Route path="/login" element={<Navigate to="/auth" replace />} />
           <Route path="/register" element={<Navigate to="/auth" replace />} />
           <Route path="/signup" element={<Navigate to="/auth" replace />} />
@@ -54,13 +55,15 @@ const AppContent = () => {
           <Route path="/my-fletes" element={<MyFletes />} />
           <Route path="/admin" element={<AdminDashboard />} />
 
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
+      {!isAuthPage && <BottomNav />}
+
+      {/* Footer only shown on larger screens if needed, otherwise removed for "mobile-only" feel */}
       {!isAuthPage && (
-        <footer className="py-20 bg-zinc-950 border-t border-zinc-900 relative overflow-hidden">
+        <footer className="hidden md:block py-20 bg-zinc-950 border-t border-zinc-900 relative overflow-hidden mt-auto">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-primary-500/50 to-transparent" />
           <div className="container mx-auto px-10 text-center relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-center gap-10 mb-16">
@@ -76,13 +79,7 @@ const AppContent = () => {
                 <a href="#" className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-primary-500 transition-colors italic">HQ Soporte</a>
               </div>
             </div>
-            <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-800 italic">© 2026 RapiFletes Inc - Inteligencia en Movimiento</p>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest italic">SISTEMAS OPERATIVOS NOMINALES</span>
-              </div>
-            </div>
+            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-800 italic">© 2026 RapiFletes Inc - Inteligencia en Movimiento</p>
           </div>
         </footer>
       )}
