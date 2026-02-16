@@ -165,9 +165,52 @@ const MyFletes = () => {
                                             </div>
                                         </div>
 
+                                        <div className="border-t border-zinc-900 pt-6">
+                                            <h3 className="text-[9px] font-black uppercase tracking-widest text-zinc-700 mb-4 italic">LOGÍSTICA Y TIEMPOS</h3>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">PEDIDO</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <Calendar className="w-3 h-3 text-primary-500" />
+                                                        <p className="text-[10px] font-black text-white italic uppercase">{new Date(selectedFlete.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">LLEGADA VEHÍCULO</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <Clock className="w-3 h-3 text-primary-500" />
+                                                        <p className="text-[10px] font-black text-white italic uppercase">~{selectedFlete.vehicle_arrival_minutes || 10} MIN</p>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">TIEMPO VIAJE</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <Navigation className="w-3 h-3 text-secondary-500" />
+                                                        <p className="text-[10px] font-black text-white italic uppercase">{selectedFlete.duration} MIN</p>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">DISTANCIA</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <MapIcon className="w-3 h-3 text-primary-500" />
+                                                        <p className="text-[10px] font-black text-white italic uppercase">{selectedFlete.distance} KM</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {selectedFlete.shipment_details && (
+                                            <div className="border-t border-zinc-900 pt-6">
+                                                <h3 className="text-[9px] font-black uppercase tracking-widest text-zinc-700 mb-2 italic">DETALLES DE ENVÍO</h3>
+                                                <div className="bg-primary-500/5 p-4 rounded-2xl border border-primary-500/10">
+                                                    <p className="text-[10px] font-bold text-zinc-300 italic uppercase leading-relaxed">{selectedFlete.shipment_details}</p>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="flex justify-between items-end pt-4 border-t border-zinc-900">
                                             <div>
-                                                <p className="text-[8px] font-black text-zinc-700 uppercase mb-1">PRECIO ESTIMADO</p>
+                                                <p className="text-[8px] font-black text-zinc-700 uppercase mb-1">PRECIO TOTAL</p>
                                                 <p className="text-4xl font-black text-primary-500 italic tracking-tighter">$ {selectedFlete.estimated_price}</p>
                                             </div>
                                             <p className="text-[9px] font-black text-zinc-600 italic uppercase">{selectedFlete.vehicle_categories?.name}</p>

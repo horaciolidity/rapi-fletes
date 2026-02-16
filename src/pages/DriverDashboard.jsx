@@ -296,6 +296,24 @@ const DriverDashboard = () => {
                                                 </div>
                                             </div>
 
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="bg-zinc-900 px-4 py-3 rounded-xl">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">PEDIDO</p>
+                                                    <p className="text-[10px] font-black text-white italic uppercase">{new Date(activeFlete.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                </div>
+                                                <div className="bg-zinc-900 px-4 py-3 rounded-xl">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">DURACIÓN</p>
+                                                    <p className="text-[10px] font-black text-white italic uppercase">{activeFlete.duration} MIN</p>
+                                                </div>
+                                            </div>
+
+                                            {activeFlete.shipment_details && (
+                                                <div className="bg-primary-500/5 p-4 rounded-xl border border-primary-500/10">
+                                                    <p className="text-[7px] font-black text-primary-500 uppercase mb-1">DETALLES DE CARGA</p>
+                                                    <p className="text-[10px] font-bold text-zinc-300 italic uppercase leading-tight">{activeFlete.shipment_details}</p>
+                                                </div>
+                                            )}
+
                                             <div className="flex gap-3">
                                                 {activeFlete.status === 'accepted' && (
                                                     <button onClick={() => handleStatusChange(activeFlete.id, 'picked_up')} className="premium-button flex-grow py-5 text-[11px]">MARCAR RECOGIDA</button>

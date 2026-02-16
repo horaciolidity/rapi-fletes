@@ -87,8 +87,8 @@ export const useBookingStore = create((set, get) => ({
         set({ estimate: total })
     },
 
-    createFlete: async (userId) => {
-        const { pickup, dropoff, selectedCategory, estimate } = get()
+    createFlete: async (userId, shipmentDetails = '') => {
+        const { pickup, dropoff, selectedCategory, estimate, duration } = get()
         if (!pickup || !dropoff || !selectedCategory) {
             set({ error: "Faltan datos para completar la reserva" })
             return null
@@ -96,6 +96,9 @@ export const useBookingStore = create((set, get) => ({
 
         set({ loading: true, error: null })
         try {
+            // Random vehicle arrival time between 5-15 mins
+            const vehicleArrivalTime = Math.floor(Math.random() * 10) + 5
+
             const { data, error } = await supabase
                 .from('fletes')
                 .insert([
@@ -110,7 +113,9 @@ export const useBookingStore = create((set, get) => ({
                         category_id: selectedCategory.id,
                         estimated_price: estimate,
                         distance: get().distance,
-                        duration: get().duration,
+                        duration: duration,
+                        shipment_details: shipmentDetails,
+                        vehicle_arrival_minutes: vehicleArrivalTime,
                         status: 'pending'
                     }
                 ])

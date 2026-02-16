@@ -21,6 +21,7 @@ const Booking = () => {
     const [searchResults, setSearchResults] = useState([])
     const [activeSearch, setActiveSearch] = useState(null)
     const [geoError, setGeoError] = useState(null)
+    const [shipmentDetails, setShipmentDetails] = useState('')
 
     useEffect(() => {
         if (profile?.role === 'driver') {
@@ -325,10 +326,21 @@ const Booking = () => {
                                                 <p className="text-[10px] font-bold italic text-zinc-400 uppercase tracking-tight">Efectivo al finalizar</p>
                                             </div>
                                         </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">DETALLES DEL ENVÍO (OBJETOS, PISO, ETC)</label>
+                                            <textarea
+                                                className="w-full px-6 py-4 bg-zinc-900/50 border border-white/5 rounded-2xl text-[10px] font-bold italic text-white outline-none focus:border-primary-500/50 min-h-[80px] resize-none"
+                                                placeholder="Ej: 1 Heladera, 2do piso por escalera..."
+                                                value={shipmentDetails}
+                                                onChange={(e) => setShipmentDetails(e.target.value)}
+                                            />
+                                        </div>
+
                                         <div className="flex gap-4">
                                             <button onClick={() => setStep(2)} className="p-5 bg-zinc-900 rounded-2xl border border-white/5 text-zinc-500 rotate-180"><ArrowRight className="w-5 h-5" /></button>
                                             <button
-                                                onClick={handleConfirmBooking}
+                                                onClick={() => createFlete(user.id, shipmentDetails).then(res => res && setStep(4))}
                                                 disabled={loading}
                                                 className="premium-button flex-grow flex items-center justify-center gap-4 py-5"
                                             >

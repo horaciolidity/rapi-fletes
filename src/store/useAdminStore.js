@@ -81,20 +81,25 @@ export const useAdminStore = create((set, get) => ({
     fetchDriverLeaderboard: async () => {
         const { data, error } = await supabase
             .from('fletes')
-            .select('driver_id, profiles:driver_id(full_name)')
+            .select('driver_id, driver:driver_id(full_name)')
             .eq('status', 'completed')
             .not('driver_id', 'is', null)
 
         if (error) return []
 
-        const counts = data.reduce((acc, flete) => {
-            const name = flete.profiles?.full_name || 'Desconocido'
-            acc[name] = (acc[name] || 0) + 1
+        // Group by driver_id to avoid name collisions
+        const driverStats = data.reduce((acc, flete) => {
+            const id = flete.driver_id
+            const name = flete.driver?.full_name || 'Desconocido'
+
+            if (!acc[id]) {
+                acc[id] = { name, count: 0 }
+            }
+            acc[id].count += 1
             return acc
         }, {})
 
-        return Object.entries(counts)
-            .map(([name, count]) => ({ name, count }))
+        return Object.values(driverStats)
             .sort((a, b) => b.count - a.count)
     }
 }))
