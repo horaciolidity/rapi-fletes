@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Bell, X, Info, CheckCircle, AlertTriangle } from 'lucide-react'
 import { useNotificationStore } from '../../store/useNotificationStore'
 import { useAuthStore } from '../../store/useAuthStore'
-import { supabase } from '../api/supabase'
+import { supabase } from '../../api/supabase'
 
 const NotificationManager = () => {
     const { notifications, removeNotification, addNotification, requestPermission } = useNotificationStore()
