@@ -12,6 +12,7 @@ import Navbar from './components/layout/Navbar'
 import BottomNav from './components/layout/BottomNav'
 import { useAuthStore } from './store/useAuthStore'
 import { supabase } from './api/supabase'
+import NotificationManager from './components/notifications/NotificationManager'
 
 const AppContent = () => {
   const { setUser, fetchProfile } = useAuthStore()
@@ -40,6 +41,7 @@ const AppContent = () => {
   return (
     <div className="flex flex-col min-h-screen bg-black text-white selection:bg-primary-500 selection:text-white max-w-md mx-auto relative md:max-w-none shadow-2xl shadow-primary-500/5">
       {!isAuthPage && <Navbar />}
+      <NotificationManager />
 
       <main className={`flex-grow overflow-y-auto ${!isAuthPage ? 'pb-24 pt-16' : ''}`}>
         <Routes>

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, Phone, Mail, Camera, Save, Loader2, ShieldCheck, Truck, MapPin, Settings, LogOut, ChevronRight } from 'lucide-react'
+import { User, Phone, Mail, Camera, Save, Loader2, ShieldCheck, Truck, MapPin, Settings, LogOut, ChevronRight, Bell } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
+import { useNotificationStore } from '../store/useNotificationStore'
 import { useNavigate } from 'react-router-dom'
 
 const Profile = () => {
     const { user, profile, updateProfile, fetchProfile, signOut } = useAuthStore()
+    const { addNotification } = useNotificationStore()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState({ type: '', text: '' })
@@ -157,6 +159,16 @@ const Profile = () => {
                                 <span className="text-xs font-black text-zinc-400 uppercase italic tracking-wider">Ajustes</span>
                             </div>
                             <ChevronRight className="w-4 h-4 text-zinc-800" />
+                        </button>
+                        <button
+                            onClick={() => addNotification({ message: '¡Notificación de prueba operativa!', type: 'success' })}
+                            className="w-full flex items-center justify-between p-5 hover:bg-zinc-900/50 transition-colors border-t border-white/5"
+                        >
+                            <div className="flex items-center gap-4">
+                                <Bell className="w-5 h-5 text-primary-500" />
+                                <span className="text-xs font-black text-white uppercase italic tracking-wider">Probar Notificaciones</span>
+                            </div>
+                            <div className="px-2 py-0.5 bg-primary-500/10 rounded text-[7px] font-black text-primary-500 uppercase italic">Test</div>
                         </button>
                     </div>
                 </div>
