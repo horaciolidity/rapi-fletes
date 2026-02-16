@@ -14,51 +14,65 @@ const Landing = () => {
     return (
         <div className="min-h-screen bg-black text-white selection:bg-primary-500 selection:text-black font-sans pb-20">
             {/* Hero Section - App Style */}
-            <section className="relative pt-10 pb-16 overflow-hidden flex flex-col items-center">
+            <section className="relative min-h-[90vh] pb-16 overflow-hidden flex flex-col items-center justify-center">
                 <div className="absolute inset-0 -z-10">
                     <video
                         autoPlay
                         loop
                         muted
                         playsInline
-                        className="w-full h-full object-cover opacity-30"
+                        className="w-full h-full object-cover opacity-60 scale-105"
+                        style={{ filter: 'grayscale(0.2) contrast(1.1)' }}
                     >
                         <source src="/imagenes/1.mp4" type="video/mp4" />
                     </video>
-                    <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-black" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-black/40" />
                 </div>
 
-                <div className="container mx-auto px-6 text-center z-10 pt-16">
+                <div className="container mx-auto px-6 text-center z-10">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-2 px-6 py-2 bg-primary-500 rounded-full mb-10 shadow-lg shadow-primary-500/20"
+                    >
+                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black italic">Logística de Élite</span>
+                    </motion.div>
+
+                    <motion.h1
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-6xl sm:text-8xl font-black mb-8 leading-[0.85] tracking-tighter italic uppercase text-white drop-shadow-2xl"
+                    >
+                        RÁPIDO<br />
+                        <span className="text-primary-500">SEGURO</span>
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-sm text-zinc-200 mb-12 max-w-sm mx-auto leading-relaxed font-black italic uppercase tracking-widest drop-shadow-md"
+                    >
+                        Tu carga en buenas manos. <br />
+                        <span className="text-white">Mudanzas inteligentes 24/7.</span>
+                    </motion.p>
+
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900/80 border border-white/5 rounded-full mb-8 backdrop-blur-xl"
+                        transition={{ delay: 0.6 }}
+                        className="flex flex-col gap-5 px-4 w-full max-w-sm mx-auto"
                     >
-                        <span className="flex h-2 w-2 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-                        </span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 italic">Operativo 24/7</span>
+                        <Link to="/booking" className="premium-button w-full group flex items-center justify-center gap-4 py-6 text-lg">
+                            <span>PEDIR UN FLETE</span>
+                            <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                        </Link>
+                        <Link to="/auth" className="px-10 py-5 bg-white/10 backdrop-blur-3xl text-white rounded-full text-[11px] font-black uppercase tracking-widest italic border border-white/20 hover:bg-white/20 transition-all active:scale-95">
+                            Ser parte de la flota
+                        </Link>
                     </motion.div>
-
-                    <h1 className="text-5xl sm:text-7xl font-black mb-6 leading-none tracking-tighter italic uppercase">
-                        RÁPIDO<br />
-                        <span className="text-gradient">EFICIENTE</span>
-                    </h1>
-
-                    <p className="text-sm text-zinc-500 mb-10 max-w-sm mx-auto leading-relaxed font-bold italic uppercase tracking-tight px-4">
-                        Tus fletes al instante. <span className="text-white font-black">Mudanzas y logística</span> con seguimiento real.
-                    </p>
-
-                    <div className="flex flex-col gap-4 px-4">
-                        <Link to="/booking" className="premium-button w-full group flex items-center justify-center gap-4 py-5">
-                            <span className="text-[12px]">SOLICITAR FLETE</span>
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                        </Link>
-                        <Link to="/auth" className="px-10 py-5 bg-zinc-900/50 backdrop-blur-xl text-white rounded-full text-[10px] font-black uppercase tracking-widest italic border border-white/5">
-                            Ingresar como Chofer
-                        </Link>
-                    </div>
                 </div>
             </section>
 

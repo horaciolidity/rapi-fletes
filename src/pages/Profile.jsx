@@ -148,6 +148,24 @@ const Profile = () => {
                         </button>
                     )}
 
+                    {profile.role === 'admin' && (
+                        <button
+                            onClick={() => navigate('/admin')}
+                            className="w-full flex items-center justify-between p-6 glass-card border-secondary-600/20 bg-secondary-600/5 group"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-secondary-600 rounded-xl text-black">
+                                    <ShieldCheck className="w-5 h-5" />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-[9px] font-black text-zinc-500 uppercase italic">Sistema</p>
+                                    <p className="text-xs font-black text-white uppercase italic">PANEL DE ADMIN</p>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-secondary-600 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                    )}
+
                     <div className="glass-card overflow-hidden divide-y divide-white/5">
                         <button className="w-full flex items-center justify-between p-5 hover:bg-zinc-900/50 transition-colors">
                             <div className="flex items-center gap-4">
@@ -192,7 +210,10 @@ const Profile = () => {
 
                 {/* Logout Button */}
                 <button
-                    onClick={signOut}
+                    onClick={async () => {
+                        await signOut()
+                        navigate('/auth')
+                    }}
                     className="w-full flex items-center justify-center gap-3 p-6 bg-red-500/5 border border-red-500/10 rounded-[2rem] text-red-500 text-[10px] font-black uppercase italic tracking-widest hover:bg-red-500 hover:text-black transition-all"
                 >
                     <LogOut className="w-5 h-5" />
