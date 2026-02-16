@@ -37,7 +37,7 @@ export const useBookingStore = create((set, get) => ({
                 .select(`
           *,
           vehicle_categories (name, base_price),
-          driver:driver_id (full_name, phone)
+          driver:profiles!driver_id (full_name, phone)
         `)
                 .eq('user_id', userId)
                 .order('created_at', { ascending: false })
@@ -99,6 +99,7 @@ export const useBookingStore = create((set, get) => ({
             // Random vehicle arrival time between 5-15 mins
             const vehicleArrivalTime = Math.floor(Math.random() * 10) + 5
 
+            // We attempt to insert with all fields
             const { data, error } = await supabase
                 .from('fletes')
                 .insert([
@@ -122,10 +123,42 @@ export const useBookingStore = create((set, get) => ({
                 .select()
                 .maybeSingle()
 
-            if (error) throw error
+            if (error) {
+                // If 400, try fallback without the new columns (schema might not be updated)
+                if (error.code === '42703' || error.message.includes('column')) {
+                    console.warn('Faltan columnas en la DB, intentando insert básico...')
+                    const { data: fallbackData, error: fallbackError } = await supabase
+                        .from('fletes')
+                        .insert([
+                            {
+                                user_id: userId,
+                                pickup_address: pickup.address,
+                                pickup_lat: pickup.lat,
+                                pickup_lng: pickup.lng,
+                                dropoff_address: dropoff.address,
+                                dropoff_lat: dropoff.lat,
+                                dropoff_lng: dropoff.lng,
+                                category_id: selectedCategory.id,
+                                estimated_price: estimate,
+                                distance: get().distance,
+                                duration: duration,
+                                status: 'pending'
+                            }
+                        ])
+                        .select()
+                        .maybeSingle()
+
+                    if (fallbackError) throw fallbackError
+                    set({ loading: false })
+                    return fallbackData
+                }
+                throw error
+            }
+
             set({ loading: false })
             return data
         } catch (err) {
+            console.error('Error creating flete:', err)
             set({ error: err.message, loading: false })
             return null
         }

@@ -69,8 +69,8 @@ export const useAdminStore = create((set, get) => ({
             .from('fletes')
             .select(`
                 *,
-                profiles:user_id (full_name, email),
-                driver:driver_id (full_name)
+                user:profiles!user_id (full_name, email),
+                driver:profiles!driver_id (full_name)
             `)
             .order('created_at', { ascending: false })
             .limit(50)
@@ -81,7 +81,7 @@ export const useAdminStore = create((set, get) => ({
     fetchDriverLeaderboard: async () => {
         const { data, error } = await supabase
             .from('fletes')
-            .select('driver_id, driver:driver_id(full_name)')
+            .select('driver_id, driver:profiles!driver_id(full_name)')
             .eq('status', 'completed')
             .not('driver_id', 'is', null)
 

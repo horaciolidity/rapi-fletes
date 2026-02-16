@@ -136,6 +136,14 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
             try {
                 const url = `https://router.project-osrm.org/route/v1/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?overview=full&geometries=geojson`
                 const res = await fetch(url)
+
+                if (res.status === 429) {
+                    console.warn('OSRM Rate Limit - Falling back to straight line')
+                    return
+                }
+
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+
                 const data = await res.json()
                 if (data.routes && data.routes[0]) {
                     const route = data.routes[0]
@@ -145,7 +153,9 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
                         duration: Math.ceil(route.duration / 60)
                     })
                 }
-            } catch (err) { console.error('Route error:', err) }
+            } catch (err) {
+                console.error('Route error:', err)
+            }
         }
         fetchRoute()
     }, [pickup, dropoff, map, onRouteFound])
