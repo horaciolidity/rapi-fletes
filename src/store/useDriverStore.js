@@ -111,11 +111,19 @@ export const useDriverStore = create((set, get) => ({
         if (!driverId) return []
         const { data, error } = await supabase
             .from('fletes')
-            .select('*')
+            .select(`
+                *,
+                vehicle_categories (name, base_price),
+                client:profiles!user_id (full_name, phone)
+            `)
             .eq('driver_id', driverId)
             .eq('status', 'completed')
             .order('created_at', { ascending: false })
 
+        if (error) {
+            console.error('Error fetching driver history:', error)
+            return []
+        }
         return data || []
     },
 

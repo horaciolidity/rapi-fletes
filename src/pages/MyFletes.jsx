@@ -1,31 +1,43 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, MapPin, Navigation, Clock, CheckCircle2, ChevronLeft, Package, AlertCircle, Phone, Star, ShieldCheck, Map as MapIcon, Calendar, DollarSign, Activity, XCircle, History as HistoryIcon, ArrowRight } from 'lucide-react'
+import { Truck, MapPin, Navigation, Clock, CheckCircle2, ChevronLeft, Package, AlertCircle, Phone, Star, ShieldCheck, Map as MapIcon, Calendar, DollarSign, Activity, XCircle, History as HistoryIcon, ArrowRight, User } from 'lucide-react'
 import { useBookingStore } from '../store/useBookingStore'
+import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { Link, useNavigate } from 'react-router-dom'
 import FreightMap from '../components/map/FreightMap'
 import ChatWidget from '../components/chat/ChatWidget'
 
 const MyFletes = () => {
-    const { user } = useAuthStore()
+    const { user, profile } = useAuthStore()
     const { fletes, fetchMyFletes, subscribeToFleteUpdates, cancelFlete, loading, error } = useBookingStore()
+    const { fetchDriverHistory } = useDriverStore()
     const navigate = useNavigate()
     const [selectedFleteId, setSelectedFleteId] = useState(null)
     const [showDetail, setShowDetail] = useState(false)
+    const [driverFletes, setDriverFletes] = useState([])
+
+    const isDriver = profile?.role === 'driver'
+    const displayFletes = isDriver ? driverFletes : fletes
 
     useEffect(() => {
         if (!user) {
             navigate('/auth')
             return
         }
-        fetchMyFletes(user.id)
 
-        const channel = subscribeToFleteUpdates(user.id)
-        return () => {
-            if (channel) channel.unsubscribe()
+        if (isDriver) {
+            // Fetch driver's completed trips
+            fetchDriverHistory(user.id).then(data => setDriverFletes(data || []))
+        } else {
+            // Fetch client's trips
+            fetchMyFletes(user.id)
+            const channel = subscribeToFleteUpdates(user.id)
+            return () => {
+                if (channel) channel.unsubscribe()
+            }
         }
-    }, [user])
+    }, [user, isDriver])
 
     const getStatusTheme = (status) => {
         switch (status) {
@@ -38,7 +50,7 @@ const MyFletes = () => {
         }
     }
 
-    const selectedFlete = fletes.find(f => f.id === selectedFleteId)
+    const selectedFlete = displayFletes.find(f => f.id === selectedFleteId)
 
     const handleSelectFlete = (id) => {
         setSelectedFleteId(id)
@@ -69,7 +81,7 @@ const MyFletes = () => {
                             </header>
 
                             <div className="space-y-4">
-                                {fletes.map((flete, idx) => {
+                                {displayFletes.map((flete, idx) => {
                                     const theme = getStatusTheme(flete.status)
                                     return (
                                         <motion.div
@@ -208,9 +220,25 @@ const MyFletes = () => {
                                             </div>
                                         )}
 
+                                        {/* Client info for drivers */}
+                                        {isDriver && selectedFlete.client && (
+                                            <div className="border-t border-zinc-900 pt-6">
+                                                <h3 className="text-[9px] font-black uppercase tracking-widest text-zinc-700 mb-4 italic">INFORMACIÓN DEL CLIENTE</h3>
+                                                <div className="flex items-center gap-4 bg-zinc-900/50 p-4 rounded-2xl border border-white/5">
+                                                    <div className="w-12 h-12 bg-primary-500/10 rounded-xl border border-primary-500/20 flex items-center justify-center">
+                                                        <User className="w-6 h-6 text-primary-500" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-[11px] font-black text-white italic uppercase">{selectedFlete.client.full_name}</p>
+                                                        <p className="text-[9px] font-bold text-zinc-600 italic">{selectedFlete.client.phone}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="flex justify-between items-end pt-4 border-t border-zinc-900">
                                             <div>
-                                                <p className="text-[8px] font-black text-zinc-700 uppercase mb-1">PRECIO TOTAL</p>
+                                                <p className="text-[8px] font-black text-zinc-700 uppercase mb-1">{isDriver ? 'GANANCIA' : 'PRECIO TOTAL'}</p>
                                                 <p className="text-4xl font-black text-primary-500 italic tracking-tighter">$ {selectedFlete.estimated_price}</p>
                                             </div>
                                             <p className="text-[9px] font-black text-zinc-600 italic uppercase">{selectedFlete.vehicle_categories?.name}</p>

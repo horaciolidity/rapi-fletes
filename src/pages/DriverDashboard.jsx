@@ -336,14 +336,59 @@ const DriverDashboard = () => {
                             )}
 
                             {activeTab === 'history' && (
-                                <motion.div key="history" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="max-h-[50vh] overflow-y-auto space-y-2 pb-4 scrollbar-none">
+                                <motion.div key="history" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="max-h-[50vh] overflow-y-auto space-y-3 pb-4 scrollbar-none">
                                     {completedHistory.map((f) => (
-                                        <div key={f.id} className="p-5 bg-black/90 backdrop-blur-3xl border border-white/5 rounded-2xl flex justify-between items-center">
-                                            <div className="max-w-[70%]">
-                                                <p className="text-[10px] font-black text-zinc-300 italic uppercase leading-tight mb-1 truncate">{f.dropoff_address}</p>
-                                                <p className="text-[8px] font-black text-zinc-600 uppercase italic">{new Date(f.created_at).toLocaleDateString()}</p>
+                                        <div key={f.id} className="p-5 bg-black/90 backdrop-blur-3xl border border-white/5 rounded-2xl space-y-4">
+                                            {/* Header */}
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <User className="w-3 h-3 text-primary-500" />
+                                                        <p className="text-[11px] font-black text-white italic uppercase">{f.client?.full_name || 'Cliente'}</p>
+                                                    </div>
+                                                    <p className="text-[8px] font-black text-zinc-600 uppercase italic">{new Date(f.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">GANANCIA</p>
+                                                    <p className="text-2xl font-black text-primary-500 italic">$ {f.estimated_price}</p>
+                                                </div>
                                             </div>
-                                            <p className="text-xl font-black text-primary-500 italic">$ {f.estimated_price}</p>
+
+                                            {/* Route Details */}
+                                            <div className="space-y-2 border-t border-white/5 pt-3">
+                                                <div className="flex items-start gap-3">
+                                                    <MapPin className="w-3 h-3 text-primary-500 shrink-0 mt-0.5" />
+                                                    <p className="text-[9px] font-bold text-zinc-400 italic uppercase leading-tight">{f.pickup_address}</p>
+                                                </div>
+                                                <div className="flex items-start gap-3">
+                                                    <Navigation className="w-3 h-3 text-secondary-500 shrink-0 mt-0.5" />
+                                                    <p className="text-[9px] font-bold text-zinc-400 italic uppercase leading-tight">{f.dropoff_address}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Stats Grid */}
+                                            <div className="grid grid-cols-3 gap-2 border-t border-white/5 pt-3">
+                                                <div className="bg-zinc-900/50 px-3 py-2 rounded-xl text-center">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-0.5">DISTANCIA</p>
+                                                    <p className="text-[10px] font-black text-white italic">{f.distance} km</p>
+                                                </div>
+                                                <div className="bg-zinc-900/50 px-3 py-2 rounded-xl text-center">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-0.5">DURACIÓN</p>
+                                                    <p className="text-[10px] font-black text-white italic">{f.duration} min</p>
+                                                </div>
+                                                <div className="bg-zinc-900/50 px-3 py-2 rounded-xl text-center">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-0.5">VEHÍCULO</p>
+                                                    <p className="text-[10px] font-black text-white italic truncate">{f.vehicle_categories?.name || 'N/A'}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Shipment Details if available */}
+                                            {f.shipment_details && (
+                                                <div className="bg-primary-500/5 px-4 py-3 rounded-xl border border-primary-500/10">
+                                                    <p className="text-[7px] font-black text-primary-500 uppercase mb-1">DETALLES DE CARGA</p>
+                                                    <p className="text-[9px] font-bold text-zinc-300 italic uppercase leading-tight">{f.shipment_details}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                     {completedHistory.length === 0 && (
