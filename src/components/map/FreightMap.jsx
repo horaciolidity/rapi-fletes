@@ -132,13 +132,32 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
     const map = useMap()
     useEffect(() => {
         if (!pickup || !dropoff || !map) return
+
+        const handleFallback = () => {
+            onRouteFound({
+                coordinates: [[pickup.lat, pickup.lng], [dropoff.lat, dropoff.lng]],
+                distance: (L.latLng(pickup.lat, pickup.lng).distanceTo(L.latLng(dropoff.lat, dropoff.lng)) / 1000).toFixed(1),
+                duration: Math.ceil(L.latLng(pickup.lat, pickup.lng).distanceTo(L.latLng(dropoff.lat, dropoff.lng)) / 1000 * 2)
+            })
+        }
+
         const fetchRoute = async () => {
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 4000)
+
             try {
                 const url = `https://router.project-osrm.org/route/v1/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?overview=full&geometries=geojson`
-                const res = await fetch(url)
+                const res = await fetch(url, { signal: controller.signal }).catch(() => null)
+                clearTimeout(timeoutId)
+
+                if (!res) {
+                    handleFallback()
+                    return
+                }
 
                 if (res.status === 429) {
-                    console.warn('OSRM Rate Limit - Falling back to straight line')
+                    console.warn('OSRM Rate Limit')
+                    handleFallback()
                     return
                 }
 
@@ -154,7 +173,8 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
                     })
                 }
             } catch (err) {
-                console.error('Route error:', err)
+                console.error('Routing err:', err)
+                handleFallback()
             }
         }
         fetchRoute()

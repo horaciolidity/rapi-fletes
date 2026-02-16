@@ -68,23 +68,34 @@ export const useBookingStore = create((set, get) => ({
         const { pickup, dropoff } = get()
         if (!pickup || !dropoff) return
 
-        // Simple Euclidean distance for mock (lat/lng degree is ~111km)
-        const dx = (dropoff.lng - pickup.lng) * 111
-        const dy = (dropoff.lat - pickup.lat) * 111
-        const dist = Math.sqrt(dx * dx + dy * dy)
+        try {
+            // Simple Euclidean distance for mock (lat/lng degree is ~111km)
+            const dx = (dropoff.lng - pickup.lng) * 111
+            const dy = (dropoff.lat - pickup.lat) * 111
+            const dist = Math.sqrt(dx * dx + dy * dy)
 
-        const mockDistance = Math.max(2, parseFloat(dist.toFixed(1)))
-        const mockDuration = Math.ceil(mockDistance * 2.5) // 2.5 min per km
+            const mockDistance = Math.max(1, parseFloat(dist.toFixed(1)) || 2)
+            const mockDuration = Math.ceil(mockDistance * 2.5) || 10 // 2.5 min per km, min 10m
 
-        set({ distance: mockDistance, duration: mockDuration })
-        get().calculateEstimate()
+            set({ distance: mockDistance, duration: mockDuration })
+            get().calculateEstimate()
+        } catch (err) {
+            console.error("Internal routing calc error", err)
+            set({ distance: 5, duration: 15 })
+            get().calculateEstimate()
+        }
     },
 
     calculateEstimate: () => {
         const { selectedCategory, distance } = get()
         if (!selectedCategory || !distance) return
-        const total = parseFloat(selectedCategory.base_price) + (parseFloat(selectedCategory.price_per_km) * distance)
-        set({ estimate: total })
+
+        const base = parseFloat(selectedCategory.base_price) || 0
+        const perKm = parseFloat(selectedCategory.price_per_km) || 0
+        const dist = parseFloat(distance) || 0
+
+        const total = base + (perKm * dist)
+        set({ estimate: isNaN(total) ? 0 : Math.round(total) })
     },
 
     createFlete: async (userId, shipmentDetails = '') => {
