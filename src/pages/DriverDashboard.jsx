@@ -338,81 +338,84 @@ const DriverDashboard = () => {
                             )}
 
                             {activeTab === 'active' && (
-                                <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
+                                <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="space-y-4">
                                     {activeFlete ? (
-                                        <div className="glass-card p-6 bg-black/90 backdrop-blur-3xl border-primary-500/20 shadow-[0_-20px_50px_rgba(0,0,0,1)] space-y-6">
-                                            <div className="flex justify-between items-start">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
-                                                    <span className="text-[11px] font-black text-primary-500 uppercase italic tracking-widest">VIAJE EN CURSO</span>
-                                                </div>
-                                                <span className="px-3 py-1 bg-zinc-900 border border-white/5 rounded-full text-[9px] font-bold text-zinc-500 uppercase italic">{activeFlete.status}</span>
-                                            </div>
-
-                                            <div className="flex justify-between items-center bg-zinc-900/50 p-4 rounded-2xl">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center">
-                                                        <User className="w-5 h-5 text-zinc-600" />
+                                        <>
+                                            {/* Trip Details Card */}
+                                            <div className="glass-card p-6 bg-black/90 backdrop-blur-3xl border-primary-500/20 shadow-2xl space-y-4">
+                                                <div className="flex justify-between items-start">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                                                        <span className="text-[11px] font-black text-primary-500 uppercase italic tracking-widest">VIAJE EN CURSO</span>
                                                     </div>
-                                                    <div>
-                                                        <h3 className="text-sm font-black italic text-white uppercase">{activeFlete.profiles?.full_name || "MUDANZA"}</h3>
-                                                        <p className="text-[9px] font-black text-zinc-500 italic">CLIENTE</p>
+                                                    <span className="px-3 py-1 bg-zinc-900 border border-white/5 rounded-full text-[9px] font-bold text-zinc-500 uppercase italic">{activeFlete.status}</span>
+                                                </div>
+
+                                                <div className="flex justify-between items-center bg-zinc-900/50 p-4 rounded-2xl">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center">
+                                                            <User className="w-5 h-5 text-zinc-600" />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-sm font-black italic text-white uppercase">{activeFlete.profiles?.full_name || "MUDANZA"}</h3>
+                                                            <p className="text-[9px] font-black text-zinc-500 italic">CLIENTE</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-3xl font-black text-primary-500 italic tracking-tighter shrink-0">$ {activeFlete.estimated_price}</p>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
+                                                        <MapPin className="w-4 h-4 text-primary-500 shrink-0 mt-0.5" />
+                                                        <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.pickup_address}</p>
+                                                    </div>
+                                                    <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
+                                                        <Navigation className="w-4 h-4 text-secondary-500 shrink-0 mt-0.5" />
+                                                        <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.dropoff_address}</p>
                                                     </div>
                                                 </div>
-                                                <p className="text-3xl font-black text-primary-500 italic tracking-tighter shrink-0">$ {activeFlete.estimated_price}</p>
+
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="bg-zinc-900 px-4 py-3 rounded-xl">
+                                                        <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">PEDIDO</p>
+                                                        <p className="text-[10px] font-black text-white italic uppercase">{new Date(activeFlete.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                    </div>
+                                                    <div className="bg-zinc-900 px-4 py-3 rounded-xl">
+                                                        <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">DURACIÓN</p>
+                                                        <p className="text-[10px] font-black text-white italic uppercase">{activeFlete.duration} MIN</p>
+                                                    </div>
+                                                </div>
+
+                                                {activeFlete.shipment_details && (
+                                                    <div className="bg-primary-500/5 p-4 rounded-xl border border-primary-500/10">
+                                                        <p className="text-[7px] font-black text-primary-500 uppercase mb-1">DETALLES DE CARGA</p>
+                                                        <p className="text-[10px] font-bold text-zinc-300 italic uppercase leading-tight">{activeFlete.shipment_details}</p>
+                                                    </div>
+                                                )}
+
+                                                {/* Trip Timer - Shows when at pickup location */}
+                                                {activeFlete.status === 'arrived_pickup' && activeFlete.trip_start_time && (
+                                                    <TripTimer startTime={activeFlete.trip_start_time} />
+                                                )}
                                             </div>
 
-                                            <div className="space-y-3">
-                                                <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
-                                                    <MapPin className="w-4 h-4 text-primary-500 shrink-0 mt-0.5" />
-                                                    <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.pickup_address}</p>
-                                                </div>
-                                                <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
-                                                    <Navigation className="w-4 h-4 text-secondary-500 shrink-0 mt-0.5" />
-                                                    <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.dropoff_address}</p>
-                                                </div>
-                                            </div>
+                                            {/* Action Buttons Card - Separate and clearly visible */}
+                                            <div className="glass-card p-5 bg-black/95 backdrop-blur-3xl border-white/10 shadow-2xl space-y-3">
+                                                {/* Navigation Button */}
+                                                {(activeFlete.status === 'accepted' || activeFlete.status === 'arrived_pickup' || activeFlete.status === 'in_transit') && (
+                                                    <a
+                                                        href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat
+                                                            },${activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng
+                                                            }&travelmode=driving`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center justify-center gap-2 w-full py-4 bg-secondary-500 text-black font-black italic text-[11px] uppercase rounded-2xl shadow-xl shadow-secondary-500/20 hover:bg-secondary-400 transition-colors"
+                                                    >
+                                                        <Navigation className="w-5 h-5" />
+                                                        {activeFlete.status === 'accepted' ? 'IR AL ORIGEN' : 'IR AL DESTINO'}
+                                                    </a>
+                                                )}
 
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <div className="bg-zinc-900 px-4 py-3 rounded-xl">
-                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">PEDIDO</p>
-                                                    <p className="text-[10px] font-black text-white italic uppercase">{new Date(activeFlete.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                                </div>
-                                                <div className="bg-zinc-900 px-4 py-3 rounded-xl">
-                                                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">DURACIÓN</p>
-                                                    <p className="text-[10px] font-black text-white italic uppercase">{activeFlete.duration} MIN</p>
-                                                </div>
-                                            </div>
-
-                                            {activeFlete.shipment_details && (
-                                                <div className="bg-primary-500/5 p-4 rounded-xl border border-primary-500/10">
-                                                    <p className="text-[7px] font-black text-primary-500 uppercase mb-1">DETALLES DE CARGA</p>
-                                                    <p className="text-[10px] font-bold text-zinc-300 italic uppercase leading-tight">{activeFlete.shipment_details}</p>
-                                                </div>
-                                            )}
-
-                                            {/* Trip Timer - Shows when at pickup location */}
-                                            {activeFlete.status === 'arrived_pickup' && activeFlete.trip_start_time && (
-                                                <TripTimer startTime={activeFlete.trip_start_time} />
-                                            )}
-
-                                            {/* Navigation Button - Shows for accepted, arrived_pickup, and in_transit */}
-                                            {(activeFlete.status === 'accepted' || activeFlete.status === 'arrived_pickup' || activeFlete.status === 'in_transit') && (
-                                                <a
-                                                    href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat
-                                                        },${activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng
-                                                        }&travelmode=driving`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center justify-center gap-2 w-full py-4 bg-secondary-500 text-black font-black italic text-[10px] uppercase rounded-2xl shadow-xl shadow-secondary-500/20 hover:bg-secondary-400 transition-colors"
-                                                >
-                                                    <Navigation className="w-4 h-4" />
-                                                    {activeFlete.status === 'accepted' ? 'IR AL ORIGEN' : 'IR AL DESTINO'}
-                                                </a>
-                                            )}
-
-                                            {/* Action Buttons - Vertical Layout for better mobile UX */}
-                                            <div className="space-y-3">
                                                 {/* ACCEPTED - Go to pickup */}
                                                 {activeFlete.status === 'accepted' && (
                                                     <>
@@ -489,7 +492,7 @@ const DriverDashboard = () => {
                                                     </>
                                                 )}
                                             </div>
-                                        </div>
+                                        </>
                                     ) : (
                                         <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5">
                                             <Activity className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
