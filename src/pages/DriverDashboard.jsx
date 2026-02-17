@@ -216,7 +216,7 @@ const DriverDashboard = () => {
                 </div>
 
                 {/* Main Content Area */}
-                <div className="flex-grow flex flex-col justify-end pb-36 px-4 pointer-events-auto">
+                <div className="flex-grow flex flex-col justify-end pb-48 px-4 pointer-events-auto">
                     <div className="max-w-md mx-auto w-full space-y-4">
 
                         {/* Tab Switcher (Floating) */}
@@ -411,22 +411,23 @@ const DriverDashboard = () => {
                                                 </a>
                                             )}
 
-                                            {/* Action Buttons - Horizontal Layout */}
-                                            <div className="grid grid-cols-[1fr_auto] gap-2">
+                                            {/* Action Buttons - Vertical Layout for better mobile UX */}
+                                            <div className="space-y-3">
                                                 {/* ACCEPTED - Go to pickup */}
                                                 {activeFlete.status === 'accepted' && (
                                                     <>
                                                         <button
                                                             onClick={() => handleStatusChange(activeFlete.id, 'arrived_pickup')}
-                                                            className="premium-button py-4 text-[10px] col-span-1"
+                                                            className="premium-button w-full py-5 text-[11px]"
                                                         >
                                                             📍 ARRIBÉ AL ORIGEN
                                                         </button>
                                                         <a
                                                             href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
+                                                            className="flex items-center justify-center gap-2 w-full p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
                                                         >
-                                                            <Phone className="w-5 h-5" />
+                                                            <Phone className="w-4 h-4" />
+                                                            <span className="text-[10px] font-black uppercase italic">LLAMAR CLIENTE</span>
                                                         </a>
                                                     </>
                                                 )}
@@ -436,15 +437,16 @@ const DriverDashboard = () => {
                                                     <>
                                                         <button
                                                             onClick={() => handleStatusChange(activeFlete.id, 'in_transit')}
-                                                            className="py-4 bg-primary-500 text-black font-black italic text-[11px] uppercase rounded-2xl shadow-xl shadow-primary-500/20 col-span-1"
+                                                            className="w-full py-5 bg-primary-500 text-black font-black italic text-[12px] uppercase rounded-2xl shadow-xl shadow-primary-500/20"
                                                         >
                                                             🚀 INICIAR VIAJE
                                                         </button>
                                                         <a
                                                             href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
+                                                            className="flex items-center justify-center gap-2 w-full p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
                                                         >
-                                                            <Phone className="w-5 h-5" />
+                                                            <Phone className="w-4 h-4" />
+                                                            <span className="text-[10px] font-black uppercase italic">LLAMAR CLIENTE</span>
                                                         </a>
                                                     </>
                                                 )}
@@ -454,15 +456,16 @@ const DriverDashboard = () => {
                                                     <>
                                                         <button
                                                             onClick={() => handleStatusChange(activeFlete.id, 'arrived_dropoff')}
-                                                            className="premium-button py-4 text-[10px] col-span-1"
+                                                            className="premium-button w-full py-5 text-[11px]"
                                                         >
                                                             🎯 LLEGAMOS A DESTINO
                                                         </button>
                                                         <a
                                                             href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
+                                                            className="flex items-center justify-center gap-2 w-full p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
                                                         >
-                                                            <Phone className="w-5 h-5" />
+                                                            <Phone className="w-4 h-4" />
+                                                            <span className="text-[10px] font-black uppercase italic">LLAMAR CLIENTE</span>
                                                         </a>
                                                     </>
                                                 )}
@@ -472,15 +475,16 @@ const DriverDashboard = () => {
                                                     <>
                                                         <button
                                                             onClick={() => handleStatusChange(activeFlete.id, 'completed')}
-                                                            className="py-4 bg-primary-500 text-black font-black italic text-[11px] uppercase rounded-2xl shadow-xl shadow-primary-500/20 col-span-1"
+                                                            className="w-full py-5 bg-primary-500 text-black font-black italic text-[12px] uppercase rounded-2xl shadow-xl shadow-primary-500/20"
                                                         >
                                                             ✅ FINALIZAR VIAJE
                                                         </button>
                                                         <a
                                                             href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
+                                                            className="flex items-center justify-center gap-2 w-full p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
                                                         >
-                                                            <Phone className="w-5 h-5" />
+                                                            <Phone className="w-4 h-4" />
+                                                            <span className="text-[10px] font-black uppercase italic">LLAMAR CLIENTE</span>
                                                         </a>
                                                     </>
                                                 )}

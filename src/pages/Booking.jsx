@@ -22,6 +22,7 @@ const Booking = () => {
     const [activeSearch, setActiveSearch] = useState(null)
     const [geoError, setGeoError] = useState(null)
     const [shipmentDetails, setShipmentDetails] = useState('')
+    const [passengerTravels, setPassengerTravels] = useState(false)
 
     useEffect(() => {
         if (profile?.role === 'driver') {
@@ -337,10 +338,25 @@ const Booking = () => {
                                             />
                                         </div>
 
+                                        {/* Passenger Travels Checkbox */}
+                                        <div
+                                            onClick={() => setPassengerTravels(!passengerTravels)}
+                                            className="flex items-center gap-3 p-4 bg-zinc-900/50 border border-white/5 rounded-2xl cursor-pointer hover:bg-zinc-900 transition-colors"
+                                        >
+                                            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${passengerTravels ? 'bg-primary-500 border-primary-500' : 'border-zinc-700'
+                                                }`}>
+                                                {passengerTravels && <CheckCircle2 className="w-4 h-4 text-black" />}
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-[10px] font-black text-white uppercase italic">Viajaré con la carga</p>
+                                                <p className="text-[8px] font-bold text-zinc-600 italic">Marca si acompañarás el envío</p>
+                                            </div>
+                                        </div>
+
                                         <div className="flex gap-4">
                                             <button onClick={() => setStep(2)} className="p-5 bg-zinc-900 rounded-2xl border border-white/5 text-zinc-500 rotate-180"><ArrowRight className="w-5 h-5" /></button>
                                             <button
-                                                onClick={() => createFlete(user.id, shipmentDetails).then(res => res && setStep(4))}
+                                                onClick={() => createFlete(user.id, shipmentDetails, passengerTravels).then(res => res && setStep(4))}
                                                 disabled={loading}
                                                 className="premium-button flex-grow flex items-center justify-center gap-4 py-5"
                                             >
