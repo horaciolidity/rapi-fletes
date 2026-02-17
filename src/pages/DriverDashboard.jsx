@@ -8,7 +8,7 @@ import FreightMap from '../components/map/FreightMap'
 import ChatWidget from '../components/chat/ChatWidget'
 import TripTimer from '../components/trip/TripTimer'
 import RatingModal from '../components/trip/RatingModal'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../api/supabase'
 
 const DriverDashboard = () => {
     const { user, profile, updateProfile, fetchProfile } = useAuthStore()
