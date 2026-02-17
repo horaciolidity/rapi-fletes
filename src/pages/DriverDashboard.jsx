@@ -340,7 +340,24 @@ const DriverDashboard = () => {
                             {activeTab === 'active' && (
                                 <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="space-y-4">
                                     {activeFlete ? (
-                                        <>
+                                        <div className="space-y-4">
+                                            {/* Navigation Button - ALWAYS AT TOP */}
+                                            {(activeFlete.status === 'accepted' || activeFlete.status === 'arrived_pickup' || activeFlete.status === 'in_transit') && (
+                                                <a
+                                                    href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat
+                                                        },${activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng
+                                                        }&travelmode=driving`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="block w-full py-5 bg-gradient-to-r from-secondary-500 to-secondary-400 text-black font-black italic text-[13px] uppercase rounded-2xl shadow-2xl shadow-secondary-500/30 hover:shadow-secondary-500/50 transition-all text-center"
+                                                >
+                                                    <div className="flex items-center justify-center gap-3">
+                                                        <Navigation className="w-6 h-6" />
+                                                        <span>{activeFlete.status === 'accepted' ? '🗺️ NAVEGAR AL ORIGEN' : '🗺️ NAVEGAR AL DESTINO'}</span>
+                                                    </div>
+                                                </a>
+                                            )}
+
                                             {/* Trip Details Card */}
                                             <div className="glass-card p-6 bg-black/90 backdrop-blur-3xl border-primary-500/20 shadow-2xl space-y-4">
                                                 <div className="flex justify-between items-start">
@@ -357,7 +374,7 @@ const DriverDashboard = () => {
                                                             <User className="w-5 h-5 text-zinc-600" />
                                                         </div>
                                                         <div>
-                                                            <h3 className="text-sm font-black italic text-white uppercase">{activeFlete.profiles?.full_name || "MUDANZA"}</h3>
+                                                            <h3 className="text-sm font-black italic text-white uppercase">{activeFlete.profiles?.full_name || "CLIENTE"}</h3>
                                                             <p className="text-[9px] font-black text-zinc-500 italic">CLIENTE</p>
                                                         </div>
                                                     </div>
@@ -393,106 +410,64 @@ const DriverDashboard = () => {
                                                     </div>
                                                 )}
 
-                                                {/* Trip Timer - Shows when at pickup location */}
+                                                {/* Trip Timer */}
                                                 {activeFlete.status === 'arrived_pickup' && activeFlete.trip_start_time && (
                                                     <TripTimer startTime={activeFlete.trip_start_time} />
                                                 )}
                                             </div>
 
-                                            {/* Action Buttons Card - Separate and clearly visible */}
-                                            <div className="glass-card p-5 bg-black/95 backdrop-blur-3xl border-white/10 shadow-2xl space-y-3">
-                                                {/* Navigation Button */}
-                                                {(activeFlete.status === 'accepted' || activeFlete.status === 'arrived_pickup' || activeFlete.status === 'in_transit') && (
-                                                    <a
-                                                        href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat
-                                                            },${activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng
-                                                            }&travelmode=driving`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center justify-center gap-2 w-full py-4 bg-secondary-500 text-black font-black italic text-[11px] uppercase rounded-2xl shadow-xl shadow-secondary-500/20 hover:bg-secondary-400 transition-colors"
-                                                    >
-                                                        <Navigation className="w-5 h-5" />
-                                                        {activeFlete.status === 'accepted' ? 'IR AL ORIGEN' : 'IR AL DESTINO'}
-                                                    </a>
-                                                )}
-
-                                                {/* ACCEPTED - Go to pickup */}
+                                            {/* Action Buttons - SEQUENTIAL - Only show current state button */}
+                                            <div className="space-y-3">
+                                                {/* STATE: ACCEPTED - Arrived at origin button */}
                                                 {activeFlete.status === 'accepted' && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => handleStatusChange(activeFlete.id, 'arrived_pickup')}
-                                                            className="premium-button w-full py-5 text-[11px]"
-                                                        >
-                                                            📍 ARRIBÉ AL ORIGEN
-                                                        </button>
-                                                        <a
-                                                            href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center gap-2 w-full p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
-                                                        >
-                                                            <Phone className="w-4 h-4" />
-                                                            <span className="text-[10px] font-black uppercase italic">LLAMAR CLIENTE</span>
-                                                        </a>
-                                                    </>
+                                                    <button
+                                                        onClick={() => handleStatusChange(activeFlete.id, 'arrived_pickup')}
+                                                        className="w-full py-6 bg-gradient-to-r from-primary-500 to-primary-400 text-black font-black italic text-[14px] uppercase rounded-2xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all"
+                                                    >
+                                                        📍 ARRIBÉ AL ORIGEN
+                                                    </button>
                                                 )}
 
-                                                {/* ARRIVED_PICKUP - Start trip */}
+                                                {/* STATE: ARRIVED_PICKUP - Start trip button */}
                                                 {activeFlete.status === 'arrived_pickup' && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => handleStatusChange(activeFlete.id, 'in_transit')}
-                                                            className="w-full py-5 bg-primary-500 text-black font-black italic text-[12px] uppercase rounded-2xl shadow-xl shadow-primary-500/20"
-                                                        >
-                                                            🚀 INICIAR VIAJE
-                                                        </button>
-                                                        <a
-                                                            href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center gap-2 w-full p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
-                                                        >
-                                                            <Phone className="w-4 h-4" />
-                                                            <span className="text-[10px] font-black uppercase italic">LLAMAR CLIENTE</span>
-                                                        </a>
-                                                    </>
+                                                    <button
+                                                        onClick={() => handleStatusChange(activeFlete.id, 'in_transit')}
+                                                        className="w-full py-6 bg-gradient-to-r from-green-500 to-green-400 text-black font-black italic text-[14px] uppercase rounded-2xl shadow-2xl shadow-green-500/30 hover:shadow-green-500/50 transition-all"
+                                                    >
+                                                        🚀 INICIAR VIAJE
+                                                    </button>
                                                 )}
 
-                                                {/* IN_TRANSIT - Arrive at destination */}
+                                                {/* STATE: IN_TRANSIT - Arrived at destination button */}
                                                 {activeFlete.status === 'in_transit' && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => handleStatusChange(activeFlete.id, 'arrived_dropoff')}
-                                                            className="premium-button w-full py-5 text-[11px]"
-                                                        >
-                                                            🎯 LLEGAMOS A DESTINO
-                                                        </button>
-                                                        <a
-                                                            href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center gap-2 w-full p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
-                                                        >
-                                                            <Phone className="w-4 h-4" />
-                                                            <span className="text-[10px] font-black uppercase italic">LLAMAR CLIENTE</span>
-                                                        </a>
-                                                    </>
+                                                    <button
+                                                        onClick={() => handleStatusChange(activeFlete.id, 'arrived_dropoff')}
+                                                        className="w-full py-6 bg-gradient-to-r from-primary-500 to-primary-400 text-black font-black italic text-[14px] uppercase rounded-2xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all"
+                                                    >
+                                                        🎯 LLEGAMOS A DESTINO
+                                                    </button>
                                                 )}
 
-                                                {/* ARRIVED_DROPOFF - Complete trip */}
+                                                {/* STATE: ARRIVED_DROPOFF - Complete trip button */}
                                                 {activeFlete.status === 'arrived_dropoff' && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => handleStatusChange(activeFlete.id, 'completed')}
-                                                            className="w-full py-5 bg-primary-500 text-black font-black italic text-[12px] uppercase rounded-2xl shadow-xl shadow-primary-500/20"
-                                                        >
-                                                            ✅ FINALIZAR VIAJE
-                                                        </button>
-                                                        <a
-                                                            href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center gap-2 w-full p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
-                                                        >
-                                                            <Phone className="w-4 h-4" />
-                                                            <span className="text-[10px] font-black uppercase italic">LLAMAR CLIENTE</span>
-                                                        </a>
-                                                    </>
+                                                    <button
+                                                        onClick={() => handleStatusChange(activeFlete.id, 'completed')}
+                                                        className="w-full py-6 bg-gradient-to-r from-green-500 to-green-400 text-black font-black italic text-[14px] uppercase rounded-2xl shadow-2xl shadow-green-500/30 hover:shadow-green-500/50 transition-all"
+                                                    >
+                                                        ✅ FINALIZAR VIAJE
+                                                    </button>
                                                 )}
+
+                                                {/* Call Client Button - ALWAYS AVAILABLE */}
+                                                <a
+                                                    href={`tel:${activeFlete.profiles?.phone || ''}`}
+                                                    className="flex items-center justify-center gap-3 w-full py-5 bg-zinc-900/90 rounded-2xl border border-white/10 text-white shadow-xl hover:bg-zinc-800 transition-colors"
+                                                >
+                                                    <Phone className="w-5 h-5" />
+                                                    <span className="text-[12px] font-black uppercase italic">LLAMAR CLIENTE</span>
+                                                </a>
                                             </div>
-                                        </>
+                                        </div>
                                     ) : (
                                         <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5">
                                             <Activity className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
