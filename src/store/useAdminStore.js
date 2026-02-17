@@ -69,13 +69,14 @@ export const useAdminStore = create((set, get) => ({
             .from('fletes')
             .select(`
                 *,
-                user:profiles!user_id (full_name, email),
-                driver:profiles!driver_id (full_name)
+                user:profiles!fletes_user_id_fkey (full_name, email),
+                driver:profiles!fletes_driver_id_fkey (full_name)
             `)
             .order('created_at', { ascending: false })
             .limit(50)
 
-        if (!error) set({ allFletes: data })
+        if (error) console.error('Error fetching all fletes:', error)
+        else set({ allFletes: data })
     },
 
     fetchDriverLeaderboard: async () => {

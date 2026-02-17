@@ -217,7 +217,7 @@ const DriverDashboard = () => {
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: idx * 0.05 }}
                                             onClick={() => setSelectedFleteId(flete.id === selectedFleteId ? null : flete.id)}
-                                            className={`glass-card p-5 border-white/5 bg-black/90 backdrop-blur-3xl transition-all ${selectedFleteId === flete.id ? 'border-primary-500/50 ring-2 ring-primary-500/20' : ''}`}
+                                            className={`glass-card p-5 border-white/5 bg-black/90 backdrop-blur-3xl transition-all cursor-pointer ${selectedFleteId === flete.id ? 'border-primary-500/50 ring-2 ring-primary-500/20' : ''}`}
                                         >
                                             <div className="flex justify-between items-center mb-4">
                                                 <div className="flex items-center gap-3">
@@ -235,10 +235,51 @@ const DriverDashboard = () => {
                                                     <p className="text-[10px] font-bold text-white truncate italic uppercase">{flete.pickup_address}</p>
                                                 </div>
                                                 <div className="flex items-center gap-3">
-                                                    <Navigation className="w-3 h-1.5 text-secondary-500 shrink-0" />
+                                                    <Navigation className="w-3 h-3 text-secondary-500 shrink-0" />
                                                     <p className="text-[10px] font-bold text-zinc-500 truncate italic uppercase">{flete.dropoff_address}</p>
                                                 </div>
                                             </div>
+
+                                            {/* Expanded Details */}
+                                            {selectedFleteId === flete.id && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    className="space-y-4 mb-4"
+                                                >
+                                                    {/* Stats Grid */}
+                                                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/5">
+                                                        <div className="bg-zinc-900/50 px-2 py-2 rounded-xl text-center">
+                                                            <p className="text-[7px] font-black text-zinc-600 uppercase mb-0.5">DISTANCIA</p>
+                                                            <p className="text-[10px] font-black text-white italic">{flete.distance} km</p>
+                                                        </div>
+                                                        <div className="bg-zinc-900/50 px-2 py-2 rounded-xl text-center">
+                                                            <p className="text-[7px] font-black text-zinc-600 uppercase mb-0.5">DURACIÓN</p>
+                                                            <p className="text-[10px] font-black text-white italic">{flete.duration} min</p>
+                                                        </div>
+                                                        <div className="bg-zinc-900/50 px-2 py-2 rounded-xl text-center">
+                                                            <p className="text-[7px] font-black text-zinc-600 uppercase mb-0.5">VEHÍCULO</p>
+                                                            <p className="text-[9px] font-black text-white italic truncate">{flete.vehicle_categories?.name || 'N/A'}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Client Info */}
+                                                    {flete.profiles && (
+                                                        <div className="bg-primary-500/5 p-3 rounded-xl border border-primary-500/10">
+                                                            <p className="text-[7px] font-black text-primary-500 uppercase mb-1">CLIENTE</p>
+                                                            <p className="text-[10px] font-bold text-white italic uppercase">{flete.profiles.full_name}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Shipment Details */}
+                                                    {flete.shipment_details && (
+                                                        <div className="bg-secondary-500/5 p-3 rounded-xl border border-secondary-500/10">
+                                                            <p className="text-[7px] font-black text-secondary-500 uppercase mb-1">DETALLES DE CARGA</p>
+                                                            <p className="text-[9px] font-bold text-zinc-300 italic uppercase leading-tight">{flete.shipment_details}</p>
+                                                        </div>
+                                                    )}
+                                                </motion.div>
+                                            )}
 
                                             {selectedFleteId === flete.id && (
                                                 <motion.button
@@ -325,6 +366,17 @@ const DriverDashboard = () => {
                                                     <Phone className="w-5 h-5" />
                                                 </a>
                                             </div>
+
+                                            {/* Navigation Button */}
+                                            <a
+                                                href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.dropoff_lat},${activeFlete.dropoff_lng}&travelmode=driving`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center justify-center gap-3 w-full py-4 bg-secondary-500 text-black font-black italic text-[11px] uppercase rounded-2xl shadow-xl shadow-secondary-500/20 hover:bg-secondary-400 transition-colors"
+                                            >
+                                                <Navigation className="w-5 h-5" />
+                                                ABRIR NAVEGACIÓN
+                                            </a>
                                         </div>
                                     ) : (
                                         <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5">
