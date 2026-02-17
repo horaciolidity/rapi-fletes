@@ -8,6 +8,7 @@ import FreightMap from '../components/map/FreightMap'
 import ChatWidget from '../components/chat/ChatWidget'
 import TripTimer from '../components/trip/TripTimer'
 import RatingModal from '../components/trip/RatingModal'
+import { supabase } from '../lib/supabase'
 
 const DriverDashboard = () => {
     const { user, profile, updateProfile, fetchProfile } = useAuthStore()
@@ -122,10 +123,30 @@ const DriverDashboard = () => {
     const handlePassengerConfirmation = async (passengerTravels) => {
         if (!activeFlete) return
 
-        // Update passenger status and change to arrived_pickup
-        await useDriverStore.getState().updatePassengerStatus(activeFlete.id, passengerTravels)
-        await updateFleteStatus(activeFlete.id, 'arrived_pickup')
-        setShowPassengerConfirm(false)
+        try {
+            // Update passenger status
+            await useDriverStore.getState().updatePassengerStatus(activeFlete.id, passengerTravels)
+
+            // Update to arrived_pickup status
+            await updateFleteStatus(activeFlete.id, 'arrived_pickup')
+
+            // Close modal
+            setShowPassengerConfirm(false)
+
+            // Force refresh the active flete to show updated buttons
+            const { data } = await supabase
+                .from('fletes')
+                .select('*, profiles(*), vehicle_categories(*)')
+                .eq('id', activeFlete.id)
+                .maybeSingle()
+
+            if (data) {
+                useDriverStore.setState({ activeFlete: data })
+            }
+        } catch (error) {
+            console.error('Error confirming passenger:', error)
+            setShowPassengerConfirm(false)
+        }
     }
 
     const handleRatingSubmit = async ({ rating, notes }) => {
