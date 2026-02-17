@@ -33,7 +33,7 @@ export const useDriverStore = create((set, get) => ({
                 profiles:user_id (full_name, phone)
             `)
             .eq('driver_id', driverId)
-            .in('status', ['accepted', 'picked_up'])
+            .in('status', ['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'])
             .maybeSingle()
 
         if (!error && data) {
@@ -76,7 +76,8 @@ export const useDriverStore = create((set, get) => ({
         }
 
         // Auto-set timestamps based on status
-        if (status === 'arrived_pickup') {
+        if (status === 'in_transit') {
+            // Trip starts when driver begins journey to destination
             updateData.trip_start_time = new Date()
         } else if (status === 'completed') {
             updateData.trip_end_time = new Date()
@@ -86,10 +87,15 @@ export const useDriverStore = create((set, get) => ({
             .from('fletes')
             .update(updateData)
             .eq('id', fleteId)
-            .select()
+            .select(`
+                *,
+                vehicle_categories (name, base_price),
+                profiles:user_id (full_name, phone)
+            `)
             .maybeSingle()
 
         if (error) {
+            console.error('Error updating flete status:', error)
             set({ error: error.message, loading: false })
             return null
         }

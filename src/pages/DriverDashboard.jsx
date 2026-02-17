@@ -434,7 +434,7 @@ const DriverDashboard = () => {
                                                 )}
 
                                                 {/* Trip Timer */}
-                                                {activeFlete.status === 'arrived_pickup' && activeFlete.trip_start_time && (
+                                                {activeFlete.status === 'in_transit' && activeFlete.trip_start_time && (
                                                     <TripTimer startTime={activeFlete.trip_start_time} />
                                                 )}
                                             </div>
