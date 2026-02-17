@@ -66,11 +66,25 @@ export const useDriverStore = create((set, get) => ({
         return data
     },
 
-    updateFleteStatus: async (fleteId, status) => {
+    updateFleteStatus: async (fleteId, status, additionalData = {}) => {
         set({ loading: true, error: null })
+
+        const updateData = {
+            status,
+            updated_at: new Date(),
+            ...additionalData
+        }
+
+        // Auto-set timestamps based on status
+        if (status === 'arrived_pickup') {
+            updateData.trip_start_time = new Date()
+        } else if (status === 'completed') {
+            updateData.trip_end_time = new Date()
+        }
+
         const { data, error } = await supabase
             .from('fletes')
-            .update({ status, updated_at: new Date() })
+            .update(updateData)
             .eq('id', fleteId)
             .select()
             .maybeSingle()
@@ -88,6 +102,34 @@ export const useDriverStore = create((set, get) => ({
 
         set({ loading: false })
         return data
+    },
+
+    updatePassengerStatus: async (fleteId, passengerTravels) => {
+        const { data, error } = await supabase
+            .from('fletes')
+            .update({ passenger_travels: passengerTravels })
+            .eq('id', fleteId)
+            .select()
+            .maybeSingle()
+
+        if (!error && data) {
+            set({ activeFlete: data })
+        }
+        return data
+    },
+
+    submitDriverRating: async (fleteId, rating, notes) => {
+        const { data, error } = await supabase
+            .from('fletes')
+            .update({
+                driver_rating: rating,
+                driver_notes: notes
+            })
+            .eq('id', fleteId)
+            .select()
+            .maybeSingle()
+
+        return { data, error }
     },
 
     subscribeToNewFletes: () => {
