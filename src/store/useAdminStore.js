@@ -69,7 +69,7 @@ export const useAdminStore = create((set, get) => ({
             .from('fletes')
             .select(`
                 *,
-                user:profiles!fletes_user_id_fkey (full_name, email),
+                user:profiles!fletes_user_id_fkey (full_name),
                 driver:profiles!fletes_driver_id_fkey (full_name)
             `)
             .order('created_at', { ascending: false })

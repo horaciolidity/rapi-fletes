@@ -355,28 +355,48 @@ const DriverDashboard = () => {
                                                 </div>
                                             )}
 
-                                            <div className="flex gap-3">
+                                            {/* Navigation Button - Shows for accepted and picked_up */}
+                                            {(activeFlete.status === 'accepted' || activeFlete.status === 'picked_up') && (
+                                                <a
+                                                    href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.dropoff_lat},${activeFlete.dropoff_lng}&travelmode=driving`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center justify-center gap-3 w-full py-4 bg-secondary-500 text-black font-black italic text-[11px] uppercase rounded-2xl shadow-xl shadow-secondary-500/20 hover:bg-secondary-400 transition-colors"
+                                                >
+                                                    <Navigation className="w-5 h-5" />
+                                                    ABRIR NAVEGACIÓN
+                                                </a>
+                                            )}
+
+                                            {/* Action Buttons */}
+                                            <div className="space-y-3">
                                                 {activeFlete.status === 'accepted' && (
-                                                    <button onClick={() => handleStatusChange(activeFlete.id, 'picked_up')} className="premium-button flex-grow py-5 text-[11px]">MARCAR RECOGIDA</button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(activeFlete.id, 'picked_up')}
+                                                        className="premium-button w-full py-5 text-[11px]"
+                                                    >
+                                                        ARRIBÉ AL LUGAR
+                                                    </button>
                                                 )}
+
                                                 {activeFlete.status === 'picked_up' && (
-                                                    <button onClick={() => handleStatusChange(activeFlete.id, 'completed')} className="w-full py-5 bg-primary-500 text-black font-black italic text-[12px] uppercase rounded-2xl shadow-xl shadow-primary-500/20">CONFIRMAR ENTREGA</button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(activeFlete.id, 'completed')}
+                                                        className="w-full py-5 bg-primary-500 text-black font-black italic text-[12px] uppercase rounded-2xl shadow-xl shadow-primary-500/20"
+                                                    >
+                                                        FINALIZAR VIAJE
+                                                    </button>
                                                 )}
-                                                <a href={`tel:${activeFlete.profiles?.phone || ''}`} className="p-5 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl">
+
+                                                {/* Phone Button - Always visible */}
+                                                <a
+                                                    href={`tel:${activeFlete.profiles?.phone || ''}`}
+                                                    className="flex items-center justify-center gap-3 w-full p-4 bg-zinc-900 rounded-2xl border border-white/5 text-white shadow-xl hover:bg-zinc-800 transition-colors"
+                                                >
                                                     <Phone className="w-5 h-5" />
+                                                    <span className="text-[11px] font-black uppercase italic">LLAMAR CLIENTE</span>
                                                 </a>
                                             </div>
-
-                                            {/* Navigation Button */}
-                                            <a
-                                                href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.dropoff_lat},${activeFlete.dropoff_lng}&travelmode=driving`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex items-center justify-center gap-3 w-full py-4 bg-secondary-500 text-black font-black italic text-[11px] uppercase rounded-2xl shadow-xl shadow-secondary-500/20 hover:bg-secondary-400 transition-colors"
-                                            >
-                                                <Navigation className="w-5 h-5" />
-                                                ABRIR NAVEGACIÓN
-                                            </a>
                                         </div>
                                     ) : (
                                         <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5">
