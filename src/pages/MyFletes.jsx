@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, MapPin, Navigation, Clock, CheckCircle2, ChevronLeft, Package, AlertCircle, Phone, Star, ShieldCheck, Map as MapIcon, Calendar, DollarSign, Activity, XCircle, History as HistoryIcon, ArrowRight, User } from 'lucide-react'
+import { Truck, MapPin, Navigation, Clock, CheckCircle2, ChevronLeft, Package, AlertCircle, Phone, Star, ShieldCheck, Map as MapIcon, Calendar, DollarSign, Activity, XCircle, History as HistoryIcon, ArrowRight, User, Loader2 } from 'lucide-react'
 import { useBookingStore } from '../store/useBookingStore'
 import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
@@ -26,6 +26,9 @@ const MyFletes = () => {
             return
         }
 
+        // Wait for profile to load before fetching
+        if (!profile) return
+
         if (isDriver) {
             // Fetch driver's completed trips
             fetchDriverHistory(user.id).then(data => setDriverFletes(data || []))
@@ -37,7 +40,7 @@ const MyFletes = () => {
                 if (channel) channel.unsubscribe()
             }
         }
-    }, [user, isDriver])
+    }, [user, profile?.role])
 
     const getStatusTheme = (status) => {
         switch (status) {
@@ -58,6 +61,18 @@ const MyFletes = () => {
     }
 
     if (!user) return null
+
+    // Show loading while profile is being fetched
+    if (user && !profile) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-center">
+                    <Loader2 className="w-8 h-8 text-primary-500 animate-spin mx-auto mb-4" />
+                    <p className="text-xs font-bold text-zinc-600 italic uppercase">Cargando...</p>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="pb-24 pt-10 min-h-screen bg-black font-sans selection:bg-primary-500">
