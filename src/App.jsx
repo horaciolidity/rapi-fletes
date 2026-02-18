@@ -5,6 +5,7 @@ import Landing from './pages/Landing'
 import Auth from './pages/Auth'
 import Booking from './pages/Booking'
 import DriverDashboard from './pages/DriverDashboard'
+import DriverWallet from './pages/DriverWallet'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminComplaints from './pages/AdminComplaints'
 import MyFletes from './pages/MyFletes'
@@ -62,6 +63,7 @@ const AppContent = () => {
           <Route path="/booking" element={<Booking />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/driver" element={<DriverDashboard />} />
+          <Route path="/wallet" element={<DriverWallet />} />
           <Route path="/my-fletes" element={<MyFletes />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/complaints" element={<AdminComplaints />} />

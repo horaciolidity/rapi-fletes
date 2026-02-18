@@ -131,21 +131,39 @@ const Profile = () => {
                 {/* Driver / Advanced Menu */}
                 <div className="space-y-3 mb-10">
                     {profile.role === 'driver' && (
-                        <button
-                            onClick={() => navigate('/driver')}
-                            className="w-full flex items-center justify-between p-6 glass-card border-primary-500/20 bg-primary-500/5 group"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-primary-500 rounded-xl text-black">
-                                    <Truck className="w-5 h-5" />
+                        <>
+                            <button
+                                onClick={() => navigate('/wallet')}
+                                className="w-full flex items-center justify-between p-6 glass-card border-green-500/20 bg-green-500/5 group"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-green-500 rounded-xl text-black">
+                                        <DollarSign className="w-5 h-5 text-black" />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-[9px] font-black text-zinc-500 uppercase italic">Finanzas</p>
+                                        <p className="text-xs font-black text-white uppercase italic">MI BILLETERA</p>
+                                    </div>
                                 </div>
-                                <div className="text-left">
-                                    <p className="text-[9px] font-black text-zinc-500 uppercase italic">Control</p>
-                                    <p className="text-xs font-black text-white uppercase italic">PANEL DE CHOFER</p>
+                                <ChevronRight className="w-5 h-5 text-green-500 group-hover:translate-x-1 transition-transform" />
+                            </button>
+
+                            <button
+                                onClick={() => navigate('/driver')}
+                                className="w-full flex items-center justify-between p-6 glass-card border-primary-500/20 bg-primary-500/5 group"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-primary-500 rounded-xl text-black">
+                                        <Truck className="w-5 h-5" />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-[9px] font-black text-zinc-500 uppercase italic">Control</p>
+                                        <p className="text-xs font-black text-white uppercase italic">PANEL DE CHOFER</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <ChevronRight className="w-5 h-5 text-primary-500 group-hover:translate-x-1 transition-transform" />
-                        </button>
+                                <ChevronRight className="w-5 h-5 text-primary-500 group-hover:translate-x-1 transition-transform" />
+                            </button>
+                        </>
                     )}
 
                     {profile.role === 'admin' && (
