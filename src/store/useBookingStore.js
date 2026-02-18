@@ -40,8 +40,7 @@ export const useBookingStore = create((set, get) => ({
           driver:profiles!driver_id (
             id,
             full_name, 
-            phone,
-            email
+            phone
           )
         `)
                 .eq('user_id', userId)

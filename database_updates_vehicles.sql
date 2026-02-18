@@ -67,7 +67,6 @@ SELECT
     p.id,
     p.full_name,
     p.phone,
-    p.email,
     v.brand,
     v.model,
     v.year,
