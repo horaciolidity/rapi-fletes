@@ -30,11 +30,14 @@ const AppContent = () => {
   }, [theme])
 
   useEffect(() => {
+    let profileSub = null
+
     // Check for active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user)
         fetchProfile(session.user.id)
+        profileSub = useAuthStore.getState().subscribeToProfile(session.user.id)
       }
     })
 
@@ -42,10 +45,22 @@ const AppContent = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null
       setUser(user)
-      if (user) fetchProfile(user.id)
+      if (user) {
+        fetchProfile(user.id)
+        if (profileSub) supabase.removeChannel(profileSub)
+        profileSub = useAuthStore.getState().subscribeToProfile(user.id)
+      } else {
+        if (profileSub) {
+          supabase.removeChannel(profileSub)
+          profileSub = null
+        }
+      }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      if (profileSub) supabase.removeChannel(profileSub)
+    }
   }, [])
 
   return (

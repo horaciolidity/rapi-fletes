@@ -359,20 +359,40 @@ export const useAdminStore = create((set, get) => ({
 
             if (error) throw error
 
-            // Si se aprueba y es el primer vehículo aprobado, lo ponemos como activo
-            if (status === 'approved') {
-                const { data: vehicle } = await supabase
-                    .from('vehicles')
-                    .select('driver_id')
-                    .eq('id', vehicleId)
-                    .single()
+            const { data: vehicle } = await supabase
+                .from('vehicles')
+                .select('driver_id')
+                .eq('id', vehicleId)
+                .single()
 
-                if (vehicle) {
+            if (vehicle) {
+                // Actualizar el perfil del chofer basado en el resultado
+                const profileStatus = status === 'approved' ? 'verified' : 'none'
+                await supabase
+                    .from('profiles')
+                    .update({
+                        verification_status: profileStatus,
+                        // Si se aprueba, ya tenemos el teléfono del formulario si no estaba
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', vehicle.driver_id)
+
+                // Si se aprueba y es el primer vehículo aprobado, lo ponemos como activo
+                if (status === 'approved') {
                     await supabase.rpc('set_active_vehicle', {
                         p_driver_id: vehicle.driver_id,
                         p_vehicle_id: vehicleId
                     })
                 }
+
+                // Registrar en Activity Logs
+                await supabase.from('activity_logs').insert([{
+                    user_id: vehicle.driver_id,
+                    action: status === 'approved' ? 'vehicle_approved' : 'vehicle_rejected',
+                    entity_type: 'vehicle',
+                    entity_id: vehicleId,
+                    details: { admin_notes: adminNotes }
+                }])
             }
 
             // Actualizar lista local

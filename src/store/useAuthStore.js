@@ -130,5 +130,23 @@ export const useAuthStore = create((set, get) => ({
             set({ error: err.message, loading: false })
             return { data: null, error: err }
         }
+    },
+
+    subscribeToProfile: (userId) => {
+        if (!userId) return null
+
+        const channel = supabase
+            .channel(`profile_changes_${userId}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'profiles',
+                filter: `id=eq.${userId}`
+            }, (payload) => {
+                set({ profile: payload.new })
+            })
+            .subscribe()
+
+        return channel
     }
 }))

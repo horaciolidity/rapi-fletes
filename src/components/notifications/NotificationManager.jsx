@@ -66,8 +66,33 @@ const NotificationManager = () => {
             })
             .subscribe()
 
+        // Profile/Account watcher
+        const profileChannel = supabase
+            .channel(`profile_realtime_${user.id}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'profiles',
+                filter: `id=eq.${user.id}`
+            }, (payload) => {
+                const oldStatus = payload.old.verification_status
+                const newStatus = payload.new.verification_status
+
+                if (oldStatus !== newStatus) {
+                    if (newStatus === 'verified') {
+                        const msg = '🎊 ¡Tu cuenta ha sido verificada! Ya puedes aceptar viajes.'
+                        addNotification({ message: msg, type: 'success' })
+                    } else if (newStatus === 'none' && oldStatus === 'pending') {
+                        const msg = '❌ Tu solicitud de vehículo ha sido rechazada. Revisa los detalles en tu garaje.'
+                        addNotification({ message: msg, type: 'error' })
+                    }
+                }
+            })
+            .subscribe()
+
         return () => {
             supabase.removeChannel(fleteChannel)
+            supabase.removeChannel(profileChannel)
         }
     }, [user, profile, addNotification])
 
