@@ -6,10 +6,12 @@ import Auth from './pages/Auth'
 import Booking from './pages/Booking'
 import DriverDashboard from './pages/DriverDashboard'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminComplaints from './pages/AdminComplaints'
 import MyFletes from './pages/MyFletes'
 import Profile from './pages/Profile'
 import Navbar from './components/layout/Navbar'
 import BottomNav from './components/layout/BottomNav'
+import ChatbotWidget from './components/chatbot/ChatbotWidget'
 import { useAuthStore } from './store/useAuthStore'
 import { useThemeStore } from './store/useThemeStore'
 import { supabase } from './api/supabase'
@@ -62,12 +64,16 @@ const AppContent = () => {
           <Route path="/driver" element={<DriverDashboard />} />
           <Route path="/my-fletes" element={<MyFletes />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/complaints" element={<AdminComplaints />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
       {!isAuthPage && <BottomNav />}
+
+      {/* Chatbot Widget - visible en todas las páginas excepto auth */}
+      {!isAuthPage && <ChatbotWidget />}
 
       {/* Footer only shown on larger screens if needed, otherwise removed for "mobile-only" feel */}
       {!isAuthPage && (

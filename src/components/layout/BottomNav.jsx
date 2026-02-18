@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Truck, History, User, Home, Map } from 'lucide-react'
+import { Truck, History, User, Home, Map, Shield } from 'lucide-react'
 import { useAuthStore } from '../../store/useAuthStore'
 
 const BottomNav = () => {
@@ -9,6 +9,7 @@ const BottomNav = () => {
 
     const { profile } = useAuthStore()
     const isDriver = profile?.role === 'driver'
+    const isAdmin = profile?.role === 'admin'
 
     const navItems = [
         { icon: Home, label: 'Inicio', path: '/' },
@@ -19,6 +20,7 @@ const BottomNav = () => {
         },
         { icon: History, label: 'Mis Fletes', path: '/my-fletes' },
         { icon: User, label: 'Perfil', path: '/profile' },
+        ...(isAdmin ? [{ icon: Shield, label: 'Admin', path: '/admin' }] : []),
     ]
 
     return (
