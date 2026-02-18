@@ -18,16 +18,23 @@ const DriverDashboard = () => {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [selectedFleteId, setSelectedFleteId] = useState(null)
     const [completedHistory, setCompletedHistory] = useState([])
-    const [activeTab, setActiveTab] = useState('marketplace') // marketplace, active, history
+    const [activeTab, setActiveTab] = useState('marketplace') // marketplace, active, garage, history
     const [showRatingModal, setShowRatingModal] = useState(false)
+    const [showAddVehicle, setShowAddVehicle] = useState(false)
+    const [categories, setCategories] = useState([])
     const [completedTripId, setCompletedTripId] = useState(null)
     const [showPassengerConfirm, setShowPassengerConfirm] = useState(false)
     const [formData, setFormData] = useState({
-        vehicle_model: '',
-        vehicle_year: '',
+        brand: '',
+        model: '',
+        year: '',
         license_plate: '',
+        category_id: '',
+        justification: '',
         phone: ''
     })
+
+    const { vehicles, fetchMyVehicles, addVehicle, setActiveVehicle } = useDriverStore()
 
     useEffect(() => {
         if (!user) {
@@ -91,6 +98,44 @@ const DriverDashboard = () => {
         await updateProfile(user.id, updates)
         setIsSubmitting(false)
         fetchProfile(user.id)
+    }
+
+    const handleAddVehicle = async (e) => {
+        e.preventDefault()
+        setIsSubmitting(true)
+
+        const vehicleData = {
+            brand: formData.brand.toUpperCase(),
+            model: formData.model.toUpperCase(),
+            year: parseInt(formData.year),
+            license_plate: formData.license_plate.toUpperCase(),
+            category_id: parseInt(formData.category_id),
+            justification: formData.justification
+        }
+
+        const res = await addVehicle(user.id, vehicleData)
+        if (res) {
+            setShowAddVehicle(false)
+            setFormData({ ...formData, brand: '', model: '', year: '', license_plate: '', justification: '' })
+
+            // Si es la primera vez (estado none), actualizamos perfil a pending
+            if (profile.verification_status === 'none') {
+                await updateProfile(user.id, {
+                    phone: formData.phone,
+                    verification_status: 'pending'
+                })
+                fetchProfile(user.id)
+            }
+        }
+        setIsSubmitting(false)
+    }
+
+    const handleSwitchVehicle = async (vehicleId) => {
+        const success = await setActiveVehicle(user.id, vehicleId)
+        if (success) {
+            fetchProfile(user.id)
+            setActiveTab('marketplace')
+        }
     }
 
     const handleAccept = async (id) => {
@@ -175,18 +220,55 @@ const DriverDashboard = () => {
                             <Car className="w-8 h-8 text-black" />
                         </div>
                         <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white">REGISTRO<br /><span className="text-primary-500">CONDUCTOR</span></h1>
+                        <p className="text-[10px] text-zinc-500 font-bold uppercase italic mt-4">Completa los datos de tu primer vehículo para comenzar.</p>
                     </header>
-                    <form onSubmit={handleVerificationSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Modelo / Marca</label>
-                            <input className="input-field py-4" placeholder="EJ: SPRINTER 2024" value={formData.vehicle_model} onChange={e => setFormData({ ...formData, vehicle_model: e.target.value })} required />
+                    <form onSubmit={handleAddVehicle} className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Marca</label>
+                                <input className="input-field py-4" placeholder="EJ: FORD" value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} required />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Modelo</label>
+                                <input className="input-field py-4" placeholder="EJ: F100" value={formData.model} onChange={e => setFormData({ ...formData, model: e.target.value })} required />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Año</label>
+                                <input type="number" className="input-field py-4" placeholder="2020" value={formData.year} onChange={e => setFormData({ ...formData, year: e.target.value })} required />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Patente</label>
+                                <input className="input-field py-4 uppercase" placeholder="ABC-123" value={formData.license_plate} onChange={e => setFormData({ ...formData, license_plate: e.target.value })} required />
+                            </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Patente</label>
-                            <input className="input-field py-4 uppercase" placeholder="ABC-123-XY" value={formData.license_plate} onChange={e => setFormData({ ...formData, license_plate: e.target.value })} required />
+                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Categoría del Vehículo</label>
+                            <select
+                                className="input-field py-4 bg-zinc-900 border-white/5 text-white"
+                                value={formData.category_id}
+                                onChange={e => setFormData({ ...formData, category_id: e.target.value })}
+                                required
+                            >
+                                <option value="">Selecciona una categoría</option>
+                                {categories.map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                            </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">WhatsApp</label>
+                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">¿Por qué aplica a esta categoría?</label>
+                            <textarea
+                                className="input-field py-4 min-h-[80px] resize-none"
+                                placeholder="Ej: Mi camioneta tiene caja extendida ideal para fletes medianos..."
+                                value={formData.justification}
+                                onChange={e => setFormData({ ...formData, justification: e.target.value })}
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">WhatsApp de contacto</label>
                             <input className="input-field py-4" placeholder="+54 9 11 ..." value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
                         </div>
                         <button type="submit" disabled={isSubmitting} className="premium-button w-full py-5">
@@ -245,6 +327,7 @@ const DriverDashboard = () => {
                             {[
                                 { id: 'marketplace', label: 'PEDIDOS', icon: Truck },
                                 { id: 'active', label: 'ACTUAL', icon: Activity },
+                                { id: 'garage', label: 'GARAJE', icon: Car },
                                 { id: 'history', label: 'VIAJES', icon: History }
                             ].map(tab => (
                                 <button
@@ -267,7 +350,14 @@ const DriverDashboard = () => {
                                     exit={{ y: 20, opacity: 0 }}
                                     className="max-h-[50vh] overflow-y-auto space-y-3 pb-4 scrollbar-none"
                                 >
-                                    {availableFletes.length > 0 ? availableFletes.map((flete, idx) => (
+                                    {!profile.active_vehicle_id ? (
+                                        <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5 px-6">
+                                            <AlertTriangle className="w-10 h-10 mx-auto mb-4 text-primary-500" />
+                                            <p className="text-[10px] font-black uppercase italic tracking-widest text-white mb-2">SIN VEHÍCULO ACTIVO</p>
+                                            <p className="text-[9px] text-zinc-500 uppercase font-black">Selecciona un vehículo en tu GARAJE para ver pedidos disponibles.</p>
+                                            <button onClick={() => setActiveTab('garage')} className="mt-6 text-primary-500 text-[10px] font-black uppercase underline italic">IR AL GARAJE</button>
+                                        </div>
+                                    ) : availableFletes.length > 0 ? availableFletes.map((flete, idx) => (
                                         <motion.div
                                             key={flete.id}
                                             initial={{ opacity: 0, scale: 0.95 }}
@@ -353,6 +443,7 @@ const DriverDashboard = () => {
                                         <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5">
                                             <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4 text-zinc-800" />
                                             <p className="text-[10px] font-black uppercase italic tracking-widest text-zinc-700">BUSCANDO PEDIDOS...</p>
+                                            <p className="text-[8px] text-zinc-600 uppercase font-black mt-2">Categoría: {vehicles.find(v => v.id === profile.active_vehicle_id)?.vehicle_categories?.name}</p>
                                         </div>
                                     )}
                                 </motion.div>
@@ -526,6 +617,91 @@ const DriverDashboard = () => {
                                             <p className="text-[10px] font-black uppercase italic tracking-widest text-zinc-700">SIN VIAJE ACTIVO</p>
                                         </div>
                                     )}
+                                </motion.div>
+                            )}
+
+                            {activeTab === 'garage' && (
+                                <motion.div key="garage" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="space-y-4">
+                                    {/* Active Vehicle Status */}
+                                    <div className="glass-card p-6 border-primary-500/30 bg-primary-500/5">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <p className="text-[8px] font-black text-primary-500 uppercase tracking-widest italic mb-1">VEHÍCULO ACTIVO</p>
+                                                <h3 className="text-xl font-black text-white italic uppercase">{vehicles.find(v => v.id === profile.active_vehicle_id)?.brand || 'NO SELECCIONADO'}</h3>
+                                                <p className="text-[10px] font-bold text-zinc-500 italic uppercase">{vehicles.find(v => v.id === profile.active_vehicle_id)?.model}</p>
+                                            </div>
+                                            <div className="p-3 bg-primary-500 rounded-xl text-black">
+                                                <CheckCircle2 className="w-5 h-5" />
+                                            </div>
+                                        </div>
+                                        <p className="text-[10px] text-zinc-400 italic">Estás buscando pedidos para la categoría: <span className="text-primary-500 font-black uppercase">{vehicles.find(v => v.id === profile.active_vehicle_id)?.vehicle_categories?.name || '---'}</span></p>
+                                    </div>
+
+                                    {/* All Vehicles List */}
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-700 mt-6 px-2 italic">MIS VEHÍCULOS</h3>
+                                    <div className="space-y-3">
+                                        {vehicles.map(v => (
+                                            <div key={v.id} className={`glass-card p-5 border-white/5 bg-zinc-950/80 ${v.id === profile.active_vehicle_id ? 'ring-2 ring-primary-500/20 shadow-xl' : ''}`}>
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span className="text-lg font-black text-white italic uppercase">{v.brand} {v.model}</span>
+                                                            {v.verification_status === 'approved' ? (
+                                                                <ShieldCheck className="w-4 h-4 text-primary-500" />
+                                                            ) : v.verification_status === 'pending' ? (
+                                                                <Clock className="w-4 h-4 text-yellow-500" />
+                                                            ) : (
+                                                                <XCircle className="w-4 h-4 text-red-500" />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex gap-3">
+                                                            <span className="text-[8px] font-black uppercase bg-zinc-900 px-2 py-1 rounded text-zinc-500 italic">{v.license_plate}</span>
+                                                            <span className="text-[8px] font-black uppercase bg-primary-500/10 px-2 py-1 rounded text-primary-500 italic">{v.vehicle_categories?.name}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {v.verification_status === 'approved' && v.id !== profile.active_vehicle_id && (
+                                                        <button
+                                                            onClick={() => handleSwitchVehicle(v.id)}
+                                                            className="p-3 hover:bg-primary-500 hover:text-black rounded-xl border border-white/5 transition-all text-zinc-500"
+                                                        >
+                                                            <Target className="w-5 h-5" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        <button
+                                            onClick={() => setShowAddVehicle(!showAddVehicle)}
+                                            className="w-full py-4 border-2 border-dashed border-zinc-900 rounded-2xl text-zinc-700 font-black italic text-[10px] uppercase hover:border-primary-500/30 hover:text-primary-500 transition-all"
+                                        >
+                                            {showAddVehicle ? 'CANCELAR REGISTRO' : '+ AGREGAR OTRO VEHÍCULO'}
+                                        </button>
+
+                                        {showAddVehicle && (
+                                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-6 border-white/10 bg-zinc-950">
+                                                <form onSubmit={handleAddVehicle} className="space-y-4">
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <input className="input-field text-xs" placeholder="MARCA" value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} required />
+                                                        <input className="input-field text-xs" placeholder="MODELO" value={formData.model} onChange={e => setFormData({ ...formData, model: e.target.value })} required />
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <input type="number" className="input-field text-xs" placeholder="AÑO" value={formData.year} onChange={e => setFormData({ ...formData, year: e.target.value })} required />
+                                                        <input className="input-field text-xs uppercase" placeholder="PATENTE" value={formData.license_plate} onChange={e => setFormData({ ...formData, license_plate: e.target.value })} required />
+                                                    </div>
+                                                    <select className="input-field text-xs bg-zinc-900 text-white" value={formData.category_id} onChange={e => setFormData({ ...formData, category_id: e.target.value })} required>
+                                                        <option value="">ELIJA CATEGORÍA</option>
+                                                        {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                                                    </select>
+                                                    <textarea className="input-field text-xs resize-none" placeholder="JUSTIFICACIÓN (Capacidad, tipo de caja, etc)" value={formData.justification} onChange={e => setFormData({ ...formData, justification: e.target.value })} required />
+                                                    <button type="submit" disabled={isSubmitting} className="premium-button w-full py-4 text-xs">
+                                                        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'SOLICITAR APROBACIÓN'}
+                                                    </button>
+                                                </form>
+                                            </motion.div>
+                                        )}
+                                    </div>
                                 </motion.div>
                             )}
 

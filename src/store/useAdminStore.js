@@ -6,6 +6,7 @@ export const useAdminStore = create((set, get) => ({
     stats: null,
     complaints: [],
     users: [],
+    pendingVehicles: [],
     activityLogs: [],
     loading: false,
     error: null,
@@ -317,12 +318,84 @@ export const useAdminStore = create((set, get) => ({
         }
     },
 
+    // Obtener vehículos pendientes de verificación
+    fetchPendingVehicles: async () => {
+        set({ loading: true, error: null })
+        try {
+            const { data, error } = await supabase
+                .from('vehicles')
+                .select(`
+                    *,
+                    driver:profiles!driver_id (id, full_name, phone, avatar_url),
+                    category:vehicle_categories (id, name)
+                `)
+                .eq('verification_status', 'pending')
+                .order('created_at', { ascending: true })
+
+            if (error) throw error
+            set({ pendingVehicles: data, loading: false })
+            return data
+        } catch (err) {
+            console.error('Error fetching pending vehicles:', err)
+            set({ error: err.message, loading: false })
+            return []
+        }
+    },
+
+    // Verificar (aprobar/rechazar) un vehículo
+    verifyVehicle: async (vehicleId, status, adminNotes = '') => {
+        set({ loading: true, error: null })
+        try {
+            const { data, error } = await supabase
+                .from('vehicles')
+                .update({
+                    verification_status: status,
+                    admin_notes: adminNotes,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', vehicleId)
+                .select()
+                .single()
+
+            if (error) throw error
+
+            // Si se aprueba y es el primer vehículo aprobado, lo ponemos como activo
+            if (status === 'approved') {
+                const { data: vehicle } = await supabase
+                    .from('vehicles')
+                    .select('driver_id')
+                    .eq('id', vehicleId)
+                    .single()
+
+                if (vehicle) {
+                    await supabase.rpc('set_active_vehicle', {
+                        p_driver_id: vehicle.driver_id,
+                        p_vehicle_id: vehicleId
+                    })
+                }
+            }
+
+            // Actualizar lista local
+            set(state => ({
+                pendingVehicles: state.pendingVehicles.filter(v => v.id !== vehicleId),
+                loading: false
+            }))
+
+            return data
+        } catch (err) {
+            console.error('Error verifying vehicle:', err)
+            set({ error: err.message, loading: false })
+            return null
+        }
+    },
+
     // Limpiar estado
     clearAdmin: () => {
         set({
             stats: null,
             complaints: [],
             users: [],
+            pendingVehicles: [],
             activityLogs: [],
             loading: false,
             error: null

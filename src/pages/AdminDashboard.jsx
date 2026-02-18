@@ -159,12 +159,19 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* Moderación */}
+                {/* Moderación & Verificación */}
                 <div>
                     <h2 className="text-xl font-black text-white italic uppercase tracking-tighter mb-4">
-                        ⚠️ MODERACIÓN
+                        🛡️ CONTROL
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <StatCard
+                            icon={Truck}
+                            label="Vehículos Pendientes"
+                            value={stats?.pending_vehicles || 0}
+                            color="bg-primary-500"
+                            onClick={() => navigate('/admin/vehicles')}
+                        />
                         <StatCard
                             icon={Ban}
                             label="Usuarios Baneados"
@@ -176,7 +183,7 @@ const AdminDashboard = () => {
                             icon={Shield}
                             label="Acciones Hoy"
                             value="0"
-                            color="bg-primary-500"
+                            color="bg-zinc-800"
                         />
                     </div>
                 </div>

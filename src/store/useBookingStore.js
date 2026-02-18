@@ -53,11 +53,12 @@ export const useBookingStore = create((set, get) => ({
                 data.map(async (flete) => {
                     if (!flete.driver) return flete
 
-                    // Obtener vehículo del chofer
+                    // Obtener vehículo ACTIVO del chofer
                     const { data: vehicleData } = await supabase
                         .from('vehicles')
-                        .select('*')
+                        .select('*, vehicle_categories(name)')
                         .eq('driver_id', flete.driver.id)
+                        .eq('is_active', true)
                         .maybeSingle()
 
                     // Calcular calificación promedio del chofer

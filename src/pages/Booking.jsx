@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Navigation, Truck, ChevronRight, Search, CreditCard, Clock, CheckCircle2, AlertTriangle, ChevronLeft, Loader2, Target, ArrowRight, Star, X } from 'lucide-react'
+import { MapPin, Navigation, Truck, Car, Package, ChevronRight, Search, CreditCard, Clock, CheckCircle2, AlertTriangle, ChevronLeft, Loader2, Target, ArrowRight, Star, X } from 'lucide-react'
 import FreightMap from '../components/map/FreightMap'
 import { useBookingStore } from '../store/useBookingStore'
 import { useAuthStore } from '../store/useAuthStore'
@@ -289,17 +289,25 @@ const Booking = () => {
                                             <button onClick={() => setStep(1)}><ChevronLeft className="w-5 h-5 text-zinc-500" /></button>
                                         </div>
                                         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none px-1 -mx-1">
-                                            {categories.map((cat) => (
-                                                <button
-                                                    key={cat.id}
-                                                    onClick={() => setCategory(cat)}
-                                                    className={`min-w-[140px] p-5 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all ${selectedCategory?.id === cat.id ? 'border-primary-500 bg-primary-500/10' : 'border-white/5 bg-zinc-900/40'}`}
-                                                >
-                                                    <Truck className={`w-8 h-8 ${selectedCategory?.id === cat.id ? 'text-primary-500' : 'text-zinc-700'}`} />
-                                                    <p className="text-[10px] font-black italic uppercase text-white leading-none">{cat.name}</p>
-                                                    <p className="text-lg font-black italic text-primary-500">${cat.base_price}</p>
-                                                </button>
-                                            ))}
+                                            {categories.map((cat) => {
+                                                const Icon = cat.name.toLowerCase().includes('auto') ? Car :
+                                                    cat.name.toLowerCase().includes('utilitario') ? Package :
+                                                        cat.name.toLowerCase().includes('camioneta') ? Truck : Truck;
+                                                return (
+                                                    <button
+                                                        key={cat.id}
+                                                        onClick={() => setCategory(cat)}
+                                                        className={`min-w-[140px] p-5 rounded-[2rem] border-2 flex flex-col items-center gap-3 transition-all ${selectedCategory?.id === cat.id ? 'border-primary-500 bg-primary-500/10' : 'border-white/5 bg-zinc-900/40'}`}
+                                                    >
+                                                        <Icon className={`w-8 h-8 ${selectedCategory?.id === cat.id ? 'text-primary-500' : 'text-zinc-700'}`} />
+                                                        <div className="text-center">
+                                                            <p className="text-[10px] font-black italic uppercase text-white leading-none mb-1">{cat.name}</p>
+                                                            <p className="text-[8px] font-bold text-zinc-600 uppercase leading-tight h-6 overflow-hidden">{cat.description}</p>
+                                                        </div>
+                                                        <p className="text-lg font-black italic text-primary-500">${cat.base_price}</p>
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                         <button
                                             disabled={!selectedCategory}

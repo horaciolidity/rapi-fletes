@@ -4,23 +4,99 @@ import { supabase } from '../api/supabase'
 export const useDriverStore = create((set, get) => ({
     availableFletes: [],
     activeFlete: null,
+    vehicles: [],
     loading: false,
     error: null,
 
-    fetchAvailableFletes: async () => {
+    fetchAvailableFletes: async (driverId) => {
         set({ loading: true, error: null })
+        try {
+            // Get active vehicle category
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('active_vehicle_id')
+                .eq('id', driverId)
+                .single()
+
+            let activeCategoryId = null
+            if (profileData?.active_vehicle_id) {
+                const { data: vehicleData } = await supabase
+                    .from('vehicles')
+                    .select('category_id')
+                    .eq('id', profileData.active_vehicle_id)
+                    .single()
+                activeCategoryId = vehicleData?.category_id
+            }
+
+            let query = supabase
+                .from('fletes')
+                .select(`
+                    *,
+                    vehicle_categories (name, base_price),
+                    profiles:user_id (full_name)
+                `)
+                .eq('status', 'pending')
+
+            if (activeCategoryId) {
+                query = query.eq('category_id', activeCategoryId)
+            }
+
+            const { data, error } = await query.order('created_at', { ascending: false })
+
+            if (error) throw error
+            set({ availableFletes: data, loading: false })
+        } catch (err) {
+            set({ error: err.message, loading: false })
+        }
+    },
+
+    fetchMyVehicles: async (driverId) => {
+        set({ loading: true })
         const { data, error } = await supabase
-            .from('fletes')
-            .select(`
-        *,
-        vehicle_categories (name, base_price),
-        profiles:user_id (full_name)
-      `)
-            .eq('status', 'pending')
+            .from('vehicles')
+            .select('*, vehicle_categories(name)')
+            .eq('driver_id', driverId)
             .order('created_at', { ascending: false })
 
-        if (error) set({ error: error.message, loading: false })
-        else set({ availableFletes: data, loading: false })
+        if (!error) set({ vehicles: data })
+        set({ loading: false })
+        return data
+    },
+
+    addVehicle: async (driverId, vehicleData) => {
+        set({ loading: true, error: null })
+        const { data, error } = await supabase
+            .from('vehicles')
+            .insert([{ ...vehicleData, driver_id: driverId, verification_status: 'pending' }])
+            .select()
+            .single()
+
+        if (error) {
+            set({ error: error.message, loading: false })
+            return null
+        }
+
+        set(state => ({ vehicles: [data, ...state.vehicles], loading: false }))
+        return data
+    },
+
+    setActiveVehicle: async (driverId, vehicleId) => {
+        set({ loading: true, error: null })
+        const { data, error } = await supabase.rpc('set_active_vehicle', {
+            p_driver_id: driverId,
+            p_vehicle_id: vehicleId
+        })
+
+        if (error) {
+            set({ error: error.message, loading: false })
+            return false
+        }
+
+        if (data) {
+            await get().fetchAvailableFletes(driverId)
+        }
+        set({ loading: false })
+        return data
     },
 
     fetchActiveFlete: async (driverId) => {

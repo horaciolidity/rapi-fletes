@@ -8,6 +8,7 @@ import DriverDashboard from './pages/DriverDashboard'
 import DriverWallet from './pages/DriverWallet'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminComplaints from './pages/AdminComplaints'
+import AdminVehicles from './pages/AdminVehicles'
 import MyFletes from './pages/MyFletes'
 import Profile from './pages/Profile'
 import Navbar from './components/layout/Navbar'
@@ -67,6 +68,7 @@ const AppContent = () => {
           <Route path="/my-fletes" element={<MyFletes />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/complaints" element={<AdminComplaints />} />
+          <Route path="/admin/vehicles" element={<AdminVehicles />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
