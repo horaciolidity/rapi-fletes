@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Shield, Truck, CheckCircle, XCircle, Clock, Info, User, Phone, ChevronLeft, Loader2, AlertTriangle, FileText, Check, X, ShieldCheck } from 'lucide-react'
+import { Shield, Truck, CheckCircle, XCircle, Clock, Info, User, Phone, ChevronLeft, ChevronRight, Loader2, AlertTriangle, FileText, Check, X, ShieldCheck } from 'lucide-react'
 import { useAdminStore } from '../store/useAdminStore'
 import { useNavigate } from 'react-router-dom'
 
