@@ -7,9 +7,13 @@ import { useNotificationStore } from '../../store/useNotificationStore'
 
 const Navbar = () => {
     const { user, profile, signOut } = useAuthStore()
+    const { notifications, markAsRead, clearNotifications } = useNotificationStore()
     const [isScrolled, setIsScrolled] = useState(false)
+    const [showNotifications, setShowNotifications] = useState(false)
     const location = useLocation()
     const navigate = useNavigate()
+
+    const unreadCount = notifications.filter(n => !n.read).length
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20)
