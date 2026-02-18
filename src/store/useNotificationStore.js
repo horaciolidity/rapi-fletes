@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 export const useNotificationStore = create((set, get) => ({
     notifications: [],
+    popups: [],
     permission: typeof Notification !== 'undefined' ? Notification.permission : 'default',
 
     requestPermission: async () => {
@@ -13,7 +14,8 @@ export const useNotificationStore = create((set, get) => ({
     addNotification: (notification) => {
         const id = Date.now()
         set((state) => ({
-            notifications: [{ ...notification, id }, ...state.notifications].slice(0, 5)
+            notifications: [{ ...notification, id, read: false, createdAt: new Date() }, ...state.notifications].slice(0, 20),
+            popups: [{ ...notification, id }, ...state.popups]
         }))
 
         // Play Sound
@@ -24,21 +26,31 @@ export const useNotificationStore = create((set, get) => ({
         if (get().permission === 'granted') {
             new Notification('RapiFletes', {
                 body: notification.message,
-                icon: '/icons/icon-192x192.png', // Assuming standard PWA path
+                icon: '/icons/icon-192x192.png',
             })
         }
 
-        // Auto remove in-app notification after 5s
+        // Auto remove in-app POPUP after 5s
         setTimeout(() => {
             set((state) => ({
-                notifications: state.notifications.filter((n) => n.id !== id)
+                popups: state.popups.filter((n) => n.id !== id)
             }))
         }, 5000)
     },
 
-    removeNotification: (id) => {
+    removePopup: (id) => {
         set((state) => ({
-            notifications: state.notifications.filter((n) => n.id !== id)
+            popups: state.popups.filter((n) => n.id !== id)
         }))
+    },
+
+    markAsRead: () => {
+        set((state) => ({
+            notifications: state.notifications.map(n => ({ ...n, read: true }))
+        }))
+    },
+
+    clearNotifications: () => {
+        set({ notifications: [] })
     }
 }))

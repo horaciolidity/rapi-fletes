@@ -6,7 +6,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import { supabase } from '../../api/supabase'
 
 const NotificationManager = () => {
-    const { notifications, removeNotification, addNotification, requestPermission } = useNotificationStore()
+    const { popups, removePopup, requestPermission, addNotification } = useNotificationStore()
     const { user, profile } = useAuthStore()
 
     useEffect(() => {
@@ -72,18 +72,18 @@ const NotificationManager = () => {
     }, [user, profile, addNotification])
 
     return (
-        <div className="fixed top-24 left-0 right-0 z-[9999] pointer-events-none flex flex-col items-center gap-3 px-6">
+        <div className="fixed top-6 left-0 right-0 z-[9999] pointer-events-none flex flex-col items-center gap-3 px-6">
             <AnimatePresence>
-                {notifications.map((n) => (
+                {popups.map((n) => (
                     <motion.div
                         key={n.id}
-                        initial={{ opacity: 0, y: -20, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: -20 }}
                         className="pointer-events-auto"
                     >
-                        <div className="bg-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 flex items-center gap-4 shadow-2xl min-w-[300px] max-w-sm">
-                            <div className={`p-2 rounded-xl bg-primary-500/10 text-primary-500`}>
+                        <div className="bg-black/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 flex items-center gap-4 shadow-2xl min-w-[300px] max-w-sm">
+                            <div className="p-2 rounded-xl bg-primary-500/10 text-primary-500">
                                 <Bell className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
@@ -92,8 +92,8 @@ const NotificationManager = () => {
                                 </p>
                             </div>
                             <button
-                                onClick={() => removeNotification(n.id)}
-                                className="text-zinc-600 hover:text-white"
+                                onClick={() => removePopup(n.id)}
+                                className="text-zinc-600 hover:text-white transition-colors"
                             >
                                 <X className="w-4 h-4" />
                             </button>

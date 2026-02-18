@@ -84,7 +84,7 @@ const ChatbotWidget = () => {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setIsOpen(true)}
-                        className="fixed bottom-24 right-5 z-50 w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-400 rounded-full shadow-2xl shadow-primary-500/40 flex items-center justify-center"
+                        className="fixed bottom-28 right-5 z-[60] w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-400 rounded-full shadow-2xl shadow-primary-500/40 flex items-center justify-center"
                     >
                         <MessageCircle className="w-7 h-7 text-black" />
                         {hasNewMessage && (
@@ -102,7 +102,7 @@ const ChatbotWidget = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 30, scale: 0.95 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="fixed bottom-24 right-4 z-50 w-[340px] sm:w-[380px] h-[580px] bg-zinc-950 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+                        className="fixed bottom-28 right-4 z-[70] w-[calc(100vw-32px)] sm:w-[380px] h-[70vh] max-h-[550px] bg-zinc-950 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
                     >
                         {/* Header */}
                         <div className="bg-gradient-to-r from-primary-500 to-primary-400 px-5 py-4 flex items-center justify-between flex-shrink-0">
@@ -148,8 +148,8 @@ const ChatbotWidget = () => {
 
                                     {/* Burbuja */}
                                     <div className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user'
-                                            ? 'bg-secondary-500 text-black rounded-tr-sm'
-                                            : 'bg-zinc-900 text-zinc-100 border border-zinc-800 rounded-tl-sm'
+                                        ? 'bg-secondary-500 text-black rounded-tr-sm'
+                                        : 'bg-zinc-900 text-zinc-100 border border-zinc-800 rounded-tl-sm'
                                         }`}>
                                         {msg.role === 'assistant'
                                             ? msg.content.split('\n').map((line, j) => (

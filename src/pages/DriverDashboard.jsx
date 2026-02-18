@@ -600,9 +600,7 @@ const DriverDashboard = () => {
 
             {/* Chat Widget integrated into the flow if active voyage */}
             {activeFlete && ['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(activeFlete.status) && (
-                <div className="fixed bottom-32 right-6 z-50 pointer-events-auto">
-                    <ChatWidget fleteId={activeFlete.id} receiverName={activeFlete.profiles?.full_name || "Cliente"} />
-                </div>
+                <ChatWidget fleteId={activeFlete.id} receiverName={activeFlete.profiles?.full_name || "Cliente"} />
             )}
 
             {/* Passenger Confirmation Modal */}

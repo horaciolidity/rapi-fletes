@@ -376,12 +376,10 @@ const MyFletes = () => {
 
                                     {/* Chat Widget integrated if active */}
                                     {['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(selectedFlete.status) && (
-                                        <div className="pt-2">
-                                            <ChatWidget
-                                                fleteId={selectedFlete.id}
-                                                receiverName={selectedFlete.driver?.full_name || "Conductor"}
-                                            />
-                                        </div>
+                                        <ChatWidget
+                                            fleteId={selectedFlete.id}
+                                            receiverName={selectedFlete.driver?.full_name || "Conductor"}
+                                        />
                                     )}
                                 </div>
                             ) : (

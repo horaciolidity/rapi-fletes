@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Truck, User, LogOut, Menu, X, Bell, LayoutDashboard, History, ShieldCheck, Settings } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/useAuthStore'
+import { useNotificationStore } from '../../store/useNotificationStore'
 
 const Navbar = () => {
     const { user, profile, signOut } = useAuthStore()
@@ -99,9 +100,74 @@ const Navbar = () => {
                 <div className="flex items-center gap-4">
                     {user ? (
                         <>
-                            <button className="w-10 h-10 bg-zinc-950 rounded-xl border border-white/5 flex items-center justify-center text-zinc-500 hover:text-primary-500 transition-all">
-                                <Bell className="w-5 h-5" />
-                            </button>
+                            <div className="relative">
+                                <button
+                                    onClick={() => {
+                                        setShowNotifications(!showNotifications)
+                                        if (!showNotifications) markAsRead()
+                                    }}
+                                    className={`w-10 h-10 bg-zinc-950 rounded-xl border flex items-center justify-center transition-all ${showNotifications ? 'border-primary-500 text-primary-500' : 'border-white/5 text-zinc-500 hover:text-primary-500'}`}
+                                >
+                                    <Bell className="w-5 h-5" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-500 text-black text-[8px] font-black rounded-full flex items-center justify-center border-2 border-black animate-bounce">
+                                            {unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+
+                                <AnimatePresence>
+                                    {showNotifications && (
+                                        <>
+                                            <motion.div
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                onClick={() => setShowNotifications(false)}
+                                                className="fixed inset-0 z-40 bg-black/20"
+                                            />
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.95, y: 10, x: 20 }}
+                                                animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
+                                                exit={{ opacity: 0, scale: 0.95, y: 10, x: 20 }}
+                                                className="absolute right-0 mt-4 w-80 bg-zinc-950 border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden"
+                                            >
+                                                <div className="p-5 border-b border-white/5 flex items-center justify-between bg-zinc-900/50">
+                                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-white italic">Notificaciones</h3>
+                                                    <button
+                                                        onClick={clearNotifications}
+                                                        className="text-[8px] font-black uppercase tracking-widest text-zinc-600 hover:text-primary-500 transition-colors italic"
+                                                    >
+                                                        Limpiar todo
+                                                    </button>
+                                                </div>
+                                                <div className="max-h-[400px] overflow-y-auto">
+                                                    {notifications.length > 0 ? (
+                                                        notifications.map((n) => (
+                                                            <div key={n.id} className="p-5 border-b border-white/5 hover:bg-zinc-900/30 transition-colors flex gap-4">
+                                                                <div className="w-8 h-8 rounded-lg bg-primary-500/10 flex items-center justify-center shrink-0">
+                                                                    <Bell className="w-4 h-4 text-primary-500" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[11px] font-bold text-zinc-300 leading-relaxed mb-1 italic">{n.message}</p>
+                                                                    <p className="text-[8px] font-black text-zinc-700 uppercase italic">
+                                                                        {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <div className="p-10 text-center">
+                                                            <Bell className="w-10 h-10 text-zinc-900 mx-auto mb-4" />
+                                                            <p className="text-[9px] font-black text-zinc-700 uppercase italic tracking-widest">Sin notificaciones nuevas</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        </>
+                                    )}
+                                </AnimatePresence>
+                            </div>
 
                             {/* Desktop Profile Info */}
                             <div className="hidden md:flex items-center gap-6 lg:gap-10">

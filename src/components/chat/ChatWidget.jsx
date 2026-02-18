@@ -39,14 +39,14 @@ const ChatWidget = ({ fleteId, receiverName }) => {
     }
 
     return (
-        <div className="fixed bottom-12 right-12 z-[1000] font-sans">
+        <div className="fixed bottom-48 right-6 z-[60] font-sans pointer-events-none">
             <AnimatePresence>
                 {isOpen ? (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 50 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 50 }}
-                        className="w-[340px] h-[500px] bg-black border-2 border-zinc-900 rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden backdrop-blur-3xl relative"
+                        className="pointer-events-auto w-[calc(100vw-32px)] sm:w-[340px] h-[50vh] sm:h-[500px] bg-black border-2 border-zinc-900 rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden backdrop-blur-3xl relative"
                     >
                         {/* Status Bar */}
                         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 to-secondary-600" />
@@ -121,7 +121,7 @@ const ChatWidget = ({ fleteId, receiverName }) => {
                             whileHover={{ scale: 1.1, rotate: -10 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => setIsOpen(true)}
-                            className="w-16 h-16 bg-primary-500 text-black rounded-2xl shadow-[0_20px_60px_rgba(245,158,11,0.4)] flex items-center justify-center relative group"
+                            className="w-16 h-16 bg-primary-500 text-black rounded-2xl shadow-[0_20px_60px_rgba(245,158,11,0.4)] flex items-center justify-center relative group pointer-events-auto"
                         >
                             <MessageSquare className="w-8 h-8" />
                             <div className="absolute -top-1 -right-1 w-6 h-6 bg-black border-4 border-primary-500 rounded-full flex items-center justify-center">
