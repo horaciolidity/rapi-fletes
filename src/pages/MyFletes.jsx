@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, MapPin, Navigation, Clock, CheckCircle2, ChevronLeft, Package, AlertCircle, Phone, Star, ShieldCheck, Map as MapIcon, Calendar, DollarSign, Activity, XCircle, History as HistoryIcon, ArrowRight, User, Loader2 } from 'lucide-react'
+import { Truck, MapPin, Navigation, Clock, CheckCircle2, ChevronLeft, Package, AlertCircle, Phone, Star, ShieldCheck, Map as MapIcon, Calendar, DollarSign, Activity, XCircle, History as HistoryIcon, ArrowRight, User, Loader2, AlertTriangle } from 'lucide-react'
 import { useBookingStore } from '../store/useBookingStore'
 import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { Link, useNavigate } from 'react-router-dom'
 import FreightMap from '../components/map/FreightMap'
 import ChatWidget from '../components/chat/ChatWidget'
+import RatingModal from '../components/trip/RatingModal'
 
 const MyFletes = () => {
     const { user, profile } = useAuthStore()
-    const { fletes, fetchMyFletes, subscribeToFleteUpdates, cancelFlete, loading, error } = useBookingStore()
+    const { fletes, fetchMyFletes, subscribeToFleteUpdates, cancelFlete, submitClientRating, reportProblem, loading, error } = useBookingStore()
     const { fetchDriverHistory } = useDriverStore()
     const navigate = useNavigate()
     const [selectedFleteId, setSelectedFleteId] = useState(null)
     const [showDetail, setShowDetail] = useState(false)
     const [driverFletes, setDriverFletes] = useState([])
+    const [showRatingModal, setShowRatingModal] = useState(false)
+    const [showProblemModal, setShowProblemModal] = useState(false)
 
     const isDriver = profile?.role === 'driver'
     const displayFletes = isDriver ? driverFletes : fletes
@@ -42,11 +45,20 @@ const MyFletes = () => {
         }
     }, [user, profile?.role])
 
+    // Auto-show rating modal when trip is completed and hasn't been rated yet
+    useEffect(() => {
+        if (selectedFlete && selectedFlete.status === 'completed' && !selectedFlete.client_rating) {
+            setShowRatingModal(true)
+        }
+    }, [selectedFlete?.status, selectedFlete?.client_rating])
+
     const getStatusTheme = (status) => {
         switch (status) {
             case 'pending': return { color: 'text-primary-500', label: 'Buscando Unidad', icon: Clock, bg: 'bg-primary-500/10' }
-            case 'accepted': return { color: 'text-secondary-500', label: 'Unidad Asignada', icon: Truck, bg: 'bg-secondary-500/10' }
-            case 'picked_up': return { color: 'text-primary-400', label: 'En Tránsito', icon: Activity, bg: 'bg-primary-400/10' }
+            case 'accepted': return { color: 'text-secondary-500', label: 'Chofer en Camino', icon: Truck, bg: 'bg-secondary-500/10' }
+            case 'arrived_pickup': return { color: 'text-blue-500', label: 'Chofer Arribó', icon: MapPin, bg: 'bg-blue-500/10' }
+            case 'in_transit': return { color: 'text-primary-400', label: 'En Tránsito', icon: Activity, bg: 'bg-primary-400/10' }
+            case 'arrived_dropoff': return { color: 'text-purple-500', label: 'Arribó a Destino', icon: Navigation, bg: 'bg-purple-500/10' }
             case 'completed': return { color: 'text-green-500', label: 'Servicio Completado', icon: CheckCircle2, bg: 'bg-green-500/10' }
             case 'cancelled': return { color: 'text-red-500', label: 'Cancelado', icon: XCircle, bg: 'bg-red-500/10' }
             default: return { color: 'text-zinc-500', label: status, icon: Package, bg: 'bg-zinc-500/10' }
@@ -58,6 +70,21 @@ const MyFletes = () => {
     const handleSelectFlete = (id) => {
         setSelectedFleteId(id)
         setShowDetail(true)
+    }
+
+    const handleRatingSubmit = async ({ rating, notes }) => {
+        if (!selectedFlete) return
+
+        await submitClientRating(selectedFlete.id, rating, notes)
+        setShowRatingModal(false)
+    }
+
+    const handleProblemSubmit = async (problemDescription) => {
+        if (!selectedFlete) return
+
+        await reportProblem(selectedFlete.id, problemDescription)
+        setShowProblemModal(false)
+        alert('Problema reportado. Nos pondremos en contacto contigo pronto.')
     }
 
     if (!user) return null
@@ -278,6 +305,48 @@ const MyFletes = () => {
                                             >
                                                 <Phone className="w-5 h-5" /> CONTACTAR
                                             </a>
+
+                                            {/* Problem Report Button - Show during active trip */}
+                                            {['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(selectedFlete.status) && (
+                                                <button
+                                                    onClick={() => setShowProblemModal(true)}
+                                                    className="w-full py-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 font-black italic text-[11px] uppercase hover:bg-red-500/20 transition-colors mt-3"
+                                                >
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <AlertTriangle className="w-4 h-4" />
+                                                        REPORTAR PROBLEMA
+                                                    </div>
+                                                </button>
+                                            )}
+
+                                            {/* Rating Button - Show for completed trips */}
+                                            {selectedFlete.status === 'completed' && (
+                                                <div className="space-y-3 mt-4 pt-4 border-t border-zinc-900">
+                                                    {selectedFlete.client_rating ? (
+                                                        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4 text-center">
+                                                            <div className="flex items-center justify-center gap-2 mb-2">
+                                                                {[...Array(selectedFlete.client_rating)].map((_, i) => (
+                                                                    <Star key={i} className="w-4 h-4 text-primary-500 fill-primary-500" />
+                                                                ))}
+                                                            </div>
+                                                            <p className="text-[10px] font-black text-green-500 uppercase italic">✓ VIAJE CALIFICADO</p>
+                                                            {selectedFlete.client_notes && (
+                                                                <p className="text-[9px] text-zinc-500 italic mt-2">"{selectedFlete.client_notes}"</p>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => setShowRatingModal(true)}
+                                                            className="w-full py-5 bg-gradient-to-r from-primary-500 to-primary-400 text-black font-black italic text-[13px] uppercase rounded-2xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all"
+                                                        >
+                                                            <div className="flex items-center justify-center gap-2">
+                                                                <Star className="w-5 h-5" />
+                                                                CALIFICAR CHOFER
+                                                            </div>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     ) : selectedFlete.status !== 'cancelled' && selectedFlete.status !== 'completed' && (
                                         <div className="glass-card p-8 text-center flex flex-col items-center">
@@ -297,7 +366,7 @@ const MyFletes = () => {
                                     )}
 
                                     {/* Chat Widget integrated if active */}
-                                    {['accepted', 'picked_up'].includes(selectedFlete.status) && (
+                                    {['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(selectedFlete.status) && (
                                         <div className="pt-2">
                                             <ChatWidget
                                                 fleteId={selectedFlete.id}
@@ -314,6 +383,80 @@ const MyFletes = () => {
                 </AnimatePresence>
 
             </div>
+
+            {/* Rating Modal */}
+            <RatingModal
+                isOpen={showRatingModal}
+                onClose={() => setShowRatingModal(false)}
+                onSubmit={handleRatingSubmit}
+                title="¿CÓMO FUE EL SERVICIO?"
+                subtitle="Califica tu experiencia con el chofer"
+            />
+
+            {/* Problem Report Modal */}
+            <AnimatePresence>
+                {showProblemModal && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowProblemModal(false)}
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="fixed inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto bg-zinc-950 border border-white/10 rounded-3xl p-6 z-50 shadow-2xl"
+                        >
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 bg-red-500/10 rounded-2xl border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+                                    <AlertTriangle className="w-8 h-8 text-red-500" />
+                                </div>
+                                <h2 className="text-2xl font-black text-white italic uppercase tracking-tight mb-2">
+                                    ¿QUÉ SUCEDIÓ?
+                                </h2>
+                                <p className="text-[10px] font-bold text-zinc-500 uppercase italic">
+                                    Describe el problema que tuviste
+                                </p>
+                            </div>
+
+                            <form onSubmit={(e) => {
+                                e.preventDefault()
+                                const description = e.target.problem.value
+                                if (description.trim()) {
+                                    handleProblemSubmit(description)
+                                }
+                            }}>
+                                <textarea
+                                    name="problem"
+                                    rows={4}
+                                    placeholder="Describe el problema..."
+                                    className="w-full bg-zinc-900 border border-white/10 rounded-2xl p-4 text-white text-sm font-medium italic placeholder:text-zinc-600 focus:outline-none focus:border-primary-500/50 mb-4"
+                                    required
+                                />
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowProblemModal(false)}
+                                        className="py-4 bg-zinc-900 text-white font-black italic text-[11px] uppercase rounded-xl hover:bg-zinc-800 transition-colors"
+                                    >
+                                        CANCELAR
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="py-4 bg-red-500 text-white font-black italic text-[11px] uppercase rounded-xl hover:bg-red-600 transition-colors"
+                                    >
+                                        REPORTAR
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     )
 }

@@ -211,6 +211,56 @@ export const useBookingStore = create((set, get) => ({
         return channel
     },
 
+    submitClientRating: async (fleteId, rating, notes) => {
+        const { data, error } = await supabase
+            .from('fletes')
+            .update({
+                client_rating: rating,
+                client_notes: notes
+            })
+            .eq('id', fleteId)
+            .select()
+            .maybeSingle()
+
+        if (error) {
+            console.error('Error submitting client rating:', error)
+            return { data: null, error }
+        }
+
+        // Refresh the fletes list
+        const currentFletes = get().fletes
+        const updatedFletes = currentFletes.map(f =>
+            f.id === fleteId ? { ...f, client_rating: rating, client_notes: notes } : f
+        )
+        set({ fletes: updatedFletes })
+
+        return { data, error: null }
+    },
+
+    reportProblem: async (fleteId, problemDescription) => {
+        set({ loading: true, error: null })
+
+        // Update the flete with problem notes and potentially change status
+        const { data, error } = await supabase
+            .from('fletes')
+            .update({
+                client_notes: `[PROBLEMA REPORTADO] ${problemDescription}`,
+                // Optionally add a problem_reported field if you have one
+            })
+            .eq('id', fleteId)
+            .select()
+            .maybeSingle()
+
+        if (error) {
+            console.error('Error reporting problem:', error)
+            set({ error: error.message, loading: false })
+            return null
+        }
+
+        set({ loading: false })
+        return data
+    },
+
     resetBooking: () => set({
         pickup: null,
         dropoff: null,
