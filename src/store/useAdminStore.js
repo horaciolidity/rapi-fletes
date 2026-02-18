@@ -1,106 +1,331 @@
 import { create } from 'zustand'
-import { supabase } from '../api/supabase'
+import { supabase } from '../lib/supabase'
 
 export const useAdminStore = create((set, get) => ({
-    stats: {
-        totalTrips: 0,
-        totalRevenue: 0,
-        activeDrivers: 0,
-        totalUsers: 0
-    },
-    pendingDrivers: [],
-    allFletes: [],
-    allUsers: [],
+    // Estado
+    stats: null,
+    complaints: [],
+    users: [],
+    activityLogs: [],
     loading: false,
+    error: null,
 
+    // Obtener estadísticas del dashboard
     fetchStats: async () => {
-        set({ loading: true })
+        set({ loading: true, error: null })
         try {
-            const { count: trips } = await supabase.from('fletes').select('*', { count: 'exact', head: true })
-            const { data: revenueData } = await supabase.from('fletes').select('estimated_price').eq('status', 'completed')
-            const { count: drivers } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'driver')
-            const { count: users } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
+            const { data, error } = await supabase
+                .from('admin_stats')
+                .select('*')
+                .single()
 
-            const revenue = revenueData?.reduce((acc, curr) => acc + parseFloat(curr.estimated_price || 0), 0) || 0
-
-            set({
-                stats: {
-                    totalTrips: trips || 0,
-                    totalRevenue: revenue,
-                    activeDrivers: drivers || 0,
-                    totalUsers: users || 0
-                },
-                loading: false
-            })
+            if (error) throw error
+            set({ stats: data, loading: false })
+            return data
         } catch (err) {
-            console.error('Error fetching admin stats:', err)
-            set({ loading: false })
+            console.error('Error fetching stats:', err)
+            set({ error: err.message, loading: false })
+            return null
         }
     },
 
-    fetchPendingDrivers: async () => {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('role', 'driver')
-            .eq('verification_status', 'pending')
+    // Obtener todos los reclamos
+    fetchComplaints: async (filters = {}) => {
+        set({ loading: true, error: null })
+        try {
+            let query = supabase
+                .from('complaints')
+                .select(`
+                    *,
+                    user:profiles!user_id (id, full_name, phone, role),
+                    flete:fletes (id, pickup_address, dropoff_address, status),
+                    assigned_admin:profiles!assigned_to (id, full_name)
+                `)
+                .order('created_at', { ascending: false })
 
-        if (!error) set({ pendingDrivers: data })
-    },
-
-    verifyDriver: async (userId, status) => {
-        const { error } = await supabase
-            .from('profiles')
-            .update({ verification_status: status })
-            .eq('id', userId)
-
-        if (!error) {
-            set(state => ({
-                pendingDrivers: state.pendingDrivers.filter(d => d.id !== userId)
-            }))
-            get().fetchStats()
-            return true
-        }
-        return false
-    },
-
-    fetchAllFletes: async () => {
-        const { data, error } = await supabase
-            .from('fletes')
-            .select(`
-                *,
-                user:profiles!fletes_user_id_fkey (full_name),
-                driver:profiles!fletes_driver_id_fkey (full_name)
-            `)
-            .order('created_at', { ascending: false })
-            .limit(50)
-
-        if (error) console.error('Error fetching all fletes:', error)
-        else set({ allFletes: data })
-    },
-
-    fetchDriverLeaderboard: async () => {
-        const { data, error } = await supabase
-            .from('fletes')
-            .select('driver_id, driver:profiles!driver_id(full_name)')
-            .eq('status', 'completed')
-            .not('driver_id', 'is', null)
-
-        if (error) return []
-
-        // Group by driver_id to avoid name collisions
-        const driverStats = data.reduce((acc, flete) => {
-            const id = flete.driver_id
-            const name = flete.driver?.full_name || 'Desconocido'
-
-            if (!acc[id]) {
-                acc[id] = { name, count: 0 }
+            // Aplicar filtros
+            if (filters.status) {
+                query = query.eq('status', filters.status)
             }
-            acc[id].count += 1
-            return acc
-        }, {})
+            if (filters.priority) {
+                query = query.eq('priority', filters.priority)
+            }
+            if (filters.category) {
+                query = query.eq('category', filters.category)
+            }
 
-        return Object.values(driverStats)
-            .sort((a, b) => b.count - a.count)
+            const { data, error } = await query
+
+            if (error) throw error
+            set({ complaints: data, loading: false })
+            return data
+        } catch (err) {
+            console.error('Error fetching complaints:', err)
+            set({ error: err.message, loading: false })
+            return []
+        }
+    },
+
+    // Obtener un reclamo específico
+    fetchComplaint: async (complaintId) => {
+        try {
+            const { data, error } = await supabase
+                .from('complaints')
+                .select(`
+                    *,
+                    user:profiles!user_id (id, full_name, phone, email, role),
+                    flete:fletes (
+                        *,
+                        driver:profiles!driver_id (id, full_name, phone)
+                    ),
+                    assigned_admin:profiles!assigned_to (id, full_name)
+                `)
+                .eq('id', complaintId)
+                .single()
+
+            if (error) throw error
+            return data
+        } catch (err) {
+            console.error('Error fetching complaint:', err)
+            return null
+        }
+    },
+
+    // Actualizar estado de reclamo
+    updateComplaint: async (complaintId, updates) => {
+        try {
+            const { data, error } = await supabase
+                .from('complaints')
+                .update(updates)
+                .eq('id', complaintId)
+                .select()
+                .single()
+
+            if (error) throw error
+
+            // Actualizar en el estado local
+            set(state => ({
+                complaints: state.complaints.map(c =>
+                    c.id === complaintId ? { ...c, ...updates } : c
+                )
+            }))
+
+            return data
+        } catch (err) {
+            console.error('Error updating complaint:', err)
+            return null
+        }
+    },
+
+    // Asignar reclamo a admin
+    assignComplaint: async (complaintId, adminId) => {
+        return get().updateComplaint(complaintId, {
+            assigned_to: adminId,
+            status: 'in_progress'
+        })
+    },
+
+    // Resolver reclamo
+    resolveComplaint: async (complaintId, resolution) => {
+        return get().updateComplaint(complaintId, {
+            status: 'resolved',
+            resolution: resolution,
+            resolved_at: new Date().toISOString()
+        })
+    },
+
+    // Cerrar reclamo
+    closeComplaint: async (complaintId) => {
+        return get().updateComplaint(complaintId, {
+            status: 'closed',
+            closed_at: new Date().toISOString()
+        })
+    },
+
+    // Obtener todos los usuarios
+    fetchUsers: async (filters = {}) => {
+        set({ loading: true, error: null })
+        try {
+            let query = supabase
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false })
+
+            // Aplicar filtros
+            if (filters.role) {
+                query = query.eq('role', filters.role)
+            }
+            if (filters.search) {
+                query = query.or(`full_name.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`)
+            }
+
+            const { data, error } = await query
+
+            if (error) throw error
+
+            // Para cada usuario, obtener advertencias y baneos
+            const usersWithDetails = await Promise.all(
+                data.map(async (user) => {
+                    // Obtener advertencias
+                    const { data: warnings } = await supabase
+                        .from('user_warnings')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .order('created_at', { ascending: false })
+
+                    // Obtener baneos activos
+                    const { data: bans } = await supabase
+                        .from('user_bans')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .eq('is_active', true)
+
+                    // Verificar si está baneado
+                    const { data: isBanned } = await supabase
+                        .rpc('is_user_banned', { p_user_id: user.id })
+
+                    return {
+                        ...user,
+                        warnings: warnings || [],
+                        bans: bans || [],
+                        is_banned: isBanned || false
+                    }
+                })
+            )
+
+            set({ users: usersWithDetails, loading: false })
+            return usersWithDetails
+        } catch (err) {
+            console.error('Error fetching users:', err)
+            set({ error: err.message, loading: false })
+            return []
+        }
+    },
+
+    // Advertir a un usuario
+    warnUser: async (userId, adminId, reason, severity = 'medium', complaintId = null) => {
+        try {
+            const { data, error } = await supabase
+                .from('user_warnings')
+                .insert({
+                    user_id: userId,
+                    admin_id: adminId,
+                    reason: reason,
+                    severity: severity,
+                    complaint_id: complaintId
+                })
+                .select()
+                .single()
+
+            if (error) throw error
+
+            // Refrescar usuarios
+            await get().fetchUsers()
+
+            return data
+        } catch (err) {
+            console.error('Error warning user:', err)
+            return null
+        }
+    },
+
+    // Banear a un usuario
+    banUser: async (userId, adminId, reason, banType = 'temporary', expiresAt = null, complaintId = null) => {
+        try {
+            const { data, error } = await supabase
+                .from('user_bans')
+                .insert({
+                    user_id: userId,
+                    admin_id: adminId,
+                    reason: reason,
+                    ban_type: banType,
+                    expires_at: expiresAt,
+                    complaint_id: complaintId,
+                    is_active: true
+                })
+                .select()
+                .single()
+
+            if (error) throw error
+
+            // Refrescar usuarios
+            await get().fetchUsers()
+
+            return data
+        } catch (err) {
+            console.error('Error banning user:', err)
+            return null
+        }
+    },
+
+    // Levantar baneo
+    liftBan: async (banId, adminId) => {
+        try {
+            const { data, error } = await supabase
+                .from('user_bans')
+                .update({
+                    is_active: false,
+                    lifted_at: new Date().toISOString(),
+                    lifted_by: adminId
+                })
+                .eq('id', banId)
+                .select()
+                .single()
+
+            if (error) throw error
+
+            // Refrescar usuarios
+            await get().fetchUsers()
+
+            return data
+        } catch (err) {
+            console.error('Error lifting ban:', err)
+            return null
+        }
+    },
+
+    // Obtener logs de actividad
+    fetchActivityLogs: async (filters = {}) => {
+        set({ loading: true, error: null })
+        try {
+            let query = supabase
+                .from('activity_logs')
+                .select(`
+                    *,
+                    user:profiles!user_id (id, full_name, role)
+                `)
+                .order('created_at', { ascending: false })
+                .limit(filters.limit || 100)
+
+            // Aplicar filtros
+            if (filters.userId) {
+                query = query.eq('user_id', filters.userId)
+            }
+            if (filters.action) {
+                query = query.eq('action', filters.action)
+            }
+
+            const { data, error } = await query
+
+            if (error) throw error
+            set({ activityLogs: data, loading: false })
+            return data
+        } catch (err) {
+            console.error('Error fetching activity logs:', err)
+            set({ error: err.message, loading: false })
+            return []
+        }
+    },
+
+    // Limpiar estado
+    clearAdmin: () => {
+        set({
+            stats: null,
+            complaints: [],
+            users: [],
+            activityLogs: [],
+            loading: false,
+            error: null
+        })
     }
 }))
