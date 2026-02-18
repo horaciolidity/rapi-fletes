@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../api/supabase'
 
 export const useAdminStore = create((set, get) => ({
     // Estado
