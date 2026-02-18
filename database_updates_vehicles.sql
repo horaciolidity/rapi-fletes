@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
     year INTEGER,
     license_plate VARCHAR(20) UNIQUE,
     color VARCHAR(50),
-    category_id UUID REFERENCES vehicle_categories(id),
+    category_id INTEGER REFERENCES vehicle_categories(id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
