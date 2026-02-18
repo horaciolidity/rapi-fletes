@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import FreightMap from '../components/map/FreightMap'
 import ChatWidget from '../components/chat/ChatWidget'
 import RatingModal from '../components/trip/RatingModal'
+import DriverInfoCard from '../components/driver/DriverInfoCard'
 
 const MyFletes = () => {
     const { user, profile } = useAuthStore()
@@ -289,22 +290,30 @@ const MyFletes = () => {
 
                                     {/* Action Card */}
                                     {selectedFlete.driver ? (
-                                        <div className="glass-card p-6 bg-zinc-900/50">
-                                            <div className="flex items-center gap-6 mb-6">
-                                                <div className="w-16 h-16 bg-black rounded-2xl border-2 border-primary-500 flex items-center justify-center overflow-hidden">
-                                                    <Truck className="w-8 h-8 text-primary-500" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xl font-black text-white italic uppercase tracking-tighter">{selectedFlete.driver.full_name}</p>
-                                                    <p className="text-[9px] font-black text-primary-500 uppercase italic">Conductor Verificado</p>
-                                                </div>
-                                            </div>
-                                            <a
-                                                href={`tel:${selectedFlete.driver.phone}`}
-                                                className="premium-button w-full flex items-center justify-center gap-3 text-xs py-4"
-                                            >
-                                                <Phone className="w-5 h-5" /> CONTACTAR
-                                            </a>
+                                        <>
+                                            <DriverInfoCard
+                                                driver={selectedFlete.driver}
+                                                vehicle={selectedFlete.driver.vehicle}
+                                                averageRating={selectedFlete.driver.averageRating || 0}
+                                                totalTrips={selectedFlete.driver.totalTrips || 0}
+                                            />
+
+                                            {/* Cancel Trip Button - Show before trip starts */}
+                                            {['accepted', 'arrived_pickup'].includes(selectedFlete.status) && (
+                                                <button
+                                                    onClick={() => {
+                                                        if (window.confirm('¿Estás seguro de que deseas cancelar este viaje? El chofer ya fue asignado.')) {
+                                                            cancelFlete(selectedFlete.id)
+                                                        }
+                                                    }}
+                                                    className="w-full py-4 bg-zinc-900 border border-red-500/30 rounded-2xl text-red-500 font-black italic text-[11px] uppercase hover:bg-red-500/10 transition-colors mt-4"
+                                                >
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <XCircle className="w-4 h-4" />
+                                                        CANCELAR VIAJE
+                                                    </div>
+                                                </button>
+                                            )}
 
                                             {/* Problem Report Button - Show during active trip */}
                                             {['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(selectedFlete.status) && (
@@ -347,7 +356,7 @@ const MyFletes = () => {
                                                     )}
                                                 </div>
                                             )}
-                                        </div>
+                                        </>
                                     ) : selectedFlete.status !== 'cancelled' && selectedFlete.status !== 'completed' && (
                                         <div className="glass-card p-8 text-center flex flex-col items-center">
                                             <Clock className="w-10 h-10 text-primary-500 animate-spin-slow mb-4" />

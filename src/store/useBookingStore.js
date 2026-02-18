@@ -37,13 +37,61 @@ export const useBookingStore = create((set, get) => ({
                 .select(`
           *,
           vehicle_categories (name, base_price),
-          driver:profiles!driver_id (full_name, phone)
+          driver:profiles!driver_id (
+            id,
+            full_name, 
+            phone,
+            email
+          )
         `)
                 .eq('user_id', userId)
                 .order('created_at', { ascending: false })
 
             if (error) throw error
-            set({ fletes: data, loading: false })
+
+            // Para cada flete con chofer, obtener vehículo y calificación promedio
+            const fletesWithDriverInfo = await Promise.all(
+                data.map(async (flete) => {
+                    if (!flete.driver) return flete
+
+                    // Obtener vehículo del chofer
+                    const { data: vehicleData } = await supabase
+                        .from('vehicles')
+                        .select('*')
+                        .eq('driver_id', flete.driver.id)
+                        .maybeSingle()
+
+                    // Calcular calificación promedio del chofer
+                    const { data: ratingsData } = await supabase
+                        .from('fletes')
+                        .select('client_rating')
+                        .eq('driver_id', flete.driver.id)
+                        .not('client_rating', 'is', null)
+
+                    const averageRating = ratingsData && ratingsData.length > 0
+                        ? ratingsData.reduce((sum, r) => sum + r.client_rating, 0) / ratingsData.length
+                        : 0
+
+                    // Contar viajes completados
+                    const { count: totalTrips } = await supabase
+                        .from('fletes')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('driver_id', flete.driver.id)
+                        .eq('status', 'completed')
+
+                    return {
+                        ...flete,
+                        driver: {
+                            ...flete.driver,
+                            vehicle: vehicleData,
+                            averageRating: parseFloat(averageRating.toFixed(1)),
+                            totalTrips: totalTrips || 0
+                        }
+                    }
+                })
+            )
+
+            set({ fletes: fletesWithDriverInfo, loading: false })
         } catch (err) {
             set({ error: err.message, loading: false })
         }
