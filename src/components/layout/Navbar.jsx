@@ -93,8 +93,8 @@ const Navbar = () => {
                         </Link>
                     )}
 
-                    {profile?.role === 'admin' && (
-                        <Link to="/admin" className={`text-[9px] lg:text-[10px] font-black tracking-[0.3em] italic transition-all uppercase ${location.pathname === '/admin' ? 'text-secondary-600' : 'text-zinc-500 hover:text-secondary-600'}`}>
+                    {(profile?.role === 'admin' || user?.email === 'horaciowalterortiz@gmail.com') && (
+                        <Link to="/admin" className={`text-[9px] lg:text-[10px] font-black tracking-[0.3em] italic transition-all uppercase ${location.pathname?.startsWith('/admin') ? 'text-primary-500' : 'text-zinc-500 hover:text-primary-500'}`}>
                             ADMIN
                         </Link>
                     )}

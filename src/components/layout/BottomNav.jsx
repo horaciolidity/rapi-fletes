@@ -7,9 +7,9 @@ const BottomNav = () => {
     const navigate = useNavigate()
     const location = useLocation()
 
-    const { profile } = useAuthStore()
+    const { profile, user } = useAuthStore()
     const isDriver = profile?.role === 'driver'
-    const isAdmin = profile?.role === 'admin'
+    const isAdmin = profile?.role === 'admin' || user?.email === 'horaciowalterortiz@gmail.com'
 
     const navItems = [
         { icon: Home, label: 'Inicio', path: '/' },
