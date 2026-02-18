@@ -45,6 +45,8 @@ const MyFletes = () => {
         }
     }, [user, profile?.role])
 
+    const selectedFlete = displayFletes.find(f => f.id === selectedFleteId)
+
     // Auto-show rating modal when trip is completed and hasn't been rated yet
     useEffect(() => {
         if (selectedFlete && selectedFlete.status === 'completed' && !selectedFlete.client_rating) {
@@ -64,8 +66,6 @@ const MyFletes = () => {
             default: return { color: 'text-zinc-500', label: status, icon: Package, bg: 'bg-zinc-500/10' }
         }
     }
-
-    const selectedFlete = displayFletes.find(f => f.id === selectedFleteId)
 
     const handleSelectFlete = (id) => {
         setSelectedFleteId(id)

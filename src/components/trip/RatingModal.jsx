@@ -17,7 +17,6 @@ const RatingModal = ({ isOpen, onClose, onSubmit, title, subtitle }) => {
     }
 
     const handleSkip = () => {
-        onSubmit({ rating: null, notes: '' })
         onClose()
     }
 
@@ -71,8 +70,8 @@ const RatingModal = ({ isOpen, onClose, onSubmit, title, subtitle }) => {
                                 >
                                     <Star
                                         className={`w-12 h-12 transition-colors ${star <= (hoveredRating || rating)
-                                                ? 'fill-primary-500 text-primary-500'
-                                                : 'text-zinc-700'
+                                            ? 'fill-primary-500 text-primary-500'
+                                            : 'text-zinc-700'
                                             }`}
                                     />
                                 </button>
