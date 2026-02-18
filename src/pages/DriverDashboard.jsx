@@ -48,17 +48,31 @@ const DriverDashboard = () => {
         if (profile?.role !== 'driver' && profile?.role !== 'admin') {
             if (profile && profile.role !== 'admin') navigate('/')
         }
+    }, [profile?.role])
 
-        if (profile?.verification_status === 'verified') {
-            fetchAvailableFletes()
+    useEffect(() => {
+        if (profile?.role === 'driver' || profile?.role === 'admin') {
+            // Fetch categories for forms
+            supabase.from('vehicle_categories').select('*').order('id').then(({ data }) => setCategories(data || []))
+
+            if (user?.id) {
+                fetchMyVehicles(user.id)
+            }
+        }
+    }, [profile?.role, user?.id])
+
+    useEffect(() => {
+        if (profile?.verification_status === 'verified' || profile?.verification_status === 'pending') {
+            fetchAvailableFletes(user.id)
             fetchActiveFlete(user.id)
             fetchDriverHistory(user.id).then(setCompletedHistory)
+
             const channel = subscribeToNewFletes()
             return () => {
                 if (channel) channel.unsubscribe()
             }
         }
-    }, [profile?.verification_status])
+    }, [profile?.verification_status, user?.id])
 
     useEffect(() => {
         let watchId = null
@@ -77,28 +91,11 @@ const DriverDashboard = () => {
         return () => {
             if (watchId) navigator.geolocation.clearWatch(watchId)
         }
-    }, [activeFlete, profile?.verification_status])
+    }, [activeFlete, profile?.verification_status, user?.id])
 
     useEffect(() => {
         if (activeFlete) setActiveTab('active')
     }, [activeFlete])
-
-    const handleVerificationSubmit = async (e) => {
-        e.preventDefault()
-        setIsSubmitting(true)
-        const updates = {
-            phone: formData.phone,
-            license_plate: formData.license_plate,
-            vehicle_details: {
-                model: formData.vehicle_model,
-                year: formData.vehicle_year
-            },
-            verification_status: 'pending'
-        }
-        await updateProfile(user.id, updates)
-        setIsSubmitting(false)
-        fetchProfile(user.id)
-    }
 
     const handleAddVehicle = async (e) => {
         e.preventDefault()
