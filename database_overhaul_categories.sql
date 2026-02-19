@@ -6,10 +6,10 @@ TRUNCATE TABLE vehicle_categories CASCADE;
 
 INSERT INTO vehicle_categories (id, name, base_price, price_per_km, description)
 VALUES 
-(1, 'Auto', 1500.00, 150.00, 'Ideal para paquetes pequeños, sobres o cajas chicas.'),
-(2, 'Utilitario', 3500.00, 250.00, 'Tipo Kangoo/Partner. Para muebles chicos o varias cajas.'),
-(3, 'Camioneta', 6000.00, 400.00, 'Tipo Hilux/F100. Ideal para fletes de tamaño medio.'),
-(4, 'Camión', 12000.00, 750.00, 'Para mudanzas grandes o mercadería pesada.');
+(1, 'Auto', 3000.00, 950.00, 'Ideal para paquetes pequeños, sobres o cajas chicas.'),
+(2, 'Utilitario', 3200.00, 1090.00, 'Tipo Kangoo/Partner. Para muebles chicos o varias cajas.'),
+(3, 'Camioneta', 4300.00, 1800.00, 'Tipo Hilux/F100. Ideal para fletes de tamaño medio.'),
+(4, 'Camión', 16000.00, 6200.00, 'Para mudanzas grandes o mercadería pesada.');
 
 -- 2. Mejorar la tabla de vehículos para soportar múltiples y verificación
 ALTER TABLE vehicles
