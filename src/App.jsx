@@ -47,7 +47,10 @@ const AppContent = () => {
       setUser(user)
       if (user) {
         fetchProfile(user.id)
-        if (profileSub) supabase.removeChannel(profileSub)
+        if (profileSub) {
+          supabase.removeChannel(profileSub)
+          profileSub = null
+        }
         profileSub = useAuthStore.getState().subscribeToProfile(user.id)
       } else {
         if (profileSub) {

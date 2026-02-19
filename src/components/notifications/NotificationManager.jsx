@@ -16,8 +16,11 @@ const NotificationManager = () => {
     useEffect(() => {
         if (!user) return
 
+        let fleteChannel = null
+        let profileChannel = null
+
         // Global watcher for this user's fletes
-        const fleteChannel = supabase
+        fleteChannel = supabase
             .channel(`fletes_realtime_${user.id}`)
             .on('postgres_changes', {
                 event: 'UPDATE',
@@ -33,14 +36,12 @@ const NotificationManager = () => {
                 let message = ''
 
                 if (profile?.role === 'driver') {
-                    // Notification for driver when they get assigned (driver_id was null, now is theirs)
                     if (!oldDriver && newDriver === user.id) {
                         message = '🔔 ¡Has sido asignado a un nuevo viaje!'
                     } else if (oldStatus !== newStatus && newStatus === 'cancelled') {
                         message = '❌ El cliente ha cancelado el viaje.'
                     }
                 } else {
-                    // Notification for client
                     if (oldStatus === 'pending' && newStatus === 'accepted') {
                         message = '🚚 ¡Un chofer ha aceptado tu viaje!'
                     } else if (oldStatus !== newStatus && newStatus === 'picked_up') {
@@ -54,7 +55,6 @@ const NotificationManager = () => {
                     addNotification({ message, type: 'info' })
                 }
             })
-            // Special case for drivers: New available fletes in marketplace
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
@@ -67,7 +67,7 @@ const NotificationManager = () => {
             .subscribe()
 
         // Profile/Account watcher
-        const profileChannel = supabase
+        profileChannel = supabase
             .channel(`profile_realtime_${user.id}`)
             .on('postgres_changes', {
                 event: 'UPDATE',
@@ -91,10 +91,10 @@ const NotificationManager = () => {
             .subscribe()
 
         return () => {
-            supabase.removeChannel(fleteChannel)
-            supabase.removeChannel(profileChannel)
+            if (fleteChannel) supabase.removeChannel(fleteChannel)
+            if (profileChannel) supabase.removeChannel(profileChannel)
         }
-    }, [user, profile, addNotification])
+    }, [user?.id, profile?.role]) // Solo re-suscribir si cambia el ID o el Rol
 
     return (
         <div className="fixed top-6 left-0 right-0 z-[9999] pointer-events-none flex flex-col items-center gap-3 px-6">
