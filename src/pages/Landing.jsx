@@ -145,34 +145,41 @@ const Landing = () => {
     )
 }
 
-const CategoryCard = ({ category, index }) => (
-    <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        transition={{ delay: index * 0.1 }}
-        className="min-w-[280px] glass-card p-8 group relative flex flex-col justify-between border-zinc-800 hover:border-primary-500/50"
-    >
-        <div>
-            <div className="w-16 h-16 bg-[var(--bg-color)] rounded-2xl border border-[var(--border-color)] flex items-center justify-center mb-6">
-                <Truck className="w-8 h-8 text-primary-500" />
+const CategoryCard = ({ category, index }) => {
+    const imgPath = `/imagenes/categories/${category.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === 'camion' ? 'camion' : category.name.toLowerCase()}.jpg`;
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            className="min-w-[280px] glass-card p-0 group relative overflow-hidden border-zinc-800 hover:border-primary-500/50 flex flex-col"
+        >
+            <div className="relative h-48 w-full overflow-hidden">
+                <img src={imgPath} alt={category.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                <div className="absolute bottom-4 left-6">
+                    <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">{category.name}</h3>
+                </div>
             </div>
-            <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-2">{category.name}</h3>
-            <p className="text-zinc-500 font-bold text-[10px] leading-relaxed italic uppercase tracking-tight line-clamp-2">
-                {category.description}
-            </p>
-        </div>
 
-        <div className="mt-8 flex items-center justify-between pt-6 border-t border-[var(--border-color)]">
-            <div>
-                <p className="text-[8px] font-black uppercase tracking-widest text-zinc-700 mb-1">Desde</p>
-                <p className="text-xl font-black italic text-primary-500">$ {category.base_price}</p>
+            <div className="p-8 flex flex-col justify-between flex-1">
+                <p className="text-zinc-500 font-bold text-[10px] leading-relaxed italic uppercase tracking-tight line-clamp-3 mb-8">
+                    {category.description}
+                </p>
+
+                <div className="flex items-center justify-between pt-6 border-t border-[var(--border-color)]">
+                    <div>
+                        <p className="text-[8px] font-black uppercase tracking-widest text-zinc-700 mb-1">Desde</p>
+                        <p className="text-2xl font-black italic text-primary-500">$ {category.base_price}</p>
+                    </div>
+                    <Link to="/booking" className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center text-black shadow-lg shadow-primary-500/20 active:scale-90 transition-all">
+                        <ArrowRight className="w-6 h-6" />
+                    </Link>
+                </div>
             </div>
-            <Link to="/booking" className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-black shadow-lg">
-                <ArrowRight className="w-5 h-5" />
-            </Link>
-        </div>
-    </motion.div>
-)
+        </motion.div>
+    )
+}
 
 const FeatureCard = ({ icon, title, desc }) => (
     <div className="flex items-center gap-6">

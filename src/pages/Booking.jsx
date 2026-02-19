@@ -290,21 +290,24 @@ const Booking = () => {
                                         </div>
                                         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none px-1 -mx-1">
                                             {categories.map((cat) => {
-                                                const Icon = cat.name.toLowerCase().includes('auto') ? Car :
-                                                    cat.name.toLowerCase().includes('utilitario') ? Package :
-                                                        cat.name.toLowerCase().includes('camioneta') ? Truck : Truck;
+                                                const imgPath = `/imagenes/categories/${cat.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === 'camion' ? 'camion' : cat.name.toLowerCase()}.jpg`;
                                                 return (
                                                     <button
                                                         key={cat.id}
                                                         onClick={() => setCategory(cat)}
-                                                        className={`min-w-[140px] p-5 rounded-[2rem] border-2 flex flex-col items-center gap-3 transition-all ${selectedCategory?.id === cat.id ? 'border-primary-500 bg-primary-500/10' : 'border-white/5 bg-zinc-900/40'}`}
+                                                        className={`min-w-[160px] p-0 overflow-hidden rounded-[2rem] border-2 transition-all ${selectedCategory?.id === cat.id ? 'border-primary-500 scale-[1.02] shadow-[0_0_20px_rgba(14,165,233,0.3)]' : 'border-white/5 bg-zinc-900/40 opacity-70 hover:opacity-100'}`}
                                                     >
-                                                        <Icon className={`w-8 h-8 ${selectedCategory?.id === cat.id ? 'text-primary-500' : 'text-zinc-700'}`} />
-                                                        <div className="text-center">
-                                                            <p className="text-[10px] font-black italic uppercase text-white leading-none mb-1">{cat.name}</p>
-                                                            <p className="text-[8px] font-bold text-zinc-600 uppercase leading-tight h-6 overflow-hidden">{cat.description}</p>
+                                                        <div className="relative h-28 w-full group">
+                                                            <img src={imgPath} alt={cat.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                                                            <div className="absolute bottom-3 left-4">
+                                                                <p className="text-[10px] font-black italic uppercase text-white leading-none">{cat.name}</p>
+                                                            </div>
                                                         </div>
-                                                        <p className="text-lg font-black italic text-primary-500">${cat.base_price}</p>
+                                                        <div className="p-4 space-y-2">
+                                                            <p className="text-[8px] font-bold text-zinc-500 uppercase leading-tight h-6 overflow-hidden">{cat.description}</p>
+                                                            <p className="text-xl font-black italic text-primary-500">${cat.base_price}</p>
+                                                        </div>
                                                     </button>
                                                 );
                                             })}
