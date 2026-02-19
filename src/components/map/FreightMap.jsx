@@ -78,7 +78,12 @@ const MapController = ({ pickup, dropoff, autoDetectLocation, isNavigating, user
 
     useEffect(() => {
         if (isNavigating && userLocation) {
-            map.flyTo([userLocation.lat, userLocation.lng], 17, { animate: true, duration: 1 })
+            // Zoom level 18 for navigation (closer view like Uber)
+            map.flyTo([userLocation.lat, userLocation.lng], 18, {
+                animate: true,
+                duration: 1.5,
+                easeLinearity: 0.25
+            })
         }
     }, [isNavigating, userLocation, map])
 
@@ -199,35 +204,71 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
 }
 
 const NavigationOverlay = ({ steps, currentPos }) => {
-    if (!steps || steps.length === 0) return null
+    const [currentStep, setCurrentStep] = useState(null)
+    const [distanceToStep, setDistanceToStep] = useState(0)
 
-    // Simple logic to find current step: find the first step that is ahead of us
-    // In a real app we'd use a more complex cross-track error logic
-    const currentStep = steps[0]
+    useEffect(() => {
+        if (!steps || steps.length === 0 || !currentPos) {
+            if (steps && steps.length > 0) {
+                setCurrentStep(steps[0])
+                setDistanceToStep(steps[0].distance)
+            }
+            return
+        }
+
+        // Find the nearest upcoming maueuver
+        // This is a simplified logic: find the step with the minimum distance to current pos
+        // In a full app, we would track progress index
+        let minDist = Infinity
+        let nextStep = steps[0]
+
+        for (const step of steps) {
+            const stepLoc = L.latLng(step.location[0], step.location[1])
+            const dist = stepLoc.distanceTo(currentPos)
+
+            // Heuristic: If we are very close to a step (e.g., < 20m), we might be "at" it, 
+            // but for visual instruction we usually want to see the *target* we are approaching.
+            // We'll simplisticly pick the closest step point for now.
+            if (dist < minDist) {
+                minDist = dist
+                nextStep = step
+            }
+        }
+
+        // If we are extremely close to the step (<10m), we might assume we are executing it 
+        // and should look at the next one? For safety/simplicity, let's just show the closest.
+
+        setCurrentStep(nextStep)
+        setDistanceToStep(Math.round(minDist))
+
+    }, [steps, currentPos])
+
+    if (!currentStep) return null
 
     return (
         <motion.div
-            initial={{ y: -100, opacity: 0 }}
+            initial={{ y: -150, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="absolute top-4 left-4 right-16 z-[600] pointer-events-none"
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="absolute top-0 left-0 right-0 z-[1000] pointer-events-none p-4"
         >
-            <div className="bg-zinc-950/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 shadow-2xl flex items-center gap-5">
-                <div className="w-14 h-14 bg-primary-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-primary-500/20">
-                    <Navigation className="w-8 h-8 text-black" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-black text-primary-500 uppercase tracking-[0.2em] mb-1 italic">Próxima Maniobra</p>
-                    <h2 className="text-lg font-black text-white italic uppercase truncate leading-tight">
-                        {currentStep.instruction || "Continúe por la ruta"}
-                    </h2>
-                    <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase italic">A {Math.round(currentStep.distance)} metros</span>
-                        {currentStep.name && (
-                            <>
-                                <div className="w-1 h-1 rounded-full bg-zinc-800" />
-                                <span className="text-[10px] font-bold text-zinc-400 uppercase italic truncate">{currentStep.name}</span>
-                            </>
-                        )}
+            <div className="bg-neutral-900 border-b-4 border-green-500 rounded-2xl shadow-2xl overflow-hidden flex flex-col relative max-w-lg mx-auto">
+                {/* Top Green Bar */}
+                <div className="bg-green-600 h-2 w-full" />
+
+                <div className="p-4 flex items-center gap-5">
+                    <div className="w-16 h-16 bg-neutral-800 rounded-xl flex items-center justify-center shrink-0 border border-white/10 shadow-inner">
+                        <Navigation className="w-8 h-8 text-white transform -rotate-45" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                        <h2 className="text-2xl font-black text-white italic uppercase truncate leading-none mb-1">
+                            {currentStep.instruction || "Siga la ruta"}
+                        </h2>
+                        <p className="text-lg font-bold text-green-400 uppercase italic flex items-center gap-2">
+                            <span>EN {distanceToStep} METROS</span>
+                            {currentStep.name && <span className="text-neutral-500 text-sm">| {currentStep.name}</span>}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -293,7 +334,7 @@ const FreightMap = ({
                 <ZoomControl position="bottomright" />
 
                 {pickup && dropoff && <RoutingMachine pickup={pickup} dropoff={dropoff} onRouteFound={handleRouteFound} />}
-                {routeCoordinates.length > 0 && <Polyline positions={routeCoordinates} pathOptions={{ color: '#f59e0b', weight: 6, opacity: 0.8, lineJoin: 'round' }} />}
+                {routeCoordinates.length > 0 && <Polyline positions={routeCoordinates} pathOptions={{ color: isNavigating ? '#3b82f6' : '#f59e0b', weight: isNavigating ? 8 : 6, opacity: 0.9, lineJoin: 'round' }} />}
 
                 {pickup && <Marker position={[pickup.lat, pickup.lng]} icon={createCustomIcon('#0ea5e9', '📍')} />}
                 {dropoff && <Marker position={[dropoff.lat, dropoff.lng]} icon={createCustomIcon('#ea580c', '🎯')} />}

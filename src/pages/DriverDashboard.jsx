@@ -492,10 +492,10 @@ const DriverDashboard = () => {
                                                 <div className="flex flex-col gap-3">
                                                     <button
                                                         onClick={() => setIsInternalNav(!isInternalNav)}
-                                                        className={`w-full py-5 font-black italic text-[13px] uppercase rounded-2xl shadow-all transition-all flex items-center justify-center gap-3 ${isInternalNav ? 'bg-zinc-900 text-primary-500 border border-primary-500/30' : 'bg-gradient-to-r from-primary-500 to-primary-400 text-black'}`}
+                                                        className={`w-full py-4 font-black italic text-[12px] uppercase rounded-full shadow-lg transition-all flex items-center justify-center gap-2 mb-2 ${isInternalNav ? 'bg-red-500/90 text-white backdrop-blur-md w-fit mx-auto px-6' : 'bg-gradient-to-r from-primary-500 to-primary-400 text-black'}`}
                                                     >
-                                                        <Navigation className="w-6 h-6" />
-                                                        <span>{isInternalNav ? '❌ CERRAR NAVEGADOR INTERNO' : '🗺️ ABRIR NAVEGADOR RAPI'}</span>
+                                                        {isInternalNav ? <X className="w-4 h-4" /> : <Navigation className="w-5 h-5" />}
+                                                        <span>{isInternalNav ? 'SALIR DE NAVEGACIÓN' : '🗺️ ABRIR NAVEGADOR RAPI'}</span>
                                                     </button>
 
                                                     {!isInternalNav && (
@@ -576,9 +576,9 @@ const DriverDashboard = () => {
                                                 </div>
                                             )}
 
-                                            {/* Action Buttons - ALL VISIBLE */}
-                                            <div className="glass-card p-5 bg-black/95 backdrop-blur-3xl border-white/10 shadow-2xl space-y-3">
-                                                <p className="text-[9px] font-black text-zinc-500 uppercase italic tracking-widest text-center mb-2">ACCIONES DEL VIAJE</p>
+                                            {/* Action Buttons - Compact during Nav */}
+                                            <div className={`transition-all duration-300 ${isInternalNav ? 'bg-transparent' : 'glass-card p-5 bg-black/95 backdrop-blur-3xl border-white/10 shadow-2xl'} space-y-3`}>
+                                                {!isInternalNav && <p className="text-[9px] font-black text-zinc-500 uppercase italic tracking-widest text-center mb-2">ACCIONES DEL VIAJE</p>}
 
                                                 {/* ACCEPTED STATE */}
                                                 {activeFlete.status === 'accepted' && (
