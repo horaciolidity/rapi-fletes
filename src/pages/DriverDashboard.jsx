@@ -24,6 +24,8 @@ const DriverDashboard = () => {
     const [categories, setCategories] = useState([])
     const [completedTripId, setCompletedTripId] = useState(null)
     const [showPassengerConfirm, setShowPassengerConfirm] = useState(false)
+    const [isInternalNav, setIsInternalNav] = useState(false)
+    const [driverLatLng, setDriverLatLng] = useState(null)
     const [formData, setFormData] = useState({
         brand: '',
         model: '',
@@ -81,6 +83,7 @@ const DriverDashboard = () => {
                 watchId = navigator.geolocation.watchPosition(
                     (pos) => {
                         const { latitude, longitude } = pos.coords
+                        setDriverLatLng({ lat: latitude, lng: longitude })
                         useDriverStore.getState().updateLocation(user.id, latitude, longitude)
                     },
                     (err) => console.error("Error watching location", err),
@@ -94,7 +97,11 @@ const DriverDashboard = () => {
     }, [activeFlete, profile?.verification_status, user?.id])
 
     useEffect(() => {
-        if (activeFlete) setActiveTab('active')
+        if (activeFlete) {
+            setActiveTab('active')
+        } else {
+            setIsInternalNav(false)
+        }
     }, [activeFlete])
 
     const handleAddVehicle = async (e) => {
@@ -202,6 +209,35 @@ const DriverDashboard = () => {
 
     const currentFlete = activeFlete || availableFletes.find(f => f.id === selectedFleteId)
 
+    // Dynamic Map Points for Navigation
+    const getMapPoints = () => {
+        if (!activeFlete || !isInternalNav) {
+            return {
+                pickup: currentFlete ? { address: currentFlete.pickup_address, lat: currentFlete.pickup_lat, lng: currentFlete.pickup_lng } : null,
+                dropoff: currentFlete ? { address: currentFlete.dropoff_address, lat: currentFlete.dropoff_lat, lng: currentFlete.dropoff_lng } : null
+            }
+        }
+
+        // NAVIGATION MODE
+        const start = driverLatLng || { lat: activeFlete.pickup_lat, lng: activeFlete.pickup_lng }
+
+        // If accepted but not arrived, navigate to pickup
+        if (activeFlete.status === 'accepted') {
+            return {
+                pickup: { ...start, address: 'Tu Ubicación' },
+                dropoff: { address: activeFlete.pickup_address, lat: activeFlete.pickup_lat, lng: activeFlete.pickup_lng }
+            }
+        }
+
+        // If in transit, navigate to dropoff
+        return {
+            pickup: { ...start, address: 'Tu Ubicación' },
+            dropoff: { address: activeFlete.dropoff_address, lat: activeFlete.dropoff_lat, lng: activeFlete.dropoff_lng }
+        }
+    }
+
+    const { pickup: mapPickup, dropoff: mapDropoff } = getMapPoints()
+
     if (!profile) return (
         <div className="min-h-screen flex items-center justify-center bg-black">
             <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
@@ -293,17 +329,18 @@ const DriverDashboard = () => {
             {/* Background Map */}
             <div className="absolute inset-0 z-0">
                 <FreightMap
-                    pickup={currentFlete ? { address: currentFlete.pickup_address, lat: currentFlete.pickup_lat, lng: currentFlete.pickup_lng } : null}
-                    dropoff={currentFlete ? { address: currentFlete.dropoff_address, lat: currentFlete.dropoff_lat, lng: currentFlete.dropoff_lng } : null}
+                    pickup={mapPickup}
+                    dropoff={mapDropoff}
                     autoDetectLocation={true}
                     showActiveDrivers={false}
+                    isNavigating={isInternalNav}
                 />
             </div>
 
             {/* Overlays */}
             <div className="relative z-10 h-full pointer-events-none flex flex-col">
                 {/* Header Overlay */}
-                <div className="pt-16 px-6 pointer-events-auto">
+                <div className={`pt-16 px-6 pointer-events-auto transition-all ${isInternalNav ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
                     <div className="max-w-md mx-auto flex justify-between items-center">
                         <div className="bg-black/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5">
                             <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white leading-none">PANEL<br /><span className="text-primary-500">CHOFER</span></h1>
@@ -320,7 +357,7 @@ const DriverDashboard = () => {
                     <div className="max-w-md mx-auto w-full space-y-4 pt-4">
 
                         {/* Tab Switcher (Floating) */}
-                        <div className="flex bg-black/80 backdrop-blur-3xl p-1 rounded-2xl border border-white/5 mb-2 shadow-2xl">
+                        <div className={`flex bg-black/80 backdrop-blur-3xl p-1 rounded-2xl border border-white/5 mb-2 shadow-2xl transition-all ${isInternalNav ? 'opacity-0 pointer-events-none -translate-y-4' : 'opacity-100'}`}>
                             {[
                                 { id: 'marketplace', label: 'PEDIDOS', icon: Truck },
                                 { id: 'active', label: 'ACTUAL', icon: Activity },
@@ -449,83 +486,95 @@ const DriverDashboard = () => {
                             {activeTab === 'active' && (
                                 <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
                                     {activeFlete ? (
-                                        <div className="space-y-4">
-                                            {/* Navigation Button - AT TOP */}
+                                        <div className={`space-y-4 transition-all ${isInternalNav ? 'mt-auto' : ''}`}>
+                                            {/* Navigation Button Overlay */}
                                             {(activeFlete.status === 'accepted' || activeFlete.status === 'arrived_pickup' || activeFlete.status === 'in_transit') && (
-                                                <a
-                                                    href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat
-                                                        },${activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng
-                                                        }&travelmode=driving`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="block w-full"
-                                                >
-                                                    <div className="py-5 bg-gradient-to-r from-secondary-500 to-secondary-400 text-black font-black italic text-[13px] uppercase rounded-2xl shadow-2xl shadow-secondary-500/30 hover:shadow-secondary-500/50 transition-all text-center">
-                                                        <div className="flex items-center justify-center gap-3">
-                                                            <Navigation className="w-6 h-6" />
-                                                            <span>{activeFlete.status === 'accepted' ? '🗺️ NAVEGAR AL ORIGEN' : '🗺️ NAVEGAR AL DESTINO'}</span>
-                                                        </div>
-                                                    </div>
-                                                </a>
+                                                <div className="flex flex-col gap-3">
+                                                    <button
+                                                        onClick={() => setIsInternalNav(!isInternalNav)}
+                                                        className={`w-full py-5 font-black italic text-[13px] uppercase rounded-2xl shadow-all transition-all flex items-center justify-center gap-3 ${isInternalNav ? 'bg-zinc-900 text-primary-500 border border-primary-500/30' : 'bg-gradient-to-r from-primary-500 to-primary-400 text-black'}`}
+                                                    >
+                                                        <Navigation className="w-6 h-6" />
+                                                        <span>{isInternalNav ? '❌ CERRAR NAVEGADOR INTERNO' : '🗺️ ABRIR NAVEGADOR RAPI'}</span>
+                                                    </button>
+
+                                                    {!isInternalNav && (
+                                                        <a
+                                                            href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat
+                                                                },${activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng
+                                                                }&travelmode=driving`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="block w-full"
+                                                        >
+                                                            <div className="py-4 bg-zinc-900/50 border border-white/5 text-zinc-400 font-black italic text-[11px] uppercase rounded-2xl text-center flex items-center justify-center gap-2">
+                                                                <span>USAR GOOGLE MAPS EXTERNO</span>
+                                                                <ChevronRight className="w-4 h-4" />
+                                                            </div>
+                                                        </a>
+                                                    )}
+                                                </div>
                                             )}
 
-                                            {/* Trip Details Card */}
-                                            <div className="glass-card p-6 bg-black/90 backdrop-blur-3xl border-primary-500/20 shadow-2xl space-y-4">
-                                                <div className="flex justify-between items-start">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
-                                                        <span className="text-[11px] font-black text-primary-500 uppercase italic tracking-widest">VIAJE EN CURSO</span>
-                                                    </div>
-                                                    <span className="px-3 py-1 bg-zinc-900 border border-white/5 rounded-full text-[9px] font-bold text-zinc-500 uppercase italic">{activeFlete.status}</span>
-                                                </div>
-
-                                                <div className="flex justify-between items-center bg-zinc-900/50 p-4 rounded-2xl">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center">
-                                                            <User className="w-5 h-5 text-zinc-600" />
+                                            {/* Trip Details Card - HIDDEN WHEN NAVIGATING TO FOCUS ON MAP */}
+                                            {!isInternalNav && (
+                                                <div className="glass-card p-6 bg-black/90 backdrop-blur-3xl border-primary-500/20 shadow-2xl space-y-4">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                                                            <span className="text-[11px] font-black text-primary-500 uppercase italic tracking-widest">VIAJE EN CURSO</span>
                                                         </div>
-                                                        <div>
-                                                            <h3 className="text-sm font-black italic text-white uppercase">{activeFlete.profiles?.full_name || "CLIENTE"}</h3>
-                                                            <p className="text-[9px] font-black text-zinc-500 italic">CLIENTE</p>
+                                                        <span className="px-3 py-1 bg-zinc-900 border border-white/5 rounded-full text-[9px] font-bold text-zinc-500 uppercase italic">{activeFlete.status}</span>
+                                                    </div>
+
+                                                    <div className="flex justify-between items-center bg-zinc-900/50 p-4 rounded-2xl">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center">
+                                                                <User className="w-5 h-5 text-zinc-600" />
+                                                            </div>
+                                                            <div>
+                                                                <h3 className="text-sm font-black italic text-white uppercase">{activeFlete.profiles?.full_name || "CLIENTE"}</h3>
+                                                                <p className="text-[9px] font-black text-zinc-500 italic">CLIENTE</p>
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-3xl font-black text-primary-500 italic tracking-tighter shrink-0">$ {activeFlete.estimated_price}</p>
+                                                    </div>
+
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
+                                                            <MapPin className="w-4 h-4 text-primary-500 shrink-0 mt-0.5" />
+                                                            <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.pickup_address}</p>
+                                                        </div>
+                                                        <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
+                                                            <Navigation className="w-4 h-4 text-secondary-500 shrink-0 mt-0.5" />
+                                                            <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.dropoff_address}</p>
                                                         </div>
                                                     </div>
-                                                    <p className="text-3xl font-black text-primary-500 italic tracking-tighter shrink-0">$ {activeFlete.estimated_price}</p>
+
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div className="bg-zinc-900 px-4 py-3 rounded-xl">
+                                                            <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">PEDIDO</p>
+                                                            <p className="text-[10px] font-black text-white italic uppercase">{new Date(activeFlete.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                        </div>
+                                                        <div className="bg-zinc-900 px-4 py-3 rounded-xl">
+                                                            <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">DURACIÓN</p>
+                                                            <p className="text-[10px] font-black text-white italic uppercase">{activeFlete.duration} MIN</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {activeFlete.shipment_details && (
+                                                        <div className="bg-primary-500/5 p-4 rounded-xl border border-primary-500/10">
+                                                            <p className="text-[7px] font-black text-primary-500 uppercase mb-1">DETALLES DE CARGA</p>
+                                                            <p className="text-[10px] font-bold text-zinc-300 italic uppercase leading-tight">{activeFlete.shipment_details}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Trip Timer */}
+                                                    {activeFlete.status === 'in_transit' && activeFlete.trip_start_time && (
+                                                        <TripTimer startTime={activeFlete.trip_start_time} />
+                                                    )}
                                                 </div>
-
-                                                <div className="space-y-3">
-                                                    <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
-                                                        <MapPin className="w-4 h-4 text-primary-500 shrink-0 mt-0.5" />
-                                                        <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.pickup_address}</p>
-                                                    </div>
-                                                    <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">
-                                                        <Navigation className="w-4 h-4 text-secondary-500 shrink-0 mt-0.5" />
-                                                        <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.dropoff_address}</p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    <div className="bg-zinc-900 px-4 py-3 rounded-xl">
-                                                        <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">PEDIDO</p>
-                                                        <p className="text-[10px] font-black text-white italic uppercase">{new Date(activeFlete.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                                    </div>
-                                                    <div className="bg-zinc-900 px-4 py-3 rounded-xl">
-                                                        <p className="text-[7px] font-black text-zinc-600 uppercase mb-1">DURACIÓN</p>
-                                                        <p className="text-[10px] font-black text-white italic uppercase">{activeFlete.duration} MIN</p>
-                                                    </div>
-                                                </div>
-
-                                                {activeFlete.shipment_details && (
-                                                    <div className="bg-primary-500/5 p-4 rounded-xl border border-primary-500/10">
-                                                        <p className="text-[7px] font-black text-primary-500 uppercase mb-1">DETALLES DE CARGA</p>
-                                                        <p className="text-[10px] font-bold text-zinc-300 italic uppercase leading-tight">{activeFlete.shipment_details}</p>
-                                                    </div>
-                                                )}
-
-                                                {/* Trip Timer */}
-                                                {activeFlete.status === 'in_transit' && activeFlete.trip_start_time && (
-                                                    <TripTimer startTime={activeFlete.trip_start_time} />
-                                                )}
-                                            </div>
+                                            )}
 
                                             {/* Action Buttons - ALL VISIBLE */}
                                             <div className="glass-card p-5 bg-black/95 backdrop-blur-3xl border-white/10 shadow-2xl space-y-3">
