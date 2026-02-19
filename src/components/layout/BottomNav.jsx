@@ -24,7 +24,7 @@ const BottomNav = () => {
     ]
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 bg-zinc-950/80 backdrop-blur-xl border-t border-white/5 px-6 py-3 z-50 flex justify-between items-center md:hidden">
+        <nav className="fixed bottom-0 left-0 right-0 bg-[var(--card-bg)] backdrop-blur-xl border-t border-[var(--border-color)] px-6 py-3 z-50 flex justify-between items-center md:hidden">
             {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = location.pathname === item.path
@@ -33,7 +33,7 @@ const BottomNav = () => {
                     <button
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive ? 'text-primary-500 scale-110' : 'text-zinc-500 hover:text-white'
+                        className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive ? 'text-primary-500 scale-110' : 'text-zinc-500 hover:text-[var(--text-color)]'
                             }`}
                     >
                         <Icon className={`w-6 h-6 ${isActive ? 'fill-primary-500/20' : ''}`} />

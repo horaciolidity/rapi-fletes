@@ -12,7 +12,7 @@ const Landing = () => {
     }, [])
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-primary-500 selection:text-black font-sans pb-20">
+        <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] selection:bg-primary-500 selection:text-black font-sans pb-20">
             {/* Hero Section - App Style */}
             <section className="relative min-h-[90vh] pb-16 overflow-hidden flex flex-col items-center justify-center">
                 <div className="absolute inset-0 -z-10">
@@ -26,7 +26,7 @@ const Landing = () => {
                     >
                         <source src="/imagenes/1.mp4" type="video/mp4" />
                     </video>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] via-[var(--bg-color)]/20 to-transparent" />
                     <div className="absolute inset-0 bg-black/40" />
                 </div>
 
@@ -43,7 +43,7 @@ const Landing = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-6xl sm:text-8xl font-black mb-8 leading-[0.85] tracking-tighter italic uppercase text-white drop-shadow-2xl"
+                        className="text-6xl sm:text-8xl font-black mb-8 leading-[0.85] tracking-tighter italic uppercase drop-shadow-2xl"
                     >
                         RÁPIDO<br />
                         <span className="text-primary-500">SEGURO</span>
@@ -56,7 +56,7 @@ const Landing = () => {
                         className="text-sm text-zinc-200 mb-12 max-w-sm mx-auto leading-relaxed font-black italic uppercase tracking-widest drop-shadow-md"
                     >
                         Tu carga en buenas manos. <br />
-                        <span className="text-white">Mudanzas inteligentes 24/7.</span>
+                        <span className="opacity-80">Mudanzas inteligentes 24/7.</span>
                     </motion.p>
 
                     <motion.div
@@ -120,7 +120,7 @@ const Landing = () => {
             </section>
 
             {/* Features Section - Compact */}
-            <section className="py-20 bg-zinc-950/50 border-t border-white/5 rounded-t-[3rem]">
+            <section className="py-20 bg-[var(--card-bg)] border-t border-[var(--border-color)] rounded-t-[3rem]">
                 <div className="container mx-auto px-10">
                     <div className="grid grid-cols-1 gap-12">
                         <FeatureCard
@@ -153,16 +153,16 @@ const CategoryCard = ({ category, index }) => (
         className="min-w-[280px] glass-card p-8 group relative flex flex-col justify-between border-zinc-800 hover:border-primary-500/50"
     >
         <div>
-            <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-white/5 flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-[var(--bg-color)] rounded-2xl border border-[var(--border-color)] flex items-center justify-center mb-6">
                 <Truck className="w-8 h-8 text-primary-500" />
             </div>
-            <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-2 text-white">{category.name}</h3>
+            <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-2">{category.name}</h3>
             <p className="text-zinc-500 font-bold text-[10px] leading-relaxed italic uppercase tracking-tight line-clamp-2">
                 {category.description}
             </p>
         </div>
 
-        <div className="mt-8 flex items-center justify-between pt-6 border-t border-white/5">
+        <div className="mt-8 flex items-center justify-between pt-6 border-t border-[var(--border-color)]">
             <div>
                 <p className="text-[8px] font-black uppercase tracking-widest text-zinc-700 mb-1">Desde</p>
                 <p className="text-xl font-black italic text-primary-500">$ {category.base_price}</p>
@@ -176,11 +176,11 @@ const CategoryCard = ({ category, index }) => (
 
 const FeatureCard = ({ icon, title, desc }) => (
     <div className="flex items-center gap-6">
-        <div className="w-16 h-16 min-w-[64px] bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/5">
+        <div className="w-16 h-16 min-w-[64px] bg-[var(--bg-color)] rounded-2xl flex items-center justify-center border border-[var(--border-color)]">
             {icon}
         </div>
         <div>
-            <h3 className="text-lg font-black italic uppercase tracking-tighter text-white mb-1">{title}</h3>
+            <h3 className="text-lg font-black italic uppercase tracking-tighter mb-1">{title}</h3>
             <p className="text-zinc-500 font-bold italic leading-tight text-[11px] uppercase tracking-tight">{desc}</p>
         </div>
     </div>

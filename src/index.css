@@ -104,9 +104,13 @@
 }
 
 :root.light {
-  --bg-color: #f7f9fc;
+  --bg-color: #f1f5f9;
+  /* Slate 100 */
   --text-color: #0f172a;
-  --card-bg: rgba(255, 255, 255, 0.9);
+  /* Slate 900 */
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --border-color: rgba(0, 0, 0, 0.05);
+  --primary-glow: rgba(245, 158, 11, 0.3);
   color-scheme: light;
 }
 
@@ -137,6 +141,10 @@ body {
     background-color: var(--card-bg);
   }
 
+  .light .glass-card {
+    @apply border-zinc-200 shadow-[0_20px_50px_-15px_rgba(0, 0, 0, 0.05)];
+  }
+
   .premium-button {
     @apply px-10 py-5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-400 hover:to-secondary-400 text-black font-black uppercase tracking-widest rounded-full transition-all duration-500 transform hover:scale-[1.02] active:scale-95 shadow-button border-b-4 border-black/20;
   }
@@ -145,6 +153,10 @@ body {
     @apply w-full px-8 py-5 border border-white/5 rounded-[1.8rem] focus:border-primary-500/50 outline-none transition-all placeholder:text-zinc-700 font-bold italic;
     background-color: var(--bg-color);
     color: var(--text-color);
+  }
+
+  .light .input-field {
+    @apply border-zinc-200 bg-white placeholder:text-zinc-400;
   }
 
   .text-gradient {

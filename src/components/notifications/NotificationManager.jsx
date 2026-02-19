@@ -80,10 +80,10 @@ const NotificationManager = () => {
 
                 if (oldStatus !== newStatus) {
                     if (newStatus === 'verified') {
-                        const msg = '🎊 ¡Tu cuenta ha sido verificada! Ya puedes aceptar viajes.'
+                        const msg = '🎊 ¡Tu cuenta ha sido verificada! Ya puedes aceptar fletes. Revisa tu Garaje para ver tu vehículo activo.'
                         addNotification({ message: msg, type: 'success' })
                     } else if (newStatus === 'none' && oldStatus === 'pending') {
-                        const msg = '❌ Tu solicitud de vehículo ha sido rechazada. Revisa los detalles en tu garaje.'
+                        const msg = '❌ Tu solicitud ha sido rechazada. Revisa los motivos en la sección de Vehículos de tu panel.'
                         addNotification({ message: msg, type: 'error' })
                     }
                 }
@@ -107,18 +107,18 @@ const NotificationManager = () => {
                         exit={{ opacity: 0, scale: 0.9, y: -20 }}
                         className="pointer-events-auto"
                     >
-                        <div className="bg-black/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 flex items-center gap-4 shadow-2xl min-w-[300px] max-w-sm">
+                        <div className="bg-[var(--card-bg)] backdrop-blur-2xl border border-[var(--border-color)] rounded-2xl p-4 flex items-center gap-4 shadow-2xl min-w-[300px] max-w-sm">
                             <div className="p-2 rounded-xl bg-primary-500/10 text-primary-500">
                                 <Bell className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-[11px] font-black uppercase italic tracking-widest text-white leading-tight">
+                                <p className="text-[11px] font-black uppercase italic tracking-widest leading-tight">
                                     {n.message}
                                 </p>
                             </div>
                             <button
                                 onClick={() => removePopup(n.id)}
-                                className="text-zinc-600 hover:text-white transition-colors"
+                                className="text-zinc-500 hover:text-primary-500 transition-colors"
                             >
                                 <X className="w-4 h-4" />
                             </button>

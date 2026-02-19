@@ -13,6 +13,7 @@ const Profile = () => {
     const { theme, toggleTheme } = useThemeStore()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
+    const [roleLoading, setRoleLoading] = useState(false)
     const [message, setMessage] = useState({ type: '', text: '' })
 
     const [formData, setFormData] = useState({
@@ -51,14 +52,31 @@ const Profile = () => {
         setLoading(false)
     }
 
+    const handleRoleSwitch = async (newRole) => {
+        if (newRole === profile.role) return
+        setRoleLoading(true)
+        const res = await updateProfile(user.id, { role: newRole })
+        if (res.data) {
+            addNotification({
+                message: `🔄 Modo ${newRole === 'driver' ? 'CONDUCTOR' : 'CLIENTE'} activado correctamente`,
+                type: 'success'
+            })
+            fetchProfile(user.id)
+            // Redirect based on role if needed
+            if (newRole === 'driver') navigate('/driver')
+            else navigate('/')
+        }
+        setRoleLoading(false)
+    }
+
     if (!profile) return (
-        <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="min-h-screen flex items-center justify-center bg-[var(--bg-color)]">
             <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
         </div>
     )
 
     return (
-        <div className="pb-24 pt-10 min-h-screen bg-black font-sans selection:bg-primary-500">
+        <div className="pb-24 pt-10 min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] font-sans selection:bg-primary-500">
             <div className="container mx-auto px-6 max-w-md">
 
                 {/* Profile Header Card */}
@@ -78,15 +96,33 @@ const Profile = () => {
                         </button>
                     </div>
 
-                    <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white mb-1">
+                    <h1 className="text-3xl font-black italic uppercase tracking-tighter mb-1">
                         {profile.full_name || 'USUARIO'}
                     </h1>
                     <div className="flex items-center gap-2">
-                        <div className="px-3 py-1 bg-zinc-900 rounded-full border border-white/5">
+                        <div className="px-3 py-1 bg-zinc-900/50 rounded-full border border-white/5">
                             <span className="text-[8px] font-black text-primary-500 uppercase tracking-widest italic">{profile.role}</span>
                         </div>
-                        <span className="text-[10px] text-zinc-600 font-bold uppercase italic">{user.email}</span>
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase italic">{user.email}</span>
                     </div>
+                </div>
+
+                {/* Role Switcher */}
+                <div className="glass-card mb-6 overflow-hidden p-1 flex">
+                    <button
+                        onClick={() => handleRoleSwitch('client')}
+                        disabled={roleLoading}
+                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'client' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
+                    >
+                        MODO CLIENTE
+                    </button>
+                    <button
+                        onClick={() => handleRoleSwitch('driver')}
+                        disabled={roleLoading}
+                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'driver' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
+                    >
+                        MODO CHOFER
+                    </button>
                 </div>
 
                 {/* Account Settings Forms */}
@@ -142,7 +178,7 @@ const Profile = () => {
                                     </div>
                                     <div className="text-left">
                                         <p className="text-[9px] font-black text-zinc-500 uppercase italic">Finanzas</p>
-                                        <p className="text-xs font-black text-white uppercase italic">MI BILLETERA</p>
+                                        <p className="text-xs font-black uppercase italic">MI BILLETERA</p>
                                     </div>
                                 </div>
                                 <ChevronRight className="w-5 h-5 text-green-500 group-hover:translate-x-1 transition-transform" />
@@ -158,7 +194,7 @@ const Profile = () => {
                                     </div>
                                     <div className="text-left">
                                         <p className="text-[9px] font-black text-zinc-500 uppercase italic">Control</p>
-                                        <p className="text-xs font-black text-white uppercase italic">PANEL DE CHOFER</p>
+                                        <p className="text-xs font-black uppercase italic">PANEL DE CHOFER</p>
                                     </div>
                                 </div>
                                 <ChevronRight className="w-5 h-5 text-primary-500 group-hover:translate-x-1 transition-transform" />
@@ -177,7 +213,7 @@ const Profile = () => {
                                 </div>
                                 <div className="text-left">
                                     <p className="text-[9px] font-black text-zinc-500 uppercase italic">Sistema</p>
-                                    <p className="text-xs font-black text-white uppercase italic">PANEL DE ADMIN</p>
+                                    <p className="text-xs font-black uppercase italic">PANEL DE ADMIN</p>
                                 </div>
                             </div>
                             <ChevronRight className="w-5 h-5 text-secondary-600 group-hover:translate-x-1 transition-transform" />
@@ -219,7 +255,7 @@ const Profile = () => {
                         >
                             <div className="flex items-center gap-4">
                                 <Bell className="w-5 h-5 text-primary-500" />
-                                <span className="text-xs font-black text-white uppercase italic tracking-wider">Probar Notificaciones</span>
+                                <span className="text-xs font-black uppercase italic tracking-wider">Probar Notificaciones</span>
                             </div>
                             <div className="px-2 py-0.5 bg-primary-500/10 rounded text-[7px] font-black text-primary-500 uppercase italic">Test</div>
                         </button>

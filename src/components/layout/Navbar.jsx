@@ -41,7 +41,7 @@ const Navbar = () => {
     ]
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-700 ${isScrolled ? 'bg-black/90 backdrop-blur-2xl border-b border-white/5 py-3 shadow-2xl' : 'bg-transparent py-4 md:py-7'}`}>
+        <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-700 ${isScrolled ? 'bg-[var(--bg-color)]/90 backdrop-blur-2xl border-b border-[var(--border-color)] py-3 shadow-2xl' : 'bg-transparent py-4 md:py-7'}`}>
             <div className="container mx-auto px-6 md:px-10 flex items-center justify-between max-w-[1700px]">
 
                 {/* Profile/Back button on mobile */}
@@ -67,13 +67,13 @@ const Navbar = () => {
                         <img src="/imagenes/1.jpg" alt="Rapi Fletes" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-lg md:text-3xl font-black tracking-tighter uppercase italic leading-none text-white">RAPI<span className="text-primary-500">FLETES</span></span>
-                        <span className="text-[6px] md:text-[9px] font-black tracking-[0.5em] text-zinc-700 leading-none mt-1 md:mt-2 opacity-80 italic uppercase">Logística Móvil</span>
+                        <span className="text-lg md:text-3xl font-black tracking-tighter uppercase italic leading-none">RAPI<span className="text-primary-500">FLETES</span></span>
+                        <span className="text-[6px] md:text-[9px] font-black tracking-[0.5em] text-zinc-500 leading-none mt-1 md:mt-2 opacity-80 italic uppercase">Logística Móvil</span>
                     </div>
                 </Link>
 
                 {/* Navegación Principal (Desktop) */}
-                <div className="hidden md:flex items-center gap-8 lg:gap-12 bg-zinc-950/50 px-8 lg:px-12 py-3 rounded-full border border-white/5 backdrop-blur-xl shadow-2xl">
+                <div className="hidden md:flex items-center gap-8 lg:gap-12 bg-[var(--card-bg)] px-8 lg:px-12 py-3 rounded-full border border-[var(--border-color)] backdrop-blur-xl shadow-2xl">
                     {navLinks.filter(l => l.show !== false).map((link) => (
                         <Link
                             key={link.path}
@@ -110,7 +110,7 @@ const Navbar = () => {
                                         setShowNotifications(!showNotifications)
                                         if (!showNotifications) markAsRead()
                                     }}
-                                    className={`w-10 h-10 bg-zinc-950 rounded-xl border flex items-center justify-center transition-all ${showNotifications ? 'border-primary-500 text-primary-500' : 'border-white/5 text-zinc-500 hover:text-primary-500'}`}
+                                    className={`w-10 h-10 bg-[var(--bg-color)] rounded-xl border flex items-center justify-center transition-all ${showNotifications ? 'border-primary-500 text-primary-500' : 'border-[var(--border-color)] text-zinc-500 hover:text-primary-500'}`}
                                 >
                                     <Bell className="w-5 h-5" />
                                     {unreadCount > 0 && (
@@ -134,10 +134,10 @@ const Navbar = () => {
                                                 initial={{ opacity: 0, scale: 0.95, y: 10, x: 20 }}
                                                 animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
                                                 exit={{ opacity: 0, scale: 0.95, y: 10, x: 20 }}
-                                                className="absolute right-0 mt-4 w-80 bg-zinc-950 border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden"
+                                                className="absolute right-0 mt-4 w-80 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-3xl shadow-2xl z-50 overflow-hidden"
                                             >
-                                                <div className="p-5 border-b border-white/5 flex items-center justify-between bg-zinc-900/50">
-                                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-white italic">Notificaciones</h3>
+                                                <div className="p-5 border-b border-[var(--border-color)] flex items-center justify-between bg-zinc-900/5">
+                                                    <h3 className="text-[10px] font-black uppercase tracking-widest italic">Notificaciones</h3>
                                                     <button
                                                         onClick={clearNotifications}
                                                         className="text-[8px] font-black uppercase tracking-widest text-zinc-600 hover:text-primary-500 transition-colors italic"
@@ -148,7 +148,7 @@ const Navbar = () => {
                                                 <div className="max-h-[400px] overflow-y-auto">
                                                     {notifications.length > 0 ? (
                                                         notifications.map((n) => (
-                                                            <div key={n.id} className="p-5 border-b border-white/5 hover:bg-zinc-900/30 transition-colors flex gap-4">
+                                                            <div key={n.id} className="p-5 border-b border-[var(--border-color)] hover:bg-zinc-900/5 transition-colors flex gap-4">
                                                                 <div className="w-8 h-8 rounded-lg bg-primary-500/10 flex items-center justify-center shrink-0">
                                                                     <Bell className="w-4 h-4 text-primary-500" />
                                                                 </div>
@@ -175,8 +175,8 @@ const Navbar = () => {
 
                             {/* Desktop Profile Info */}
                             <div className="hidden md:flex items-center gap-6 lg:gap-10">
-                                <div className="flex items-center gap-4 bg-zinc-950 p-1.5 pr-5 rounded-full border border-white/5 shadow-xl group cursor-pointer hover:border-primary-500/30 transition-all">
-                                    <div className="w-10 h-10 rounded-full border-2 border-zinc-800 p-0.5 overflow-hidden transition-all group-hover:border-primary-500">
+                                <div className="flex items-center gap-4 bg-[var(--bg-color)] p-1.5 pr-5 rounded-full border border-[var(--border-color)] shadow-xl group cursor-pointer hover:border-primary-500/30 transition-all">
+                                    <div className="w-10 h-10 rounded-full border-2 border-zinc-200 p-0.5 overflow-hidden transition-all group-hover:border-primary-500">
                                         {profile?.avatar_url ? (
                                             <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover rounded-full" />
                                         ) : (
@@ -187,7 +187,7 @@ const Navbar = () => {
                                     </div>
 
                                     <div className="text-left hidden lg:block">
-                                        <p className="text-[9px] font-black text-white uppercase italic tracking-widest leading-none mb-1">{profile?.full_name?.split(' ')[0] || 'USUARIO'}</p>
+                                        <p className="text-[9px] font-black uppercase italic tracking-widest leading-none mb-1">{profile?.full_name?.split(' ')[0] || 'USUARIO'}</p>
                                         <div className="flex items-center gap-1.5">
                                             <div className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-pulse" />
                                             <p className="text-[7px] text-zinc-700 uppercase tracking-[0.2em] font-black italic">ONLINE</p>
