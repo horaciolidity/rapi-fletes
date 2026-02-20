@@ -356,24 +356,22 @@ const DriverDashboard = () => {
         handlePassengerConfirmation
     }) => {
         return (
-            <div className="fixed inset-x-0 bottom-0 z-[5000] pointer-events-auto">
-                {/* Main Navigation Card (Bottom Sheet) */}
-                <div className="bg-[#18181b] border-t border-white/10 rounded-t-[2.0rem] p-4 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] safe-area-bottom w-full max-w-lg mx-auto">
+            <div className="fixed inset-x-0 bottom-4 z-[5000] pointer-events-auto px-4">
+                {/* Floating Navigation Card - Smaller & Centered */}
+                <div className="bg-[#18181b]/95 backdrop-blur-xl border border-white/10 rounded-[2rem] p-3 shadow-[0_10px_40px_rgba(0,0,0,0.8)] safe-area-bottom w-full max-w-sm mx-auto">
+                    {/* Compact Drag Handle */}
+                    <div className="w-8 h-1 bg-zinc-700/50 rounded-full mx-auto mb-3" />
 
-                    {/* Drag Handle / Indicator */}
-                    <div className="w-16 h-1 bg-zinc-700/50 rounded-full mx-auto mb-6" />
-
-                    {/* Trip Info Header - Smaller */}
-                    <div className="flex justify-between items-start mb-4 border-b border-white/5 pb-4">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <div className="bg-primary-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded">
-                                    {activeFlete.estimated_duration || '25'} min
+                    {/* Trip Info Header - Very Compact */}
+                    <div className="flex justify-between items-center mb-3 px-1">
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-0.5">
+                                <div className="bg-primary-500 text-black text-[9px] font-black px-1 rounded leading-none py-0.5">
+                                    {activeFlete.estimated_duration || '25'}m
                                 </div>
-                                <span className="text-zinc-500 font-bold text-[10px] uppercase">{activeFlete.distance || '--'} km</span>
+                                <span className="text-zinc-500 font-bold text-[9px] uppercase">{activeFlete.distance || '--'}km</span>
                             </div>
-                            <h3 className="text-sm font-black text-white italic uppercase tracking-tight leading-loose truncate max-w-[180px]">
-                                <span className="text-zinc-500 text-[8px] block -mb-1">HACIA</span>
+                            <h3 className="text-[11px] font-black text-white italic uppercase tracking-tight truncate">
                                 {activeFlete.status === 'accepted' ? activeFlete.pickup_address : activeFlete.dropoff_address}
                             </h3>
                         </div>
@@ -387,14 +385,14 @@ const DriverDashboard = () => {
                         </button>
                     </div>
 
-                    {/* ACTION BUTTON AREA - Compact */}
-                    <div className="space-y-2">
+                    {/* ACTION BUTTON AREA - Extra Compact */}
+                    <div className="space-y-1.5">
                         {activeFlete.status === 'accepted' && (
                             <button
                                 onClick={() => onStatusChange(activeFlete.id, 'arrived_pickup')}
-                                className="w-full py-4 bg-[#276EF1] text-white text-base font-bold uppercase rounded-xl shadow-lg hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-3 bg-[#276EF1] text-white text-sm font-black uppercase rounded-xl shadow-lg hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-2"
                             >
-                                <MapPin className="w-5 h-5" />
+                                <MapPin className="w-4 h-4" />
                                 <span>Llegué al Origen</span>
                             </button>
                         )}
@@ -402,9 +400,9 @@ const DriverDashboard = () => {
                         {activeFlete.status === 'arrived_pickup' && (
                             <button
                                 onClick={() => onStatusChange(activeFlete.id, 'in_transit')}
-                                className="w-full py-4 bg-[#05A357] text-white text-base font-bold uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-3 bg-[#05A357] text-white text-sm font-black uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-2"
                             >
-                                <Navigation className="w-5 h-5" />
+                                <Navigation className="w-4 h-4" />
                                 <span>Iniciar Viaje</span>
                             </button>
                         )}
@@ -412,9 +410,9 @@ const DriverDashboard = () => {
                         {activeFlete.status === 'in_transit' && (
                             <button
                                 onClick={() => onStatusChange(activeFlete.id, 'arrived_dropoff')}
-                                className="w-full py-4 bg-zinc-800 text-white text-base font-bold uppercase rounded-xl shadow-lg border border-white/10 hover:bg-zinc-700 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-3 bg-zinc-800 text-white text-sm font-black uppercase rounded-xl shadow-lg border border-white/10 hover:bg-zinc-700 active:scale-95 transition-all flex items-center justify-center gap-2"
                             >
-                                <Target className="w-5 h-5" />
+                                <Target className="w-4 h-4" />
                                 <span>Llegué al Destino</span>
                             </button>
                         )}
@@ -422,9 +420,9 @@ const DriverDashboard = () => {
                         {activeFlete.status === 'arrived_dropoff' && (
                             <button
                                 onClick={() => onStatusChange(activeFlete.id, 'completed')}
-                                className="w-full py-4 bg-[#05A357] text-white text-base font-bold uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-3 bg-[#05A357] text-white text-sm font-black uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-2"
                             >
-                                <CheckCircle2 className="w-5 h-5" />
+                                <CheckCircle2 className="w-4 h-4" />
                                 <span>Finalizar Viaje</span>
                             </button>
                         )}
@@ -524,7 +522,7 @@ const DriverDashboard = () => {
                                             initial={{ y: 20, opacity: 0 }}
                                             animate={{ y: 0, opacity: 1 }}
                                             exit={{ y: 20, opacity: 0 }}
-                                            className="max-h-[50vh] overflow-y-auto space-y-3 pb-4 scrollbar-none"
+                                            className="max-h-[50vh] overflow-y-auto space-y-3 pb-4 scrollbar-none pointer-events-auto"
                                         >
                                             {!profile.active_vehicle_id ? (
                                                 <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5 px-6">
@@ -626,7 +624,7 @@ const DriverDashboard = () => {
                                     )}
 
                                     {activeTab === 'active' && (
-                                        <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
+                                        <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="pointer-events-auto">
                                             {activeFlete ? (
                                                 <div className="space-y-4">
                                                     {/* Primary Status Action Button */}
@@ -639,40 +637,40 @@ const DriverDashboard = () => {
                                                         {activeFlete.status === 'accepted' && (
                                                             <button
                                                                 onClick={() => handleStatusChange(activeFlete.id, 'arrived_pickup')}
-                                                                className="w-full py-6 bg-blue-600 text-white text-xl font-black uppercase rounded-3xl shadow-xl hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                                                className="w-full py-4 bg-blue-600 text-lg font-black uppercase rounded-2xl shadow-xl hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3"
                                                             >
-                                                                <MapPin className="w-6 h-6" />
-                                                                <span>Llegué al Origen</span>
+                                                                <MapPin className="w-5 h-5 text-white" />
+                                                                <span className="text-white">Llegué al Origen</span>
                                                             </button>
                                                         )}
 
                                                         {activeFlete.status === 'arrived_pickup' && (
                                                             <button
                                                                 onClick={() => handleStatusChange(activeFlete.id, 'in_transit')}
-                                                                className="w-full py-6 bg-green-600 text-white text-xl font-black uppercase rounded-3xl shadow-xl hover:bg-green-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                                                className="w-full py-4 bg-green-600 text-lg font-black uppercase rounded-2xl shadow-xl hover:bg-green-500 active:scale-95 transition-all flex items-center justify-center gap-3"
                                                             >
-                                                                <Navigation className="w-6 h-6" />
-                                                                <span>Iniciar Viaje</span>
+                                                                <Navigation className="w-5 h-5 text-white" />
+                                                                <span className="text-white">Iniciar Viaje</span>
                                                             </button>
                                                         )}
 
                                                         {activeFlete.status === 'in_transit' && (
                                                             <button
                                                                 onClick={() => handleStatusChange(activeFlete.id, 'arrived_dropoff')}
-                                                                className="w-full py-6 bg-secondary-600 text-white text-xl font-black uppercase rounded-3xl shadow-xl hover:bg-secondary-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                                                className="w-full py-4 bg-secondary-600 text-lg font-black uppercase rounded-2xl shadow-xl hover:bg-secondary-500 active:scale-95 transition-all flex items-center justify-center gap-3"
                                                             >
-                                                                <Target className="w-6 h-6" />
-                                                                <span>Llegué al Destino</span>
+                                                                <Target className="w-5 h-5 text-white" />
+                                                                <span className="text-white">Llegué al Destino</span>
                                                             </button>
                                                         )}
 
                                                         {activeFlete.status === 'arrived_dropoff' && (
                                                             <button
                                                                 onClick={() => handleStatusChange(activeFlete.id, 'completed')}
-                                                                className="w-full py-6 bg-green-600 text-white text-xl font-black uppercase rounded-3xl shadow-xl hover:bg-green-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                                                className="w-full py-4 bg-green-600 text-lg font-black uppercase rounded-2xl shadow-xl hover:bg-green-500 active:scale-95 transition-all flex items-center justify-center gap-3"
                                                             >
-                                                                <CheckCircle2 className="w-6 h-6" />
-                                                                <span>Finalizar Viaje</span>
+                                                                <CheckCircle2 className="w-5 h-5 text-white" />
+                                                                <span className="text-white">Finalizar Viaje</span>
                                                             </button>
                                                         )}
 
@@ -741,7 +739,7 @@ const DriverDashboard = () => {
                                     )}
 
                                     {activeTab === 'garage' && (
-                                        <motion.div key="garage" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="space-y-4">
+                                        <motion.div key="garage" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="space-y-4 pointer-events-auto">
                                             {/* Active Vehicle Status */}
                                             <div className="glass-card p-6 border-primary-500/30 bg-primary-500/5">
                                                 <div className="flex justify-between items-start mb-4">
@@ -826,7 +824,7 @@ const DriverDashboard = () => {
                                     )}
 
                                     {activeTab === 'history' && (
-                                        <motion.div key="history" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="max-h-[50vh] overflow-y-auto space-y-3 pb-4 scrollbar-none">
+                                        <motion.div key="history" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="max-h-[50vh] overflow-y-auto space-y-3 pb-4 scrollbar-none pointer-events-auto">
                                             {completedHistory.map((f) => (
                                                 <div key={f.id} className="p-5 bg-black/90 backdrop-blur-3xl border border-white/5 rounded-2xl space-y-4 pointer-events-auto">
                                                     {/* Header */}
