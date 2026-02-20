@@ -99,10 +99,14 @@ const DriverDashboard = () => {
     useEffect(() => {
         if (activeFlete) {
             setActiveTab('active')
+            // Auto-enable navigation mode for relevant statuses
+            if (['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(activeFlete.status)) {
+                setIsInternalNav(true)
+            }
         } else {
             setIsInternalNav(false)
         }
-    }, [activeFlete])
+    }, [activeFlete?.status, activeFlete?.id]) // Depend on status and ID to trigger on updates
 
     const handleAddVehicle = async (e) => {
         e.preventDefault()
@@ -352,12 +356,12 @@ const DriverDashboard = () => {
                     </div>
                 </div>
 
-                {/* Main Content Area - SCROLLABLE */}
-                <div className="flex-grow overflow-y-auto px-4 pointer-events-auto pb-32">
+                {/* Main Content Area - SCROLLABLE but allows click-through to map */}
+                <div className="flex-grow overflow-y-auto px-4 pointer-events-none pb-32">
                     <div className="max-w-md mx-auto w-full space-y-4 pt-4">
 
                         {/* Tab Switcher (Floating) */}
-                        <div className={`flex bg-black/80 backdrop-blur-3xl p-1 rounded-2xl border border-white/5 mb-2 shadow-2xl transition-all ${isInternalNav ? 'opacity-0 pointer-events-none -translate-y-4' : 'opacity-100'}`}>
+                        <div className={`flex bg-black/80 backdrop-blur-3xl p-1 rounded-2xl border border-white/5 mb-2 shadow-2xl pointer-events-auto transition-all ${isInternalNav ? 'opacity-0 pointer-events-none -translate-y-4' : 'opacity-100'}`}>
                             {[
                                 { id: 'marketplace', label: 'PEDIDOS', icon: Truck },
                                 { id: 'active', label: 'ACTUAL', icon: Activity },
@@ -398,7 +402,7 @@ const DriverDashboard = () => {
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: idx * 0.05 }}
                                             onClick={() => setSelectedFleteId(flete.id === selectedFleteId ? null : flete.id)}
-                                            className={`glass-card p-5 border-white/5 bg-black/90 backdrop-blur-3xl transition-all cursor-pointer ${selectedFleteId === flete.id ? 'border-primary-500/50 ring-2 ring-primary-500/20' : ''}`}
+                                            className={`glass-card p-5 border-white/5 bg-black/90 backdrop-blur-3xl transition-all cursor-pointer pointer-events-auto ${selectedFleteId === flete.id ? 'border-primary-500/50 ring-2 ring-primary-500/20' : ''}`}
                                         >
                                             <div className="flex justify-between items-center mb-4">
                                                 <div className="flex items-center gap-3">
@@ -486,7 +490,7 @@ const DriverDashboard = () => {
                             {activeTab === 'active' && (
                                 <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
                                     {activeFlete ? (
-                                        <div className={`space-y-4 transition-all ${isInternalNav ? 'mt-auto' : ''}`}>
+                                        <div className={`space-y-4 transition-all pointer-events-auto ${isInternalNav ? 'fixed bottom-6 left-4 right-4 z-50' : ''}`}>
                                             {/* Navigation Button Overlay */}
                                             {(activeFlete.status === 'accepted' || activeFlete.status === 'arrived_pickup' || activeFlete.status === 'in_transit') && (
                                                 <div className="flex flex-col gap-3">
@@ -585,17 +589,19 @@ const DriverDashboard = () => {
                                                     <>
                                                         <button
                                                             onClick={() => handleStatusChange(activeFlete.id, 'arrived_pickup')}
-                                                            className="w-full py-6 bg-gradient-to-r from-primary-500 to-primary-400 text-black font-black italic text-[14px] uppercase rounded-2xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all"
+                                                            className={`w-full ${isInternalNav ? 'py-4 text-[12px]' : 'py-6 text-[14px]'} bg-gradient-to-r from-primary-500 to-primary-400 text-black font-black italic uppercase rounded-2xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all pointer-events-auto`}
                                                         >
                                                             📍 ARRIBÉ AL ORIGEN
                                                         </button>
-                                                        <a
-                                                            href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center gap-3 w-full py-5 bg-zinc-900/90 rounded-2xl border border-white/10 text-white shadow-xl hover:bg-zinc-800 transition-colors"
-                                                        >
-                                                            <Phone className="w-5 h-5" />
-                                                            <span className="text-[12px] font-black uppercase italic">LLAMAR CLIENTE</span>
-                                                        </a>
+                                                        {!isInternalNav && (
+                                                            <a
+                                                                href={`tel:${activeFlete.profiles?.phone || ''}`}
+                                                                className="flex items-center justify-center gap-3 w-full py-5 bg-zinc-900/90 rounded-2xl border border-white/10 text-white shadow-xl hover:bg-zinc-800 transition-colors pointer-events-auto"
+                                                            >
+                                                                <Phone className="w-5 h-5" />
+                                                                <span className="text-[12px] font-black uppercase italic">LLAMAR CLIENTE</span>
+                                                            </a>
+                                                        )}
                                                     </>
                                                 )}
 
@@ -604,17 +610,19 @@ const DriverDashboard = () => {
                                                     <>
                                                         <button
                                                             onClick={() => handleStatusChange(activeFlete.id, 'in_transit')}
-                                                            className="w-full py-6 bg-gradient-to-r from-green-500 to-green-400 text-black font-black italic text-[14px] uppercase rounded-2xl shadow-2xl shadow-green-500/30 hover:shadow-green-500/50 transition-all"
+                                                            className={`w-full ${isInternalNav ? 'py-4 text-[12px]' : 'py-6 text-[14px]'} bg-gradient-to-r from-green-500 to-green-400 text-black font-black italic uppercase rounded-2xl shadow-2xl shadow-green-500/30 hover:shadow-green-500/50 transition-all`}
                                                         >
                                                             🚀 INICIAR VIAJE
                                                         </button>
-                                                        <a
-                                                            href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center gap-3 w-full py-5 bg-zinc-900/90 rounded-2xl border border-white/10 text-white shadow-xl hover:bg-zinc-800 transition-colors"
-                                                        >
-                                                            <Phone className="w-5 h-5" />
-                                                            <span className="text-[12px] font-black uppercase italic">LLAMAR CLIENTE</span>
-                                                        </a>
+                                                        {!isInternalNav && (
+                                                            <a
+                                                                href={`tel:${activeFlete.profiles?.phone || ''}`}
+                                                                className="flex items-center justify-center gap-3 w-full py-5 bg-zinc-900/90 rounded-2xl border border-white/10 text-white shadow-xl hover:bg-zinc-800 transition-colors"
+                                                            >
+                                                                <Phone className="w-5 h-5" />
+                                                                <span className="text-[12px] font-black uppercase italic">LLAMAR CLIENTE</span>
+                                                            </a>
+                                                        )}
                                                     </>
                                                 )}
 
@@ -623,17 +631,19 @@ const DriverDashboard = () => {
                                                     <>
                                                         <button
                                                             onClick={() => handleStatusChange(activeFlete.id, 'arrived_dropoff')}
-                                                            className="w-full py-6 bg-gradient-to-r from-primary-500 to-primary-400 text-black font-black italic text-[14px] uppercase rounded-2xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all"
+                                                            className={`w-full ${isInternalNav ? 'py-4 text-[12px]' : 'py-6 text-[14px]'} bg-gradient-to-r from-primary-500 to-primary-400 text-black font-black italic uppercase rounded-2xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all pointer-events-auto`}
                                                         >
                                                             🎯 LLEGAMOS A DESTINO
                                                         </button>
-                                                        <a
-                                                            href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center gap-3 w-full py-5 bg-zinc-900/90 rounded-2xl border border-white/10 text-white shadow-xl hover:bg-zinc-800 transition-colors"
-                                                        >
-                                                            <Phone className="w-5 h-5" />
-                                                            <span className="text-[12px] font-black uppercase italic">LLAMAR CLIENTE</span>
-                                                        </a>
+                                                        {!isInternalNav && (
+                                                            <a
+                                                                href={`tel:${activeFlete.profiles?.phone || ''}`}
+                                                                className="flex items-center justify-center gap-3 w-full py-5 bg-zinc-900/90 rounded-2xl border border-white/10 text-white shadow-xl hover:bg-zinc-800 transition-colors pointer-events-auto"
+                                                            >
+                                                                <Phone className="w-5 h-5" />
+                                                                <span className="text-[12px] font-black uppercase italic">LLAMAR CLIENTE</span>
+                                                            </a>
+                                                        )}
                                                     </>
                                                 )}
 
@@ -646,13 +656,15 @@ const DriverDashboard = () => {
                                                         >
                                                             ✅ FINALIZAR VIAJE
                                                         </button>
-                                                        <a
-                                                            href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                                            className="flex items-center justify-center gap-3 w-full py-5 bg-zinc-900/90 rounded-2xl border border-white/10 text-white shadow-xl hover:bg-zinc-800 transition-colors"
-                                                        >
-                                                            <Phone className="w-5 h-5" />
-                                                            <span className="text-[12px] font-black uppercase italic">LLAMAR CLIENTE</span>
-                                                        </a>
+                                                        {!isInternalNav && (
+                                                            <a
+                                                                href={`tel:${activeFlete.profiles?.phone || ''}`}
+                                                                className="flex items-center justify-center gap-3 w-full py-5 bg-zinc-900/90 rounded-2xl border border-white/10 text-white shadow-xl hover:bg-zinc-800 transition-colors"
+                                                            >
+                                                                <Phone className="w-5 h-5" />
+                                                                <span className="text-[12px] font-black uppercase italic">LLAMAR CLIENTE</span>
+                                                            </a>
+                                                        )}
                                                     </>
                                                 )}
                                             </div>
@@ -687,7 +699,7 @@ const DriverDashboard = () => {
                                     <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-700 mt-6 px-2 italic">MIS VEHÍCULOS</h3>
                                     <div className="space-y-3">
                                         {vehicles.map(v => (
-                                            <div key={v.id} className={`glass-card p-5 border-white/5 bg-zinc-950/80 ${v.id === profile.active_vehicle_id ? 'ring-2 ring-primary-500/20 shadow-xl' : ''}`}>
+                                            <div key={v.id} className={`glass-card p-5 border-white/5 bg-zinc-950/80 pointer-events-auto ${v.id === profile.active_vehicle_id ? 'ring-2 ring-primary-500/20 shadow-xl' : ''}`}>
                                                 <div className="flex justify-between items-center">
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-1">
@@ -754,7 +766,7 @@ const DriverDashboard = () => {
                             {activeTab === 'history' && (
                                 <motion.div key="history" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="max-h-[50vh] overflow-y-auto space-y-3 pb-4 scrollbar-none">
                                     {completedHistory.map((f) => (
-                                        <div key={f.id} className="p-5 bg-black/90 backdrop-blur-3xl border border-white/5 rounded-2xl space-y-4">
+                                        <div key={f.id} className="p-5 bg-black/90 backdrop-blur-3xl border border-white/5 rounded-2xl space-y-4 pointer-events-auto">
                                             {/* Header */}
                                             <div className="flex justify-between items-start">
                                                 <div className="flex-1">
