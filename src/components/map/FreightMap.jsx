@@ -186,12 +186,18 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
         }
 
         const fetchRoute = async () => {
+            // Validate coordinates
+            if (isNaN(pickup.lat) || isNaN(pickup.lng) || isNaN(dropoff.lat) || isNaN(dropoff.lng)) {
+                handleFallback()
+                return
+            }
+
             const controller = new AbortController()
-            const timeoutId = setTimeout(() => controller.abort(), 4000)
+            const timeoutId = setTimeout(() => controller.abort(), 8000) // Increased to 8s
 
             try {
                 // Add &steps=true and &language=es to get instructions
-                const url = `https://router.project-osrm.org/route/v1/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?overview=full&geometries=geojson&steps=true&language=es`
+                const url = `https://router.project-osrm.org/route/v1/driving/${Number(pickup.lng).toFixed(6)},${Number(pickup.lat).toFixed(6)};${Number(dropoff.lng).toFixed(6)},${Number(dropoff.lat).toFixed(6)}?overview=full&geometries=geojson&steps=true&language=es`
                 const res = await fetch(url, { signal: controller.signal }).catch(() => null)
                 clearTimeout(timeoutId)
 
@@ -206,7 +212,11 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
                     return
                 }
 
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+                if (!res.ok) {
+                    const errorText = await res.text()
+                    console.error('OSRM Error:', errorText)
+                    throw new Error(`HTTP error! status: ${res.status}`)
+                }
 
                 const data = await res.json()
                 if (data.routes && data.routes[0]) {
@@ -224,9 +234,13 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
                             location: [step.maneuver.location[1], step.maneuver.location[0]]
                         }))
                     })
+                } else {
+                    handleFallback()
                 }
             } catch (err) {
-                console.error('Routing err:', err)
+                if (err.name !== 'AbortError') {
+                    console.error('Routing err:', err)
+                }
                 handleFallback()
             }
         }
@@ -428,13 +442,15 @@ const FreightMap = ({
                     />
                 )}
 
-                {isNavigating && userLocation && pickup && dropoff && (
-                    /* When navigating, route from USER to the TARGET (which is either pickup or dropoff depending on phase) */
+                {isNavigating && dropoff && (
+                    /* When navigating, route from USER to the TARGET.
+                       We use userLocation if available, otherwise fallback to the 'pickup' prop which
+                       DriverDashboard sets to driverLatLng or status-based start point. */
                     <RoutingMachine
-                        pickup={{ lat: userLocation.lat, lng: userLocation.lng }}
-                        dropoff={dropoff} // In parent, 'dropoff' prop is already switched to be the target
+                        pickup={userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : (pickup || { lat: -34.6037, lng: -58.3816 })}
+                        dropoff={dropoff}
                         onRouteFound={handleRouteFound}
-                        key={`${userLocation.lat.toFixed(4)}-${userLocation.lng.toFixed(4)}`} // Force refresh on significant move
+                        key={`nav-${userLocation?.lat?.toFixed(4) || 'init'}-${userLocation?.lng?.toFixed(4) || 'init'}-${dropoff.lat}-${dropoff.lng}`}
                     />
                 )}
                 {routeCoordinates.length > 0 && <Polyline positions={routeCoordinates} pathOptions={{ color: isNavigating ? '#3b82f6' : '#f59e0b', weight: isNavigating ? 8 : 6, opacity: 0.9, lineJoin: 'round' }} />}
@@ -443,7 +459,7 @@ const FreightMap = ({
                 {dropoff && <Marker position={[dropoff.lat, dropoff.lng]} icon={createCustomIcon('#ea580c', '🎯')} />}
 
                 {/* Driver Self Marker when navigating */}
-                {isNavigating && userLocation && <CarMarker position={userLocation} />}
+                {(isNavigating && (userLocation || pickup)) && <CarMarker position={userLocation || pickup} />}
 
                 {/* Specific Driver being tracked (Client side view) */}
                 {enableLiveTracking && trackedDriver && <CarMarker position={[trackedDriver.lat, trackedDriver.lng]} />}

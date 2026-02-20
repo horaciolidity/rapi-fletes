@@ -254,19 +254,20 @@ const DriverDashboard = () => {
         }
 
         // NAVIGATION MODE
-        const start = driverLatLng || { lat: activeFlete.pickup_lat, lng: activeFlete.pickup_lng }
+        // Use local state tracked location
+        const start = driverLatLng
 
         // If accepted but not arrived, navigate to pickup
         if (activeFlete.status === 'accepted') {
             return {
-                pickup: { ...start, address: 'Tu Ubicación' },
+                pickup: start ? { ...start, address: 'Tu Ubicación' } : null, // If null, RoutingMachine won't render
                 dropoff: { address: activeFlete.pickup_address, lat: activeFlete.pickup_lat, lng: activeFlete.pickup_lng }
             }
         }
 
         // If in transit, navigate to dropoff
         return {
-            pickup: { ...start, address: 'Tu Ubicación' },
+            pickup: start ? { ...start, address: 'Tu Ubicación' } : { address: activeFlete.pickup_address, lat: activeFlete.pickup_lat, lng: activeFlete.pickup_lng },
             dropoff: { address: activeFlete.dropoff_address, lat: activeFlete.dropoff_lat, lng: activeFlete.dropoff_lng }
         }
     }
@@ -355,45 +356,45 @@ const DriverDashboard = () => {
         handlePassengerConfirmation
     }) => {
         return (
-            <div className="absolute inset-x-0 bottom-0 z-[2000] pointer-events-auto">
+            <div className="fixed inset-x-0 bottom-0 z-[5000] pointer-events-auto">
                 {/* Main Navigation Card (Bottom Sheet) */}
-                <div className="bg-[#18181b] border-t border-white/10 rounded-t-[2.0rem] p-6 pb-12 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] safe-area-bottom w-full">
+                <div className="bg-[#18181b] border-t border-white/10 rounded-t-[2.0rem] p-4 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] safe-area-bottom w-full max-w-lg mx-auto">
 
                     {/* Drag Handle / Indicator */}
                     <div className="w-16 h-1 bg-zinc-700/50 rounded-full mx-auto mb-6" />
 
-                    {/* Trip Info Header */}
-                    <div className="flex justify-between items-start mb-8 border-b border-white/5 pb-6">
+                    {/* Trip Info Header - Smaller */}
+                    <div className="flex justify-between items-start mb-4 border-b border-white/5 pb-4">
                         <div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="bg-primary-500 text-black text-xs font-black px-2 py-1 rounded">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="bg-primary-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded">
                                     {activeFlete.estimated_duration || '25'} min
                                 </div>
-                                <span className="text-zinc-500 font-bold text-xs uppercase">{activeFlete.distance || '--'} km</span>
+                                <span className="text-zinc-500 font-bold text-[10px] uppercase">{activeFlete.distance || '--'} km</span>
                             </div>
-                            <h3 className="text-xl font-black text-white italic uppercase tracking-tight leading-tight max-w-[200px]">
-                                <span className="text-zinc-500 text-sm block mb-1">HACIA</span>
+                            <h3 className="text-sm font-black text-white italic uppercase tracking-tight leading-loose truncate max-w-[180px]">
+                                <span className="text-zinc-500 text-[8px] block -mb-1">HACIA</span>
                                 {activeFlete.status === 'accepted' ? activeFlete.pickup_address : activeFlete.dropoff_address}
                             </h3>
                         </div>
 
                         <button
                             onClick={onExit}
-                            className="bg-black text-white px-4 py-2 rounded-full border border-white/10 flex items-center gap-2 hover:bg-zinc-900 transition-colors"
+                            className="bg-black/50 text-white px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 hover:bg-zinc-900 transition-colors"
                         >
-                            <span className="text-[10px] font-black uppercase">SALIR DEL MAPA</span>
-                            <X className="w-4 h-4" />
+                            <span className="text-[8px] font-black uppercase">SALIR</span>
+                            <X className="w-3 h-3" />
                         </button>
                     </div>
 
-                    {/* ACTION BUTTON AREA */}
-                    <div className="space-y-3">
+                    {/* ACTION BUTTON AREA - Compact */}
+                    <div className="space-y-2">
                         {activeFlete.status === 'accepted' && (
                             <button
                                 onClick={() => onStatusChange(activeFlete.id, 'arrived_pickup')}
-                                className="w-full py-5 bg-[#276EF1] text-white text-lg font-bold uppercase rounded-xl shadow-lg hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-4 bg-[#276EF1] text-white text-base font-bold uppercase rounded-xl shadow-lg hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-3"
                             >
-                                <MapPin className="w-6 h-6" />
+                                <MapPin className="w-5 h-5" />
                                 <span>Llegué al Origen</span>
                             </button>
                         )}
@@ -401,9 +402,9 @@ const DriverDashboard = () => {
                         {activeFlete.status === 'arrived_pickup' && (
                             <button
                                 onClick={() => onStatusChange(activeFlete.id, 'in_transit')}
-                                className="w-full py-5 bg-[#05A357] text-white text-lg font-bold uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-4 bg-[#05A357] text-white text-base font-bold uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-3"
                             >
-                                <Navigation className="w-6 h-6" />
+                                <Navigation className="w-5 h-5" />
                                 <span>Iniciar Viaje</span>
                             </button>
                         )}
@@ -411,9 +412,9 @@ const DriverDashboard = () => {
                         {activeFlete.status === 'in_transit' && (
                             <button
                                 onClick={() => onStatusChange(activeFlete.id, 'arrived_dropoff')}
-                                className="w-full py-5 bg-zinc-800 text-white text-lg font-bold uppercase rounded-xl shadow-lg border border-white/10 hover:bg-zinc-700 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-4 bg-zinc-800 text-white text-base font-bold uppercase rounded-xl shadow-lg border border-white/10 hover:bg-zinc-700 active:scale-95 transition-all flex items-center justify-center gap-3"
                             >
-                                <Target className="w-6 h-6" />
+                                <Target className="w-5 h-5" />
                                 <span>Llegué al Destino</span>
                             </button>
                         )}
@@ -421,9 +422,9 @@ const DriverDashboard = () => {
                         {activeFlete.status === 'arrived_dropoff' && (
                             <button
                                 onClick={() => onStatusChange(activeFlete.id, 'completed')}
-                                className="w-full py-5 bg-[#05A357] text-white text-lg font-bold uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-4 bg-[#05A357] text-white text-base font-bold uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-3"
                             >
-                                <CheckCircle2 className="w-6 h-6" />
+                                <CheckCircle2 className="w-5 h-5" />
                                 <span>Finalizar Viaje</span>
                             </button>
                         )}
@@ -476,18 +477,9 @@ const DriverDashboard = () => {
             </div>
 
             {/* Overlays */}
-            <div className="relative z-10 h-full flex flex-col pointer-events-none">
-
-                {/* --- NAVIGATION MODE UI --- */}
-                {isInternalNav && activeFlete ? (
-                    <NavigationControls
-                        activeFlete={activeFlete}
-                        onExit={() => setIsInternalNav(false)}
-                        onStatusChange={handleStatusChange}
-                        handlePassengerConfirmation={handlePassengerConfirmation}
-                    />
-                ) : (
-                    /* --- STANDARD DASHBOARD UI --- */
+            <div className={`relative z-10 h-full flex flex-col pointer-events-none transition-all duration-500 ${isInternalNav ? 'opacity-0' : 'opacity-100'}`}>
+                {/* --- STANDARD DASHBOARD UI --- */}
+                {!isInternalNav && (
                     <>
                         {/* Header Overlay */}
                         <div className="pt-16 px-6 pointer-events-auto transition-all">
@@ -903,6 +895,16 @@ const DriverDashboard = () => {
                     </>
                 )}
             </div>
+
+            {/* Navigation Mode Overlay - Higher Z-Index and Outside pointer-events container */}
+            {isInternalNav && activeFlete && (
+                <NavigationControls
+                    activeFlete={activeFlete}
+                    onExit={() => setIsInternalNav(false)}
+                    onStatusChange={handleStatusChange}
+                    handlePassengerConfirmation={() => setShowPassengerConfirm(true)}
+                />
+            )}
 
             {/* Modals outside everything */}
             <AnimatePresence>
