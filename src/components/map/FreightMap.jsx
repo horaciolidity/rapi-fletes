@@ -282,25 +282,25 @@ const NavigationOverlay = ({ steps, currentPos }) => {
             initial={{ y: -150, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="absolute top-0 left-0 right-0 z-[1000] pointer-events-none p-4"
+            className="absolute top-0 left-0 right-0 z-[3000] pointer-events-none p-4 safe-area-top"
         >
-            <div className="bg-neutral-900 border-b-4 border-green-500 rounded-2xl shadow-2xl overflow-hidden flex flex-col relative max-w-lg mx-auto">
+            <div className="bg-[#18181b] border-b-4 border-green-500 rounded-2xl shadow-2xl overflow-hidden flex flex-col relative max-w-lg mx-auto">
                 {/* Top Green Bar */}
                 <div className="bg-green-600 h-2 w-full" />
 
-                <div className="p-4 flex items-center gap-5">
+                <div className="p-5 flex items-center gap-5">
                     <div className="w-16 h-16 bg-neutral-800 rounded-xl flex items-center justify-center shrink-0 border border-white/10 shadow-inner">
                         <Navigation className="w-8 h-8 text-white transform -rotate-45" />
                     </div>
 
                     <div className="flex-1 min-w-0">
-                        <h2 className="text-2xl font-black text-white italic uppercase truncate leading-none mb-1">
+                        <h2 className="text-2xl font-black text-white italic uppercase truncate leading-none mb-2">
                             {currentStep.instruction || "Siga la ruta"}
                         </h2>
-                        <p className="text-lg font-bold text-green-400 uppercase italic flex items-center gap-2">
-                            <span>EN {distanceToStep} METROS</span>
-                            {currentStep.name && <span className="text-neutral-500 text-sm">| {currentStep.name}</span>}
-                        </p>
+                        <div className="flex items-center gap-3">
+                            <span className="text-3xl font-black text-green-500 italic leading-none">{distanceToStep} M</span>
+                            {currentStep.name && <span className="text-neutral-500 text-sm font-bold uppercase truncate border-l border-neutral-700 pl-3 max-w-[150px]">{currentStep.name}</span>}
+                        </div>
                     </div>
                 </div>
             </div>
