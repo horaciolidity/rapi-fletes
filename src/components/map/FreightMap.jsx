@@ -135,7 +135,7 @@ const MapController = ({ pickup, dropoff, autoDetectLocation, isNavigating, user
             ])
             map.fitBounds(bounds, { padding: [50, 50] })
         } else if (!isNavigating && pickup) {
-            map.setView([pickup.lat, pickup.lng], 15)
+            map.setView([pickup.lat, pickup.lng], 17)
         }
     }, [pickup, dropoff, map, isNavigating])
 
@@ -150,7 +150,7 @@ const RecenterControl = () => {
                 onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    map.locate({ setView: true, maxZoom: 15 })
+                    map.locate({ setView: true, maxZoom: 17 })
                 }}
                 className="p-4 bg-zinc-900 border border-white/10 rounded-2xl text-white hover:text-primary-500 transition-all shadow-2xl"
             >
