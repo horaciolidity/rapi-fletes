@@ -38,12 +38,18 @@ const Profile = () => {
 
     const handleUpdate = async (e) => {
         e.preventDefault()
+
+        if (!formData.full_name || !formData.phone) {
+            setMessage({ type: 'error', text: 'El nombre y el teléfono son obligatorios' })
+            return
+        }
+
         setLoading(true)
         setMessage({ type: '', text: '' })
 
-        const success = await updateProfile(user.id, formData)
+        const res = await updateProfile(user.id, formData)
 
-        if (success) {
+        if (res.data) {
             setMessage({ type: 'success', text: 'Perfil actualizado correctamente' })
             fetchProfile(user.id)
         } else {
@@ -69,6 +75,15 @@ const Profile = () => {
         setRoleLoading(false)
     }
 
+    const isProfileIncomplete = !profile?.full_name || !profile?.phone || !profile?.avatar_url
+
+    const handleAvatarUpdate = () => {
+        const url = prompt('Ingrese la URL de su foto de perfil:', formData.avatar_url)
+        if (url !== null) {
+            setFormData({ ...formData, avatar_url: url })
+        }
+    }
+
     if (!profile) return (
         <div className="min-h-screen flex items-center justify-center bg-[var(--bg-color)]">
             <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
@@ -78,6 +93,17 @@ const Profile = () => {
     return (
         <div className="pb-24 pt-10 min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] font-sans selection:bg-primary-500">
             <div className="container mx-auto px-6 max-w-md">
+
+                {isProfileIncomplete && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3"
+                    >
+                        <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
+                        <p className="text-[10px] font-black text-red-500 uppercase italic">Tu perfil está incompleto. Completa tu nombre, teléfono y foto para poder operar.</p>
+                    </motion.div>
+                )}
 
                 {/* Profile Header Card */}
                 <div className="flex flex-col items-center mb-10 pt-10">
@@ -91,7 +117,10 @@ const Profile = () => {
                                 </div>
                             )}
                         </div>
-                        <button className="absolute -bottom-2 -right-2 p-3 bg-primary-500 rounded-2xl text-black shadow-xl scale-90 active:scale-75 transition-transform">
+                        <button
+                            onClick={handleAvatarUpdate}
+                            className="absolute -bottom-2 -right-2 p-3 bg-primary-500 rounded-2xl text-black shadow-xl scale-90 active:scale-75 transition-transform"
+                        >
                             <Camera className="w-4 h-4" />
                         </button>
                     </div>
@@ -111,15 +140,15 @@ const Profile = () => {
                 <div className="glass-card mb-6 overflow-hidden p-1 flex">
                     <button
                         onClick={() => handleRoleSwitch('client')}
-                        disabled={roleLoading}
-                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'client' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
+                        disabled={roleLoading || isProfileIncomplete}
+                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'client' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'} ${isProfileIncomplete && 'opacity-50 cursor-not-allowed'}`}
                     >
                         MODO CLIENTE
                     </button>
                     <button
                         onClick={() => handleRoleSwitch('driver')}
-                        disabled={roleLoading}
-                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'driver' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
+                        disabled={roleLoading || isProfileIncomplete}
+                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'driver' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'} ${isProfileIncomplete && 'opacity-50 cursor-not-allowed'}`}
                     >
                         MODO CHOFER
                     </button>
@@ -128,22 +157,29 @@ const Profile = () => {
                 {/* Account Settings Forms */}
                 <div className="space-y-4 mb-10">
                     <div className="glass-card p-6 shadow-xl">
-                        <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 italic">Información Personal</h3>
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 italic flex items-center gap-2">
+                            Información Personal <span className="text-red-500">*</span>
+                        </h3>
                         <form onSubmit={handleUpdate} className="space-y-5">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Nombre</label>
+                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Nombre Completo <span className="text-red-500">*</span></label>
                                 <input
                                     className="input-field"
+                                    placeholder="Ej: Juan Pérez"
                                     value={formData.full_name}
                                     onChange={e => setFormData({ ...formData, full_name: e.target.value })}
+                                    required
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Celular</label>
+                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Número de Celular <span className="text-red-500">*</span></label>
                                 <input
                                     className="input-field"
+                                    type="tel"
+                                    placeholder="Ej: +54 9 261 1234567"
                                     value={formData.phone}
                                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                    required
                                 />
                             </div>
 
@@ -156,9 +192,9 @@ const Profile = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-primary-500 text-black text-[10px] font-black uppercase italic rounded-2xl shadow-lg shadow-primary-500/20 active:scale-95 transition-transform"
+                                className="w-full py-4 bg-primary-500 text-black text-[11px] font-black uppercase italic rounded-2xl shadow-lg shadow-primary-500/20 active:scale-95 transition-transform"
                             >
-                                {loading ? 'GUARDANDO...' : 'ACTUALIZAR PERFIL'}
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'GUARDAR CAMBIOS'}
                             </button>
                         </form>
                     </div>

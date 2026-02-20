@@ -196,8 +196,8 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
             const timeoutId = setTimeout(() => controller.abort(), 8000) // Increased to 8s
 
             try {
-                // Add &steps=true and &language=es to get instructions
-                const url = `https://router.project-osrm.org/route/v1/driving/${Number(pickup.lng).toFixed(6)},${Number(pickup.lat).toFixed(6)};${Number(dropoff.lng).toFixed(6)},${Number(dropoff.lat).toFixed(6)}?overview=full&geometries=geojson&steps=true&language=es`
+                // Removed &language=es as it often causes 400 Malformed Query on the public OSRM router
+                const url = `https://router.project-osrm.org/route/v1/driving/${Number(pickup.lng).toFixed(6)},${Number(pickup.lat).toFixed(6)};${Number(dropoff.lng).toFixed(6)},${Number(dropoff.lat).toFixed(6)}?overview=full&geometries=geojson&steps=true`
                 const res = await fetch(url, { signal: controller.signal }).catch(() => null)
                 clearTimeout(timeoutId)
 

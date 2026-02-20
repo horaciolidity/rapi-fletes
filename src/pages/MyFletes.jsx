@@ -93,17 +93,17 @@ const MyFletes = () => {
     // Show loading while profile is being fetched
     if (user && !profile) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
+            <div className="min-h-screen bg-[var(--bg-color)] flex items-center justify-center">
                 <div className="text-center">
                     <Loader2 className="w-8 h-8 text-primary-500 animate-spin mx-auto mb-4" />
-                    <p className="text-xs font-bold text-zinc-600 italic uppercase">Cargando...</p>
+                    <p className="text-xs font-bold text-zinc-500 uppercase italic">Cargando...</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="pb-24 pt-10 min-h-screen bg-black font-sans selection:bg-primary-500">
+        <div className="pb-24 pt-10 min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] font-sans selection:bg-primary-500">
             <div className="container mx-auto px-6 max-w-md">
 
                 <AnimatePresence mode="wait">
@@ -119,7 +119,7 @@ const MyFletes = () => {
                                     <HistoryIcon className="w-6 h-6 text-black" />
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">MIS<br /><span className="text-primary-500">SERVICIOS</span></h1>
+                                    <h1 className="text-3xl font-black text-[var(--text-color)] italic tracking-tighter uppercase leading-none">MIS<br /><span className="text-primary-500">SERVICIOS</span></h1>
                                 </div>
                             </header>
 
@@ -133,7 +133,7 @@ const MyFletes = () => {
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: idx * 0.05 }}
                                             onClick={() => handleSelectFlete(flete.id)}
-                                            className="glass-card p-6 border-zinc-900 bg-zinc-950/80 active:scale-98 transition-transform cursor-pointer group"
+                                            className="glass-card p-6 border-[var(--border-color)] bg-[var(--card-bg)]/80 active:scale-98 transition-transform cursor-pointer group shadow-xl"
                                         >
                                             <div className="flex justify-between items-start mb-4">
                                                 <div className={`p-2 rounded-xl bg-zinc-900 text-zinc-600 group-hover:text-primary-500 border border-white/5`}>
@@ -155,9 +155,9 @@ const MyFletes = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-between items-end border-t border-zinc-900 pt-4">
-                                                <p className="text-[8px] font-black text-zinc-800 uppercase italic"># {flete.id.slice(0, 8)}</p>
-                                                <p className="text-xl font-black text-white italic tracking-tighter shadow-primary-500/10">${flete.estimated_price}</p>
+                                            <div className="flex justify-between items-end border-t border-[var(--border-color)] pt-4">
+                                                <p className="text-[8px] font-black text-zinc-500 uppercase italic"># {flete.id.slice(0, 8)}</p>
+                                                <p className="text-xl font-black text-[var(--text-color)] italic tracking-tighter shadow-primary-500/10">${flete.estimated_price}</p>
                                             </div>
                                         </motion.div>
                                     )
@@ -189,7 +189,7 @@ const MyFletes = () => {
                             {selectedFlete ? (
                                 <div className="space-y-6">
                                     {/* Map HUD Style */}
-                                    <div className="h-64 rounded-[2rem] overflow-hidden border-4 border-zinc-900 bg-zinc-900 relative shadow-2xl">
+                                    <div className="h-64 rounded-[2rem] overflow-hidden border-4 border-[var(--border-color)] bg-[var(--bg-color)] relative shadow-2xl">
                                         <FreightMap
                                             pickup={{ address: selectedFlete.pickup_address, lat: selectedFlete.pickup_lat, lng: selectedFlete.pickup_lng }}
                                             dropoff={{ address: selectedFlete.dropoff_address, lat: selectedFlete.dropoff_lat, lng: selectedFlete.dropoff_lng }}
@@ -198,9 +198,9 @@ const MyFletes = () => {
                                             enableLiveTracking={['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(selectedFlete.status)}
                                             fleteId={selectedFlete.id}
                                         />
-                                        <div className="absolute top-4 left-4 p-3 bg-black/80 backdrop-blur-xl rounded-xl border border-white/5 flex items-center gap-3">
+                                        <div className="absolute top-4 left-4 p-3 bg-[var(--card-bg)]/80 backdrop-blur-xl rounded-xl border border-[var(--border-color)] flex items-center gap-3">
                                             <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
-                                            <p className="text-[9px] font-black text-white italic uppercase">{getStatusTheme(selectedFlete.status).label}</p>
+                                            <p className="text-[9px] font-black text-[var(--text-color)] italic uppercase">{getStatusTheme(selectedFlete.status).label}</p>
                                         </div>
                                     </div>
 
@@ -279,12 +279,12 @@ const MyFletes = () => {
                                             </div>
                                         )}
 
-                                        <div className="flex justify-between items-end pt-4 border-t border-zinc-900">
+                                        <div className="flex justify-between items-end pt-4 border-t border-[var(--border-color)]">
                                             <div>
-                                                <p className="text-[8px] font-black text-zinc-700 uppercase mb-1">{isDriver ? 'GANANCIA' : 'PRECIO TOTAL'}</p>
+                                                <p className="text-[8px] font-black text-zinc-500 uppercase mb-1">{isDriver ? 'GANANCIA' : 'PRECIO TOTAL'}</p>
                                                 <p className="text-4xl font-black text-primary-500 italic tracking-tighter">$ {selectedFlete.estimated_price}</p>
                                             </div>
-                                            <p className="text-[9px] font-black text-zinc-600 italic uppercase">{selectedFlete.vehicle_categories?.name}</p>
+                                            <p className="text-[9px] font-black text-zinc-500 italic uppercase">{selectedFlete.vehicle_categories?.name}</p>
                                         </div>
                                     </div>
 

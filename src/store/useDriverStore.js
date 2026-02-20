@@ -33,7 +33,7 @@ export const useDriverStore = create((set, get) => ({
                 .select(`
                     *,
                     vehicle_categories (name, base_price),
-                    profiles:user_id (full_name)
+                    profiles:user_id (full_name, phone, avatar_url)
                 `)
                 .eq('status', 'pending')
 
@@ -106,7 +106,7 @@ export const useDriverStore = create((set, get) => ({
             .select(`
                 *,
                 vehicle_categories (name, base_price),
-                profiles:user_id (full_name, phone)
+                profiles:user_id (full_name, phone, avatar_url)
             `)
             .eq('driver_id', driverId)
             .in('status', ['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'])
@@ -166,7 +166,7 @@ export const useDriverStore = create((set, get) => ({
             .select(`
                 *,
                 vehicle_categories (name, base_price),
-                profiles:user_id (full_name, phone)
+                profiles:user_id (full_name, phone, avatar_url)
             `)
             .maybeSingle()
 
@@ -238,7 +238,7 @@ export const useDriverStore = create((set, get) => ({
             .select(`
                 *,
                 vehicle_categories (name, base_price),
-                client:profiles!user_id (full_name, phone)
+                client:profiles!user_id (full_name, phone, avatar_url)
             `)
             .eq('driver_id', driverId)
             .eq('status', 'completed')

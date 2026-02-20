@@ -16,12 +16,17 @@ const DriverInfoCard = ({ driver, vehicle, averageRating, totalTrips }) => {
             <div className="flex items-center gap-4 mb-6">
                 {/* Avatar del chofer */}
                 <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-400 rounded-2xl border-2 border-primary-500 flex items-center justify-center overflow-hidden shadow-lg shadow-primary-500/20">
-                    <Truck className="w-8 h-8 text-black" />
+                    {driver.avatar_url ? (
+                        <img src={driver.avatar_url} alt={driver.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                        <Truck className="w-8 h-8 text-black" />
+                    )}
                 </div>
 
                 {/* Nombre y verificación */}
                 <div className="flex-1">
-                    <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">
+                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-0.5 italic">Tu conductor asignado</p>
+                    <h3 className="text-xl font-black text-white italic uppercase tracking-tighter leading-none">
                         {driver.full_name}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
@@ -33,19 +38,17 @@ const DriverInfoCard = ({ driver, vehicle, averageRating, totalTrips }) => {
                 </div>
 
                 {/* Calificación */}
-                {averageRating > 0 && (
-                    <div className="text-right">
-                        <div className="flex items-center gap-1 justify-end mb-1">
-                            <Star className="w-5 h-5 text-primary-500 fill-primary-500" />
-                            <span className="text-2xl font-black text-white italic">
-                                {averageRating.toFixed(1)}
-                            </span>
-                        </div>
-                        <p className="text-[8px] font-bold text-zinc-600 uppercase italic">
-                            {totalTrips} viajes
-                        </p>
+                <div className="text-right">
+                    <div className="flex items-center gap-1 justify-end mb-1">
+                        <Star className="w-4 h-4 text-primary-500 fill-primary-500" />
+                        <span className="text-xl font-black text-white italic">
+                            {(averageRating || 5.0).toFixed(1)}
+                        </span>
                     </div>
-                )}
+                    <p className="text-[8px] font-bold text-zinc-600 uppercase italic">
+                        {totalTrips || 0} viajes
+                    </p>
+                </div>
             </div>
 
             {/* Información del vehículo */}

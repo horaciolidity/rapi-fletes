@@ -450,6 +450,43 @@ const DriverDashboard = () => {
         )
     }
 
+    const isProfileIncomplete = !profile?.full_name || !profile?.phone || !profile?.avatar_url
+
+    if (isProfileIncomplete) {
+        return (
+            <div className="min-h-screen bg-[var(--bg-color)] flex items-center justify-center p-6">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="glass-card p-10 text-center flex flex-col items-center max-w-md border-red-500/20"
+                >
+                    <div className="w-20 h-20 bg-red-500/10 rounded-[2rem] flex items-center justify-center mb-6 border border-red-500/30">
+                        <AlertTriangle className="w-10 h-10 text-red-500" />
+                    </div>
+                    <h3 className="text-2xl font-black italic text-[var(--text-color)] uppercase mb-4 leading-none text-balance text-center">
+                        SOLICITUD<br /><span className="text-red-500">BLOQUEADA</span>
+                    </h3>
+                    <p className="text-xs font-bold text-zinc-500 uppercase italic mb-8 leading-relaxed">
+                        Para trabajar con nosotros, primero debes completar tu nombre, celular y foto de perfil real.
+                    </p>
+                    <button
+                        onClick={() => navigate('/profile')}
+                        className="premium-button w-full flex items-center justify-center gap-3 py-5"
+                    >
+                        <User className="w-5 h-5" />
+                        COMPLETAR PERFIL
+                    </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mt-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest italic"
+                    >
+                        VOLVER AL INICIO
+                    </button>
+                </motion.div>
+            </div>
+        )
+    }
+
     if (profile.verification_status === 'pending') {
         return (
             <div className="pb-24 pt-10 min-h-screen bg-black font-sans px-6 flex flex-col items-center justify-center text-center">
@@ -702,17 +739,21 @@ const DriverDashboard = () => {
                                                             <span className="px-3 py-1 bg-zinc-900 border border-white/5 rounded-full text-[9px] font-bold text-zinc-500 uppercase italic">{activeFlete.status}</span>
                                                         </div>
 
-                                                        <div className="flex justify-between items-center bg-zinc-900/50 p-4 rounded-2xl">
+                                                        <div className="flex justify-between items-center bg-[var(--bg-color)]/50 p-4 rounded-2xl border border-[var(--border-color)]">
                                                             <div className="flex items-center gap-3">
-                                                                <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center">
-                                                                    <User className="w-5 h-5 text-zinc-600" />
+                                                                <div className="w-12 h-12 bg-zinc-800 rounded-xl overflow-hidden border border-white/5 flex items-center justify-center">
+                                                                    {activeFlete.profiles?.avatar_url ? (
+                                                                        <img src={activeFlete.profiles.avatar_url} alt="Cliente" className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <User className="w-6 h-6 text-zinc-600" />
+                                                                    )}
                                                                 </div>
                                                                 <div>
-                                                                    <h3 className="text-sm font-black italic text-white uppercase">{activeFlete.profiles?.full_name || "CLIENTE"}</h3>
-                                                                    <p className="text-[9px] font-black text-zinc-500 italic">CLIENTE</p>
+                                                                    <p className="text-[7px] font-black text-zinc-500 uppercase italic mb-0.5">Cliente</p>
+                                                                    <h3 className="text-sm font-black italic text-[var(--text-color)] uppercase leading-none">{activeFlete.profiles?.full_name || "CLIENTE"}</h3>
                                                                 </div>
                                                             </div>
-                                                            <a href={`tel:${activeFlete.profiles?.phone}`} className="p-3 bg-zinc-800 rounded-full text-white">
+                                                            <a href={`tel:${activeFlete.profiles?.phone}`} className="p-3 bg-primary-500 rounded-full text-black shadow-lg shadow-primary-500/20 active:scale-90 transition-transform">
                                                                 <Phone className="w-5 h-5" />
                                                             </a>
                                                         </div>
