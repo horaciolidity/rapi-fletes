@@ -343,8 +343,7 @@ const DriverDashboard = () => {
 
             {/* Overlays */}
             <div className="relative z-10 h-full pointer-events-none flex flex-col">
-                {/* Header Overlay */}
-                <div className={`pt-16 px-6 pointer-events-auto transition-all ${isInternalNav ? 'opacity-0 -translate-y-20' : 'opacity-100'}`}>
+                <div className={`transition-all duration-300 ${isInternalNav ? 'opacity-0 -translate-y-20 h-0 overflow-hidden' : 'pt-16 px-6 pointer-events-auto opacity-100'}`}>
                     <div className="max-w-md mx-auto flex justify-between items-center">
                         <div className="bg-black/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5">
                             <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white leading-none">PANEL<br /><span className="text-primary-500">CHOFER</span></h1>
@@ -357,7 +356,7 @@ const DriverDashboard = () => {
                 </div>
 
                 {/* Main Content Area - SCROLLABLE but allows click-through to map */}
-                <div className="flex-grow overflow-y-auto px-4 pointer-events-none pb-32">
+                <div className={`flex-grow overflow-y-auto px-4 pointer-events-none pb-32 transition-all duration-500 ${isInternalNav ? 'opacity-0' : 'opacity-100'}`}>
                     <div className="max-w-md mx-auto w-full space-y-4 pt-4">
 
                         {/* Tab Switcher (Floating) */}
@@ -490,16 +489,17 @@ const DriverDashboard = () => {
                             {activeTab === 'active' && (
                                 <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
                                     {activeFlete ? (
-                                        <div className={`space-y-4 transition-all pointer-events-auto ${isInternalNav ? 'fixed bottom-6 left-4 right-4 z-50' : ''}`}>
+                                        <div className={`space-y-4 transition-all pointer-events-auto ${isInternalNav ? 'fixed bottom-8 left-4 right-4 z-50 flex flex-col gap-3 items-end' : ''}`}>
+                                            {/* In Navigation Mode, move content to bottom right */}
                                             {/* Navigation Button Overlay */}
                                             {(activeFlete.status === 'accepted' || activeFlete.status === 'arrived_pickup' || activeFlete.status === 'in_transit') && (
                                                 <div className="flex flex-col gap-3">
                                                     <button
                                                         onClick={() => setIsInternalNav(!isInternalNav)}
-                                                        className={`w-full py-4 font-black italic text-[12px] uppercase rounded-full shadow-lg transition-all flex items-center justify-center gap-2 mb-2 ${isInternalNav ? 'bg-red-500/90 text-white backdrop-blur-md w-fit mx-auto px-6' : 'bg-gradient-to-r from-primary-500 to-primary-400 text-black'}`}
+                                                        className={`font-black italic text-[10px] uppercase rounded-full shadow-lg transition-all flex items-center justify-center gap-2 mb-2 pointer-events-auto ${isInternalNav ? 'bg-red-500/90 text-white backdrop-blur-md px-4 py-3 absolute top-[-60px] right-0' : 'w-full py-4 bg-gradient-to-r from-primary-500 to-primary-400 text-black'}`}
                                                     >
                                                         {isInternalNav ? <X className="w-4 h-4" /> : <Navigation className="w-5 h-5" />}
-                                                        <span>{isInternalNav ? 'SALIR DE NAVEGACIÓN' : '🗺️ ABRIR NAVEGADOR RAPI'}</span>
+                                                        <span>{isInternalNav ? 'SALIR' : '🗺️ ABRIR NAVEGADOR RAPI'}</span>
                                                     </button>
 
                                                     {!isInternalNav && (
@@ -580,8 +580,8 @@ const DriverDashboard = () => {
                                                 </div>
                                             )}
 
-                                            {/* Action Buttons - Compact during Nav */}
-                                            <div className={`transition-all duration-300 ${isInternalNav ? 'bg-transparent' : 'glass-card p-5 bg-black/95 backdrop-blur-3xl border-white/10 shadow-2xl'} space-y-3`}>
+                                            {/* Action Buttons - Compact during Nav - Floating Bottom Right */}
+                                            <div className={`transition-all duration-300 ${isInternalNav ? 'w-full max-w-[200px] shadow-none bg-transparent' : 'glass-card p-5 bg-black/95 backdrop-blur-3xl border-white/10 shadow-2xl'} space-y-3`}>
                                                 {!isInternalNav && <p className="text-[9px] font-black text-zinc-500 uppercase italic tracking-widest text-center mb-2">ACCIONES DEL VIAJE</p>}
 
                                                 {/* ACCEPTED STATE */}

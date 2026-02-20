@@ -65,6 +65,37 @@ const truckIcon = L.divIcon({
     iconAnchor: [16, 16]
 })
 
+// Custom Car Marker that attempts to show direction (static for now, dynamic if we had heading)
+const CarMarker = ({ position }) => (
+    <Marker position={position} icon={L.divIcon({
+        className: 'car-marker',
+        html: `
+            <div style="
+                width: 40px; 
+                height: 40px; 
+                background: #3b82f6; 
+                border-radius: 50%; 
+                border: 3px solid white; 
+                box-shadow: 0 0 20px rgba(59,130,246,0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            ">
+                <div style="
+                    width: 0; 
+                    height: 0; 
+                    border-left: 8px solid transparent;
+                    border-right: 8px solid transparent;
+                    border-bottom: 16px solid white;
+                    transform: translateY(-2px);
+                "></div>
+            </div>
+        `,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    })} />
+)
+
 const MapController = ({ pickup, dropoff, autoDetectLocation, isNavigating, userLocation }) => {
     const map = useMap()
     const [hasAutoDetected, setHasAutoDetected] = useState(false)
@@ -78,11 +109,12 @@ const MapController = ({ pickup, dropoff, autoDetectLocation, isNavigating, user
 
     useEffect(() => {
         if (isNavigating && userLocation) {
-            // Zoom level 18 for navigation (closer view like Uber)
+            // Aggressive auto-centering for navigation
+            // We use flyTo for smooth transition, but high zoom (18) for street level
             map.flyTo([userLocation.lat, userLocation.lng], 18, {
                 animate: true,
-                duration: 1.5,
-                easeLinearity: 0.25
+                duration: 0.5, // Faster updates
+                easeLinearity: 0.5
             })
         }
     }, [isNavigating, userLocation, map])
@@ -333,23 +365,25 @@ const FreightMap = ({
                 <RecenterControl />
                 <ZoomControl position="bottomright" />
 
-                {pickup && dropoff && <RoutingMachine pickup={pickup} dropoff={dropoff} onRouteFound={handleRouteFound} />}
+                {/* Dynamic Routing based on Navigation State */}
+                {!isNavigating && pickup && dropoff && <RoutingMachine pickup={pickup} dropoff={dropoff} onRouteFound={handleRouteFound} />}
+
+                {isNavigating && userLocation && pickup && dropoff && (
+                    /* When navigating, route from USER to the TARGET (which is either pickup or dropoff depending on phase) */
+                    <RoutingMachine
+                        pickup={{ lat: userLocation.lat, lng: userLocation.lng }}
+                        dropoff={dropoff} // In parent, 'dropoff' prop is already switched to be the target
+                        onRouteFound={handleRouteFound}
+                        key={`${userLocation.lat.toFixed(4)}-${userLocation.lng.toFixed(4)}`} // Force refresh on significant move
+                    />
+                )}
                 {routeCoordinates.length > 0 && <Polyline positions={routeCoordinates} pathOptions={{ color: isNavigating ? '#3b82f6' : '#f59e0b', weight: isNavigating ? 8 : 6, opacity: 0.9, lineJoin: 'round' }} />}
 
                 {pickup && <Marker position={[pickup.lat, pickup.lng]} icon={createCustomIcon('#0ea5e9', '📍')} />}
                 {dropoff && <Marker position={[dropoff.lat, dropoff.lng]} icon={createCustomIcon('#ea580c', '🎯')} />}
 
                 {/* Driver Self Marker when navigating */}
-                {isNavigating && userLocation && (
-                    <Marker position={userLocation} icon={L.divIcon({
-                        className: 'user-id-marker',
-                        html: `<div style="background: #3b82f6; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px rgba(59,130,246,0.8); position: relative;">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 12px solid #3b82f6; margin-top: -14px;"></div>
-                        </div>`,
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
-                    })} />
-                )}
+                {isNavigating && userLocation && <CarMarker position={userLocation} />}
 
                 {showActiveDrivers && activeDrivers.map((driver) => (
                     driver.last_location_lat && driver.last_location_lng && (
