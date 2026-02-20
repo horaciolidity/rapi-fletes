@@ -205,13 +205,29 @@ const Booking = () => {
                                 className="glass-card bg-black/80 backdrop-blur-2xl p-4 shadow-2xl border-white/5"
                             >
                                 <div className="space-y-3">
-                                    <div className="relative">
-                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-500" />
+                                    <div className="relative group">
+                                        <button
+                                            onClick={() => handleGeolocation(false)}
+                                            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-primary-500/10 rounded-lg hover:bg-primary-500/20 transition-all z-10 group-active:scale-90"
+                                            title="Usar mi ubicación actual"
+                                        >
+                                            {isLocating ? (
+                                                <Loader2 className="w-4 h-4 text-primary-500 animate-spin" />
+                                            ) : (
+                                                <MapPin className="w-4 h-4 text-primary-500" />
+                                            )}
+                                        </button>
                                         <input
                                             className="w-full pl-12 pr-4 py-3 bg-zinc-900/50 rounded-xl text-xs font-bold italic border border-white/5 outline-none focus:border-primary-500/50"
                                             placeholder="Origen..."
                                             value={pAddress}
-                                            onFocus={() => setActiveSearch('pickup')}
+                                            onFocus={() => {
+                                                setActiveSearch('pickup')
+                                                if (!pickup) handleGeolocation(true)
+                                            }}
+                                            onClick={() => {
+                                                if (!pickup) handleGeolocation(false)
+                                            }}
                                             onChange={(e) => {
                                                 setPAddress(e.target.value)
                                                 searchAddress(e.target.value, 'pickup')
