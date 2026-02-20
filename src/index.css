@@ -198,7 +198,7 @@ body {
 /* Leaflet Map Customization */
 .leaflet-container {
   font-family: 'Inter', system-ui, sans-serif;
-  background: #18181b !important;
+  background: #27272a !important;
 }
 
 .leaflet-popup-content-wrapper {
@@ -209,9 +209,9 @@ body {
 }
 
 .dark .map-tiles-bright {
-  filter: invert(100%) hue-rotate(180deg) brightness(2.5) contrast(1.5) saturate(1.8) !important;
+  filter: invert(100%) hue-rotate(180deg) brightness(4.5) contrast(1.8) saturate(2.5) !important;
 }
 
 .light .map-tiles-bright {
-  filter: brightness(1.05) contrast(1.1) saturate(1.1) !important;
+  filter: brightness(1.1) contrast(1.1) saturate(1.2) !important;
 }
