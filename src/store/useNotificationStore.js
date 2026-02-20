@@ -18,9 +18,16 @@ export const useNotificationStore = create((set, get) => ({
             popups: [{ ...notification, id }, ...state.popups]
         }))
 
-        // Play Sound
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
-        audio.play().catch(e => console.log('Audio play failed:', e))
+        // Play Sound (Repeat for better awareness)
+        const playSound = () => {
+            const audio = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_783424ffc4.mp3') // A more distinct "ding"
+            audio.volume = 0.5
+            audio.play().catch(e => console.log('Audio play failed:', e))
+        }
+
+        playSound()
+        // Optional: second beep after 500ms
+        setTimeout(playSound, 500)
 
         // Browser Notification
         if (get().permission === 'granted') {

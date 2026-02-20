@@ -61,7 +61,10 @@ const NotificationManager = () => {
                 table: 'fletes'
             }, (payload) => {
                 if (profile?.role === 'driver' && payload.new.status === 'pending') {
-                    addNotification({ message: '¡Nuevo pedido disponible en el Marketplace!', type: 'success' })
+                    addNotification({
+                        message: `🔔 NUEVO PEDIDO: $${payload.new.estimated_price} - ${payload.new.pickup_address.split(',')[0]}`,
+                        type: 'success'
+                    })
                 }
             })
             .subscribe()

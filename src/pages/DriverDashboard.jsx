@@ -99,12 +99,34 @@ const DriverDashboard = () => {
     useEffect(() => {
         if (activeFlete) {
             setActiveTab('active')
-            // Disable auto-internal nav. User prefers Google Maps.
-            // setIsInternalNav(true) 
+
+            // Automatic Navigation logic
+            const lastStatus = localStorage.getItem('last_flete_status')
+            if (lastStatus !== activeFlete.status) {
+                // If status changed, we can trigger auto-nav
+                if (activeFlete.status === 'accepted') {
+                    // Just accepted, navigate to pickup
+                    // We don't auto-open window here to avoid browser blocking popups
+                    // But we could if we wanted. Better to let the first user action trigger it.
+                }
+                localStorage.setItem('last_flete_status', activeFlete.status)
+            }
         } else {
             setIsInternalNav(false)
+            localStorage.removeItem('last_flete_status')
         }
     }, [activeFlete?.status, activeFlete?.id])
+
+    const openGoogleMaps = (lat, lng, label = '') => {
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`
+        window.open(url, '_blank')
+    }
+
+    const openFullRoute = () => {
+        if (!activeFlete) return
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${activeFlete.dropoff_lat},${activeFlete.dropoff_lng}&waypoints=${activeFlete.pickup_lat},${activeFlete.pickup_lng}&travelmode=driving`
+        window.open(url, '_blank')
+    }
 
     const handleAddVehicle = async (e) => {
         e.preventDefault()
@@ -145,9 +167,15 @@ const DriverDashboard = () => {
     }
 
     const handleAccept = async (id) => {
+        const flete = availableFletes.find(f => f.id === id)
         await acceptFlete(id, user.id)
         setSelectedFleteId(null)
         setActiveTab('active')
+
+        // Auto-navigate to pickup on accept
+        if (flete) {
+            openGoogleMaps(flete.pickup_lat, flete.pickup_lng)
+        }
     }
 
 
@@ -168,7 +196,12 @@ const DriverDashboard = () => {
         }
 
         // Normal status updates
-        await updateFleteStatus(id, status)
+        const updated = await updateFleteStatus(id, status)
+
+        // Auto-navigate to dropoff when starting trip
+        if (status === 'in_transit' && updated) {
+            openGoogleMaps(updated.dropoff_lat, updated.dropoff_lng)
+        }
     }
 
     const handlePassengerConfirmation = async (passengerTravels) => {
@@ -395,14 +428,23 @@ const DriverDashboard = () => {
                             </button>
                         )}
 
-                        {/* Secondary Action: Call Client */}
-                        <a
-                            href={`tel:${activeFlete.profiles?.phone || ''}`}
-                            className="flex items-center justify-center w-full py-4 text-zinc-400 font-bold text-sm uppercase hover:text-white transition-colors"
-                        >
-                            <Phone className="w-4 h-4 mr-2" />
-                            Llamar a {activeFlete.profiles?.full_name || 'Cliente'}
-                        </a>
+                        {/* Secondary Action: Call Client & External Nav */}
+                        <div className="flex gap-4">
+                            <a
+                                href={`tel:${activeFlete.profiles?.phone || ''}`}
+                                className="flex-1 flex items-center justify-center py-4 bg-zinc-900 border border-white/5 rounded-xl text-zinc-400 font-bold text-sm uppercase hover:text-white transition-colors"
+                            >
+                                <Phone className="w-4 h-4 mr-2" />
+                                Llamar
+                            </a>
+                            <button
+                                onClick={() => openGoogleMaps(activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat, activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng)}
+                                className="flex-1 flex items-center justify-center py-4 bg-zinc-900 border border-white/5 rounded-xl text-zinc-400 font-bold text-[10px] uppercase hover:text-white transition-colors"
+                            >
+                                <Navigation className="w-4 h-4 mr-2 text-primary-500" />
+                                Google Maps
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -595,27 +637,41 @@ const DriverDashboard = () => {
                                         <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
                                             {activeFlete ? (
                                                 <div className="space-y-4">
-                                                    {/* Resume Navigation Button */}
-                                                    <div className="flex flex-col gap-3">
-                                                        <a
-                                                            href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat
-                                                                },${activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng
-                                                                }&travelmode=driving`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-black italic text-xl uppercase rounded-3xl shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all flex items-center justify-center gap-3 animate-pulse"
+                                                    {/* Navigation Buttons Grid */}
+                                                    <div className="grid grid-cols-1 gap-3">
+                                                        <button
+                                                            onClick={openFullRoute}
+                                                            className="w-full py-6 bg-gradient-to-r from-primary-600 to-primary-500 text-black font-black italic text-xl uppercase rounded-3xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all flex items-center justify-center gap-3"
                                                         >
                                                             <Navigation className="w-8 h-8" />
-                                                            <span>NAVEGAR CON GOOGLE</span>
-                                                        </a>
+                                                            <span>VER RUTA COMPLETA</span>
+                                                        </button>
+
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <button
+                                                                onClick={() => openGoogleMaps(activeFlete.pickup_lat, activeFlete.pickup_lng)}
+                                                                className={`py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all border ${activeFlete.status === 'accepted' ? 'bg-blue-600 text-white border-blue-400 shadow-lg animate-pulse' : 'bg-zinc-900 text-zinc-500 border-white/5'}`}
+                                                            >
+                                                                <MapPin className="w-5 h-5" />
+                                                                <span className="text-[9px] font-black uppercase">IR AL ORIGEN</span>
+                                                            </button>
+
+                                                            <button
+                                                                onClick={() => openGoogleMaps(activeFlete.dropoff_lat, activeFlete.dropoff_lng)}
+                                                                className={`py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all border ${activeFlete.status === 'in_transit' ? 'bg-secondary-600 text-white border-secondary-400 shadow-lg animate-pulse' : 'bg-zinc-900 text-zinc-500 border-white/5'}`}
+                                                            >
+                                                                <Target className="w-5 h-5" />
+                                                                <span className="text-[9px] font-black uppercase">IR AL DESTINO</span>
+                                                            </button>
+                                                        </div>
 
                                                         {!isInternalNav && (
                                                             <button
                                                                 onClick={() => setIsInternalNav(true)}
-                                                                className="w-full py-4 bg-zinc-900 border border-white/5 text-zinc-400 font-black italic text-[10px] uppercase rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 hover:text-white transition-all"
+                                                                className="w-full py-4 bg-zinc-900/50 border border-white/5 text-zinc-500 font-black italic text-[9px] uppercase rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 hover:text-white transition-all"
                                                             >
                                                                 <MapIcon className="w-4 h-4" />
-                                                                <span>VER MAPA INTERNO (BETA)</span>
+                                                                <span>MAPA INTERNO (MODO NAVEGACIÓN)</span>
                                                             </button>
                                                         )}
                                                     </div>
