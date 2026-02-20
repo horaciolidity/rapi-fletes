@@ -428,21 +428,21 @@ const DriverDashboard = () => {
                             </button>
                         )}
 
-                        {/* Secondary Action: Call Client & External Nav */}
-                        <div className="flex gap-4">
+                        {/* Secondary Action: Call Client & External Nav - Smaller footprint */}
+                        <div className="flex gap-2 pt-2">
                             <a
                                 href={`tel:${activeFlete.profiles?.phone || ''}`}
-                                className="flex-1 flex items-center justify-center py-4 bg-zinc-900 border border-white/5 rounded-xl text-zinc-400 font-bold text-sm uppercase hover:text-white transition-colors"
+                                className="flex-1 flex items-center justify-center py-3 bg-zinc-900/50 border border-white/5 rounded-xl text-zinc-500 font-bold text-[10px] uppercase hover:text-white transition-colors"
                             >
-                                <Phone className="w-4 h-4 mr-2" />
+                                <Phone className="w-3 h-3 mr-2 text-zinc-600" />
                                 Llamar
                             </a>
                             <button
                                 onClick={() => openGoogleMaps(activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat, activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng)}
-                                className="flex-1 flex items-center justify-center py-4 bg-zinc-900 border border-white/5 rounded-xl text-zinc-400 font-bold text-[10px] uppercase hover:text-white transition-colors"
+                                className="flex-1 flex items-center justify-center py-3 bg-zinc-900/50 border border-white/5 rounded-xl text-zinc-500 font-bold text-[10px] uppercase hover:text-white transition-colors"
                             >
-                                <Navigation className="w-4 h-4 mr-2 text-primary-500" />
-                                Google Maps
+                                <Navigation className="w-3 h-3 mr-2 text-primary-500" />
+                                Maps
                             </button>
                         </div>
                     </div>
@@ -637,43 +637,70 @@ const DriverDashboard = () => {
                                         <motion.div key="active" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
                                             {activeFlete ? (
                                                 <div className="space-y-4">
-                                                    {/* Navigation Buttons Grid */}
-                                                    <div className="grid grid-cols-1 gap-3">
-                                                        <button
-                                                            onClick={openFullRoute}
-                                                            className="w-full py-6 bg-gradient-to-r from-primary-600 to-primary-500 text-black font-black italic text-xl uppercase rounded-3xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all flex items-center justify-center gap-3"
-                                                        >
-                                                            <Navigation className="w-8 h-8" />
-                                                            <span>VER RUTA COMPLETA</span>
-                                                        </button>
-
-                                                        <div className="grid grid-cols-2 gap-3">
-                                                            <button
-                                                                onClick={() => openGoogleMaps(activeFlete.pickup_lat, activeFlete.pickup_lng)}
-                                                                className={`py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all border ${activeFlete.status === 'accepted' ? 'bg-blue-600 text-white border-blue-400 shadow-lg animate-pulse' : 'bg-zinc-900 text-zinc-500 border-white/5'}`}
-                                                            >
-                                                                <MapPin className="w-5 h-5" />
-                                                                <span className="text-[9px] font-black uppercase">IR AL ORIGEN</span>
-                                                            </button>
-
-                                                            <button
-                                                                onClick={() => openGoogleMaps(activeFlete.dropoff_lat, activeFlete.dropoff_lng)}
-                                                                className={`py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all border ${activeFlete.status === 'in_transit' ? 'bg-secondary-600 text-white border-secondary-400 shadow-lg animate-pulse' : 'bg-zinc-900 text-zinc-500 border-white/5'}`}
-                                                            >
-                                                                <Target className="w-5 h-5" />
-                                                                <span className="text-[9px] font-black uppercase">IR AL DESTINO</span>
-                                                            </button>
+                                                    {/* Primary Status Action Button */}
+                                                    <div className="bg-black/60 backdrop-blur-3xl p-5 rounded-[2.5rem] border border-white/5 shadow-2xl space-y-4">
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                                                            <span className="text-[11px] font-black text-primary-500 uppercase italic tracking-widest">PRÓXIMO PASO</span>
                                                         </div>
 
-                                                        {!isInternalNav && (
+                                                        {activeFlete.status === 'accepted' && (
                                                             <button
-                                                                onClick={() => setIsInternalNav(true)}
-                                                                className="w-full py-4 bg-zinc-900/50 border border-white/5 text-zinc-500 font-black italic text-[9px] uppercase rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 hover:text-white transition-all"
+                                                                onClick={() => handleStatusChange(activeFlete.id, 'arrived_pickup')}
+                                                                className="w-full py-6 bg-blue-600 text-white text-xl font-black uppercase rounded-3xl shadow-xl hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3"
                                                             >
-                                                                <MapIcon className="w-4 h-4" />
-                                                                <span>MAPA INTERNO (MODO NAVEGACIÓN)</span>
+                                                                <MapPin className="w-6 h-6" />
+                                                                <span>Llegué al Origen</span>
                                                             </button>
                                                         )}
+
+                                                        {activeFlete.status === 'arrived_pickup' && (
+                                                            <button
+                                                                onClick={() => handleStatusChange(activeFlete.id, 'in_transit')}
+                                                                className="w-full py-6 bg-green-600 text-white text-xl font-black uppercase rounded-3xl shadow-xl hover:bg-green-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                                            >
+                                                                <Navigation className="w-6 h-6" />
+                                                                <span>Iniciar Viaje</span>
+                                                            </button>
+                                                        )}
+
+                                                        {activeFlete.status === 'in_transit' && (
+                                                            <button
+                                                                onClick={() => handleStatusChange(activeFlete.id, 'arrived_dropoff')}
+                                                                className="w-full py-6 bg-secondary-600 text-white text-xl font-black uppercase rounded-3xl shadow-xl hover:bg-secondary-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                                            >
+                                                                <Target className="w-6 h-6" />
+                                                                <span>Llegué al Destino</span>
+                                                            </button>
+                                                        )}
+
+                                                        {activeFlete.status === 'arrived_dropoff' && (
+                                                            <button
+                                                                onClick={() => handleStatusChange(activeFlete.id, 'completed')}
+                                                                className="w-full py-6 bg-green-600 text-white text-xl font-black uppercase rounded-3xl shadow-xl hover:bg-green-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                                            >
+                                                                <CheckCircle2 className="w-6 h-6" />
+                                                                <span>Finalizar Viaje</span>
+                                                            </button>
+                                                        )}
+
+                                                        {/* Smaller Navigation Selection */}
+                                                        <div className="flex gap-2 pt-2">
+                                                            <button
+                                                                onClick={() => setIsInternalNav(true)}
+                                                                className="flex-1 py-3 bg-primary-500 text-black font-black italic text-[10px] uppercase rounded-xl flex items-center justify-center gap-2 hover:bg-primary-400 transition-all shadow-lg shadow-primary-500/10"
+                                                            >
+                                                                <MapIcon className="w-3 h-3" />
+                                                                <span>Navegación Interna</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={openFullRoute}
+                                                                className="flex-1 py-3 bg-zinc-900/50 border border-white/5 text-zinc-500 font-black italic text-[10px] uppercase rounded-xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all"
+                                                            >
+                                                                <Navigation className="w-3 h-3" />
+                                                                <span>Google Maps</span>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                     {/* Trip Summary Card */}
                                                     <div className="glass-card p-6 bg-black/90 backdrop-blur-3xl border-primary-500/20 shadow-2xl space-y-4">

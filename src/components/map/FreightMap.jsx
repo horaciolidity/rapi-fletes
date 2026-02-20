@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, Polyline, ZoomControl } from 'react-leaflet'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Navigation, Truck, Loader2, Crosshair, Radio, Activity } from 'lucide-react'
@@ -191,7 +191,7 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
 
             try {
                 // Add &steps=true and &language=es to get instructions
-                const url = `https://router.project-osrm.org/route/v1/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?overview=full&geometries=geojson&steps=true&notifications=none`
+                const url = `https://router.project-osrm.org/route/v1/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?overview=full&geometries=geojson&steps=true&language=es`
                 const res = await fetch(url, { signal: controller.signal }).catch(() => null)
                 clearTimeout(timeoutId)
 
@@ -231,7 +231,7 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound }) => {
             }
         }
         fetchRoute()
-    }, [pickup, dropoff, map, onRouteFound])
+    }, [pickup?.lat, pickup?.lng, dropoff?.lat, dropoff?.lng, map, onRouteFound])
     return null
 }
 
@@ -314,7 +314,9 @@ const FreightMap = ({
     autoDetectLocation = false,
     showActiveDrivers = false,
     onMapClick = null,
-    isNavigating = false
+    isNavigating = false,
+    fleteId = null,
+    enableLiveTracking = false
 }) => {
     const storeData = useBookingStore()
     const { activeDrivers, fetchActiveDrivers, getDriversNearLocation } = useDriverLocationStore()
@@ -322,6 +324,7 @@ const FreightMap = ({
     const { theme } = useThemeStore()
     const pickup = propPickup || storeData.pickup
     const dropoff = propDropoff || storeData.dropoff
+    const [trackedDriver, setTrackedDriver] = useState(null)
 
     const [routeCoordinates, setRouteCoordinates] = useState([])
     const [routeInfo, setRouteInfo] = useState(null)
@@ -330,6 +333,57 @@ const FreightMap = ({
 
     useEffect(() => { if (showActiveDrivers) fetchActiveDrivers() }, [showActiveDrivers, fetchActiveDrivers])
 
+    // Specific Driver Live Tracking
+    useEffect(() => {
+        if (!enableLiveTracking || !fleteId) return
+
+        let channel = null
+
+        const startTracking = async () => {
+            // Get the driver_id for this flete
+            const { data: fleteData } = await supabase
+                .from('fletes')
+                .select('driver_id')
+                .eq('id', fleteId)
+                .single()
+
+            if (fleteData?.driver_id) {
+                // Subscribe to that driver's profile for location updates
+                channel = supabase
+                    .channel(`track_driver_${fleteData.driver_id}`)
+                    .on('postgres_changes', {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'profiles',
+                        filter: `id=eq.${fleteData.driver_id}`
+                    }, (payload) => {
+                        const { last_location_lat, last_location_lng } = payload.new
+                        if (last_location_lat && last_location_lng) {
+                            setTrackedDriver({ lat: last_location_lat, lng: last_location_lng })
+                        }
+                    })
+                    .subscribe()
+
+                // Initial fetch
+                const { data: driverData } = await supabase
+                    .from('profiles')
+                    .select('last_location_lat, last_location_lng')
+                    .eq('id', fleteData.driver_id)
+                    .single()
+
+                if (driverData?.last_location_lat) {
+                    setTrackedDriver({ lat: driverData.last_location_lat, lng: driverData.last_location_lng })
+                }
+            }
+        }
+
+        startTracking()
+
+        return () => {
+            if (channel) supabase.removeChannel(channel)
+        }
+    }, [fleteId, enableLiveTracking])
+
     useEffect(() => {
         if (pickup && showActiveDrivers) {
             const nearby = getDriversNearLocation(pickup.lat, pickup.lng, 5)
@@ -337,10 +391,10 @@ const FreightMap = ({
         }
     }, [pickup, activeDrivers, showActiveDrivers, getDriversNearLocation])
 
-    const handleRouteFound = (route) => {
+    const handleRouteFound = useCallback((route) => {
         setRouteCoordinates(route.coordinates)
         setRouteInfo(route)
-    }
+    }, [])
 
     return (
         <div className="w-full h-full min-h-[500px] relative z-0">
@@ -366,7 +420,13 @@ const FreightMap = ({
                 <ZoomControl position="bottomright" />
 
                 {/* Dynamic Routing based on Navigation State */}
-                {!isNavigating && pickup && dropoff && <RoutingMachine pickup={pickup} dropoff={dropoff} onRouteFound={handleRouteFound} />}
+                {!isNavigating && pickup && dropoff && (
+                    <RoutingMachine
+                        pickup={enableLiveTracking && trackedDriver ? trackedDriver : pickup}
+                        dropoff={dropoff}
+                        onRouteFound={handleRouteFound}
+                    />
+                )}
 
                 {isNavigating && userLocation && pickup && dropoff && (
                     /* When navigating, route from USER to the TARGET (which is either pickup or dropoff depending on phase) */
@@ -385,6 +445,9 @@ const FreightMap = ({
                 {/* Driver Self Marker when navigating */}
                 {isNavigating && userLocation && <CarMarker position={userLocation} />}
 
+                {/* Specific Driver being tracked (Client side view) */}
+                {enableLiveTracking && trackedDriver && <CarMarker position={[trackedDriver.lat, trackedDriver.lng]} />}
+
                 {showActiveDrivers && activeDrivers.map((driver) => (
                     driver.last_location_lat && driver.last_location_lng && (
                         <Marker key={driver.id} position={[driver.last_location_lat, driver.last_location_lng]} icon={truckIcon} />
@@ -393,8 +456,8 @@ const FreightMap = ({
             </MapContainer>
 
             {/* Navigation Instructions */}
-            {isNavigating && routeInfo?.steps && (
-                <NavigationOverlay steps={routeInfo.steps} currentPos={userLocation} />
+            {(isNavigating || enableLiveTracking) && routeInfo?.steps && (
+                <NavigationOverlay steps={routeInfo.steps} currentPos={isNavigating ? userLocation : trackedDriver} />
             )}
 
             <div className="absolute bottom-6 left-6 pointer-events-none z-[500] flex flex-col gap-3">

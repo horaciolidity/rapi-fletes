@@ -195,7 +195,7 @@ const MyFletes = () => {
                                             dropoff={{ address: selectedFlete.dropoff_address, lat: selectedFlete.dropoff_lat, lng: selectedFlete.dropoff_lng }}
                                             distance={selectedFlete.distance}
                                             duration={selectedFlete.duration}
-                                            enableLiveTracking={['accepted', 'picked_up'].includes(selectedFlete.status)}
+                                            enableLiveTracking={['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(selectedFlete.status)}
                                             fleteId={selectedFlete.id}
                                         />
                                         <div className="absolute top-4 left-4 p-3 bg-black/80 backdrop-blur-xl rounded-xl border border-white/5 flex items-center gap-3">
