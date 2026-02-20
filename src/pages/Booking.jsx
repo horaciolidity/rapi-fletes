@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Navigation, Truck, Car, Package, ChevronRight, Search, CreditCard, Clock, CheckCircle2, AlertTriangle, ChevronLeft, Loader2, Target, ArrowRight, Star, X } from 'lucide-react'
+import { MapPin, Navigation, Truck, Car, Package, ChevronRight, Search, CreditCard, Clock, CheckCircle2, AlertTriangle, ChevronLeft, Loader2, Target, ArrowRight, Star, X, User } from 'lucide-react'
 import FreightMap from '../components/map/FreightMap'
 import { useBookingStore } from '../store/useBookingStore'
 import { useAuthStore } from '../store/useAuthStore'
