@@ -208,10 +208,10 @@ body {
   border-radius: 1rem;
 }
 
-.map-tiles-bright {
-  filter: brightness(1.6) contrast(1.2) saturate(0.8) !important;
+.dark .map-tiles-bright {
+  filter: invert(100%) hue-rotate(180deg) brightness(0.95) contrast(1.2) saturate(1.5) !important;
 }
 
 .light .map-tiles-bright {
-  filter: brightness(1) contrast(1.1) !important;
+  filter: brightness(1.05) contrast(1.1) saturate(1.1) !important;
 }
