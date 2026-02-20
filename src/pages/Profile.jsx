@@ -100,7 +100,7 @@ const Profile = () => {
                         {profile.full_name || 'USUARIO'}
                     </h1>
                     <div className="flex items-center gap-2">
-                        <div className="px-3 py-1 bg-zinc-900/50 rounded-full border border-white/5">
+                        <div className="px-3 py-1 bg-[var(--card-bg)] rounded-full border border-[var(--border-color)] shadow-sm">
                             <span className="text-[8px] font-black text-primary-500 uppercase tracking-widest italic">{profile.role}</span>
                         </div>
                         <span className="text-[10px] text-zinc-500 font-bold uppercase italic">{user.email}</span>
@@ -127,21 +127,21 @@ const Profile = () => {
 
                 {/* Account Settings Forms */}
                 <div className="space-y-4 mb-10">
-                    <div className="glass-card p-6 bg-zinc-950/80 border-zinc-900 shadow-xl">
-                        <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-700 mb-6 italic">Información Personal</h3>
+                    <div className="glass-card p-6 shadow-xl">
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 italic">Información Personal</h3>
                         <form onSubmit={handleUpdate} className="space-y-5">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest px-2">Nombre</label>
+                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Nombre</label>
                                 <input
-                                    className="w-full px-6 py-4 bg-zinc-900 border border-white/5 rounded-2xl text-sm italic font-bold placeholder:text-zinc-700 outline-none focus:border-primary-500/50"
+                                    className="input-field"
                                     value={formData.full_name}
                                     onChange={e => setFormData({ ...formData, full_name: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest px-2">Celular</label>
+                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Celular</label>
                                 <input
-                                    className="w-full px-6 py-4 bg-zinc-900 border border-white/5 rounded-2xl text-sm italic font-bold placeholder:text-zinc-700 outline-none focus:border-primary-500/50"
+                                    className="input-field"
                                     value={formData.phone}
                                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                 />

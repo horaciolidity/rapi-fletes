@@ -482,12 +482,12 @@ const DriverDashboard = () => {
                         {/* Header Overlay */}
                         <div className="pt-16 px-6 pointer-events-auto transition-all">
                             <div className="max-w-md mx-auto flex justify-between items-center">
-                                <div className="bg-black/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5">
-                                    <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white leading-none">PANEL<br /><span className="text-primary-500">CHOFER</span></h1>
+                                <div className="bg-[var(--card-bg)]/80 backdrop-blur-xl p-4 rounded-3xl border border-[var(--border-color)]">
+                                    <h1 className="text-2xl font-black italic uppercase tracking-tighter text-[var(--text-color)] leading-none">PANEL<br /><span className="text-primary-500">CHOFER</span></h1>
                                 </div>
-                                <div className="bg-black/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5 text-right">
+                                <div className="bg-[var(--card-bg)]/80 backdrop-blur-xl p-4 rounded-3xl border border-[var(--border-color)] text-right">
                                     <p className="text-[8px] font-black text-zinc-500 uppercase italic leading-none mb-1">COMPLETADOS</p>
-                                    <p className="text-xl font-black text-white italic leading-none">{completedHistory.length}</p>
+                                    <p className="text-xl font-black text-[var(--text-color)] italic leading-none">{completedHistory.length}</p>
                                 </div>
                             </div>
                         </div>
@@ -497,7 +497,7 @@ const DriverDashboard = () => {
                             <div className="max-w-md mx-auto w-full space-y-4 pt-4">
 
                                 {/* Tab Switcher (Floating) */}
-                                <div className={`flex bg-black/80 backdrop-blur-3xl p-1 rounded-2xl border border-white/5 mb-2 shadow-2xl pointer-events-auto transition-all ${isInternalNav ? 'opacity-0 pointer-events-none -translate-y-4' : 'opacity-100'}`}>
+                                <div className={`flex bg-[var(--card-bg)]/90 backdrop-blur-3xl p-1 rounded-2xl border border-[var(--border-color)] mb-2 shadow-2xl pointer-events-auto transition-all ${isInternalNav ? 'opacity-0 pointer-events-none -translate-y-4' : 'opacity-100'}`}>
                                     {[
                                         { id: 'marketplace', label: 'PEDIDOS', icon: Truck },
                                         { id: 'active', label: 'ACTUAL', icon: Activity },

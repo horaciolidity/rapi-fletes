@@ -202,7 +202,7 @@ const Booking = () => {
                                 initial={{ opacity: 0, y: -20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -20 }}
-                                className="glass-card bg-black/80 backdrop-blur-2xl p-4 shadow-2xl border-white/5"
+                                className="glass-card bg-[var(--card-bg)]/90 backdrop-blur-2xl p-4 shadow-2xl border-[var(--border-color)]"
                             >
                                 <div className="space-y-3">
                                     <div className="relative group">
@@ -218,7 +218,7 @@ const Booking = () => {
                                             )}
                                         </button>
                                         <input
-                                            className="w-full pl-12 pr-4 py-3 bg-zinc-900/50 rounded-xl text-xs font-bold italic border border-white/5 outline-none focus:border-primary-500/50"
+                                            className="w-full pl-12 pr-4 py-3 bg-[var(--bg-color)] rounded-xl text-xs font-bold italic border border-[var(--border-color)] outline-none focus:border-primary-500/50"
                                             placeholder="Origen..."
                                             value={pAddress}
                                             onFocus={() => {
@@ -237,7 +237,7 @@ const Booking = () => {
                                     <div className="relative">
                                         <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary-500" />
                                         <input
-                                            className="w-full pl-12 pr-4 py-3 bg-zinc-900/50 rounded-xl text-xs font-bold italic border border-white/5 outline-none focus:border-primary-500/50"
+                                            className="w-full pl-12 pr-4 py-3 bg-[var(--bg-color)] rounded-xl text-xs font-bold italic border border-[var(--border-color)] outline-none focus:border-primary-500/50"
                                             placeholder="¿A dónde vas?"
                                             value={dAddress}
                                             onFocus={() => setActiveSearch('dropoff')}
@@ -279,7 +279,7 @@ const Booking = () => {
                                 animate={{ y: 0 }}
                                 exit={{ y: '100%' }}
                                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                className="glass-card bg-black/90 backdrop-blur-3xl border-white/10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] pb-10"
+                                className="glass-card bg-[var(--card-bg)]/90 backdrop-blur-3xl border border-[var(--border-color)] shadow-[0_-20px_50px_rgba(0,0,0,0.8)] pb-10"
                             >
                                 {/* Drag Handle */}
                                 <div className="flex justify-center py-4">
