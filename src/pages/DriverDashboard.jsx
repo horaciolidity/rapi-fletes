@@ -99,14 +99,12 @@ const DriverDashboard = () => {
     useEffect(() => {
         if (activeFlete) {
             setActiveTab('active')
-            // Auto-enable navigation mode for relevant statuses
-            if (['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(activeFlete.status)) {
-                setIsInternalNav(true)
-            }
+            // Disable auto-internal nav. User prefers Google Maps.
+            // setIsInternalNav(true) 
         } else {
             setIsInternalNav(false)
         }
-    }, [activeFlete?.status, activeFlete?.id]) // Depend on status and ID to trigger on updates
+    }, [activeFlete?.status, activeFlete?.id])
 
     const handleAddVehicle = async (e) => {
         e.preventDefault()
@@ -598,16 +596,29 @@ const DriverDashboard = () => {
                                             {activeFlete ? (
                                                 <div className="space-y-4">
                                                     {/* Resume Navigation Button */}
-                                                    {!isInternalNav && (
-                                                        <button
-                                                            onClick={() => setIsInternalNav(true)}
-                                                            className="w-full py-6 bg-gradient-to-r from-primary-500 to-primary-400 text-black font-black italic text-xl uppercase rounded-3xl shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 transition-all flex items-center justify-center gap-3 animate-pulse"
+                                                    <div className="flex flex-col gap-3">
+                                                        <a
+                                                            href={`https://www.google.com/maps/dir/?api=1&destination=${activeFlete.status === 'accepted' ? activeFlete.pickup_lat : activeFlete.dropoff_lat
+                                                                },${activeFlete.status === 'accepted' ? activeFlete.pickup_lng : activeFlete.dropoff_lng
+                                                                }&travelmode=driving`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-black italic text-xl uppercase rounded-3xl shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all flex items-center justify-center gap-3 animate-pulse"
                                                         >
                                                             <Navigation className="w-8 h-8" />
-                                                            <span>CONTINUAR NAVEGACIÓN</span>
-                                                        </button>
-                                                    )}
+                                                            <span>NAVEGAR CON GOOGLE</span>
+                                                        </a>
 
+                                                        {!isInternalNav && (
+                                                            <button
+                                                                onClick={() => setIsInternalNav(true)}
+                                                                className="w-full py-4 bg-zinc-900 border border-white/5 text-zinc-400 font-black italic text-[10px] uppercase rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 hover:text-white transition-all"
+                                                            >
+                                                                <MapIcon className="w-4 h-4" />
+                                                                <span>VER MAPA INTERNO (BETA)</span>
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                     {/* Trip Summary Card */}
                                                     <div className="glass-card p-6 bg-black/90 backdrop-blur-3xl border-primary-500/20 shadow-2xl space-y-4">
                                                         <div className="flex justify-between items-start">
