@@ -362,20 +362,33 @@ const Booking = () => {
                                         <button
                                             disabled={!selectedCategory}
                                             onClick={() => setStep(3)}
-                                            className="premium-button w-full flex items-center justify-center gap-6 py-6 group"
+                                            className="premium-button w-full flex items-center justify-between gap-6 py-6 group px-8"
                                         >
-                                            <span className="text-[11px] font-black tracking-widest uppercase italic">CONTINUAR AL PAGO</span>
-                                            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                                            <div className="text-left">
+                                                <p className="text-[11px] font-black tracking-widest uppercase italic mb-1">CONTINUAR</p>
+                                                <p className="text-[10px] font-bold text-black/60 uppercase italic">Ver detalle de pago</p>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                {selectedCategory && estimate && (
+                                                    <div className="text-right">
+                                                        <p className="text-[8px] font-black uppercase text-black/40 italic">TOTAL ESTIMADO</p>
+                                                        <p className="text-xl font-black italic text-black tracking-tighter">${estimate}</p>
+                                                    </div>
+                                                )}
+                                                <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                                            </div>
                                         </button>
                                     </div>
                                 )}
 
                                 {step === 3 && (
                                     <div className="px-8 space-y-8 pb-8">
-                                        <div className="text-center bg-white/5 py-8 rounded-[2.5rem] border border-white/5 backdrop-blur-3xl shadow-inner relative overflow-hidden group">
+                                        <div className="text-center bg-white/5 py-10 rounded-[2.5rem] border border-white/5 backdrop-blur-3xl shadow-inner relative overflow-hidden group">
                                             <div className="absolute -top-10 -left-10 w-32 h-32 bg-primary-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.4em] mb-3 italic leading-none">ESTIMACIÓN ESTRATÉGICA</p>
-                                            <p className="text-7xl font-black italic text-gradient tracking-tighter leading-none">${estimate?.toFixed(0)}</p>
+                                            <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.4em] mb-4 italic leading-none">TOTAL ESTIMADO</p>
+                                            <div className="px-4 py-2">
+                                                <p className="text-5xl md:text-7xl font-black italic text-gradient tracking-tighter leading-tight">${estimate?.toFixed(0)}</p>
+                                            </div>
                                         </div>
 
                                         <div className="space-y-3">
@@ -456,7 +469,7 @@ const Booking = () => {
                                 <div className="w-24 h-24 bg-primary-500/10 rounded-[2.5rem] flex items-center justify-center mb-8 border border-primary-500/30 relative z-10 shadow-[0_0_50px_rgba(245,158,11,0.1)]">
                                     <CheckCircle2 className="w-12 h-12 text-primary-500" />
                                 </div>
-                                <h3 className="text-5xl font-black italic text-gradient uppercase mb-6 leading-none tracking-tighter relative z-11">ESTRATEGIA<br />CONFIRMADA</h3>
+                                <h3 className="text-5xl font-black italic text-gradient uppercase mb-6 leading-tight tracking-tighter relative z-11 py-2">ESTRATEGIA<br />CONFIRMADA</h3>
                                 <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] mb-10 italic relative z-11">Buscando conductores en su área...</p>
                                 <button onClick={() => navigate('/my-fletes')} className="premium-button w-full relative z-11 py-6 shadow-2xl">RASTREAR VIAJE</button>
                             </motion.div>
