@@ -9,6 +9,8 @@ import DriverWallet from './pages/DriverWallet'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminComplaints from './pages/AdminComplaints'
 import AdminVehicles from './pages/AdminVehicles'
+import AdminUsers from './pages/AdminUsers'
+import AdminSettings from './pages/AdminSettings'
 import MyFletes from './pages/MyFletes'
 import Profile from './pages/Profile'
 import Navbar from './components/layout/Navbar'
@@ -87,6 +89,8 @@ const AppContent = () => {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/complaints" element={<AdminComplaints />} />
           <Route path="/admin/vehicles" element={<AdminVehicles />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

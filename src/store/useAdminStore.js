@@ -8,8 +8,76 @@ export const useAdminStore = create((set, get) => ({
     users: [],
     pendingVehicles: [],
     activityLogs: [],
+    settings: {}, // Global app settings (currency, etc)
+    reportedRanking: [], // Users with most complaints
     loading: false,
     error: null,
+
+    // Fetch App Settings
+    fetchSettings: async () => {
+        try {
+            const { data, error } = await supabase.from('app_settings').select('*')
+            if (error) throw error
+            const settingsObj = data.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {})
+            set({ settings: settingsObj })
+            return settingsObj
+        } catch (err) {
+            console.error('Error fetching settings:', err)
+            return {}
+        }
+    },
+
+    // Update App Setting
+    updateSetting: async (key, value) => {
+        try {
+            const { error } = await supabase
+                .from('app_settings')
+                .update({ value, updated_at: new Date() })
+                .eq('key', key)
+            if (error) throw error
+            set(state => ({ settings: { ...state.settings, [key]: value } }))
+            return true
+        } catch (err) {
+            console.error('Error updating setting:', err)
+            return false
+        }
+    },
+
+    // Update Vehicle Category (Prices)
+    updateVehicleCategory: async (categoryId, updates) => {
+        try {
+            const { error } = await supabase
+                .from('vehicle_categories')
+                .update({
+                    ...updates,
+                    updated_at: new Date()
+                })
+                .eq('id', categoryId)
+            if (error) throw error
+            return true
+        } catch (err) {
+            console.error('Error updating category:', err)
+            return false
+        }
+    },
+
+    // Fetch Reported Users Ranking
+    fetchReportedRanking: async () => {
+        set({ loading: true })
+        try {
+            const { data, error } = await supabase
+                .from('reported_users_ranking')
+                .select('*')
+                .limit(20)
+            if (error) throw error
+            set({ reportedRanking: data, loading: false })
+            return data
+        } catch (err) {
+            console.error('Error fetching ranking:', err)
+            set({ loading: false })
+            return []
+        }
+    },
 
     // Obtener estadísticas del dashboard
     fetchStats: async () => {

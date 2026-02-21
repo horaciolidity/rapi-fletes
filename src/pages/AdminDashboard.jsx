@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Truck, AlertCircle, CheckCircle, XCircle, TrendingUp, DollarSign, Activity, Shield, Ban } from 'lucide-react'
+import { Users, Truck, AlertCircle, CheckCircle, XCircle, TrendingUp, DollarSign, Activity, Shield, Ban, Settings } from 'lucide-react'
 import { useAdminStore } from '../store/useAdminStore'
 import { useNavigate } from 'react-router-dom'
 
@@ -193,7 +193,7 @@ const AdminDashboard = () => {
                     <h2 className="text-xl font-black text-white italic uppercase tracking-tighter mb-4">
                         ⚡ ACCIONES RÁPIDAS
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -201,7 +201,7 @@ const AdminDashboard = () => {
                             className="premium-button py-6 text-sm"
                         >
                             <AlertCircle className="w-5 h-5" />
-                            VER TODOS LOS RECLAMOS
+                            VER RECLAMOS
                         </motion.button>
                         <motion.button
                             whileHover={{ scale: 1.02 }}
@@ -213,6 +213,19 @@ const AdminDashboard = () => {
                                 <Users className="w-5 h-5 text-primary-500" />
                                 <span className="text-sm font-black text-white italic uppercase">
                                     GESTIONAR USUARIOS
+                                </span>
+                            </div>
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => navigate('/admin/settings')}
+                            className="glass-card p-6 bg-primary-500/10 border-primary-500/20 hover:bg-primary-500/20 transition-colors"
+                        >
+                            <div className="flex items-center justify-center gap-3">
+                                <Settings className="w-5 h-5 text-primary-500" />
+                                <span className="text-sm font-black text-primary-500 italic uppercase">
+                                    CONFIGURACIÓN GLOBAL
                                 </span>
                             </div>
                         </motion.button>
