@@ -66,11 +66,12 @@ const AppContent = () => {
   }, [])
 
   return (
-    <div className={`flex flex-col min-h-screen ${theme === 'dark' ? 'bg-black text-white' : 'bg-slate-50 text-zinc-900'} selection:bg-primary-500 selection:text-white max-w-md mx-auto relative md:max-w-none shadow-2xl shadow-primary-500/5 transition-colors duration-500`}>
+    <div className="flex flex-col min-h-screen selection:bg-primary-500 selection:text-white max-w-md mx-auto relative md:max-w-none transition-colors duration-500 overflow-x-hidden">
+      <div className="bg-mesh" />
       {!isAuthPage && <Navbar />}
       <NotificationManager />
 
-      <main className={`flex-grow overflow-y-auto ${!isAuthPage ? 'pb-24 pt-16' : ''}`}>
+      <main className={`flex-grow relative ${!isAuthPage ? 'pb-24 pt-16' : ''}`}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />

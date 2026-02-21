@@ -84,65 +84,75 @@ const Profile = () => {
     )
 
     return (
-        <div className="pb-24 pt-10 min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] font-sans selection:bg-primary-500">
+        <div className="pb-24 pt-10 min-h-screen text-[var(--text-color)] font-sans selection:bg-primary-500">
             <div className="container mx-auto px-6 max-w-md">
 
                 {/* Profile Header Card */}
-                <div className="flex flex-col items-center mb-10 pt-10">
-                    <div className="relative mb-6">
-                        <div className="w-28 h-28 rounded-[2.5rem] overflow-hidden border-4 border-zinc-900 shadow-2xl relative">
+                <div className="flex flex-col items-center mb-12 pt-10">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="relative mb-8"
+                    >
+                        <div className="w-32 h-32 rounded-[3.5rem] overflow-hidden border-4 border-[var(--border-color)] shadow-[0_0_50px_rgba(245,158,11,0.15)] relative group cursor-pointer transition-transform hover:scale-105 active:scale-95">
                             {formData.avatar_url ? (
                                 <img src={formData.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
-                                    <User className="w-12 h-12 text-zinc-700" />
+                                    <User className="w-14 h-14 text-zinc-700" />
                                 </div>
                             )}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-[10px] font-black italic uppercase text-white">Editar</span>
+                            </div>
                         </div>
                         <button
                             onClick={handleAvatarUpdate}
-                            className="absolute -bottom-2 -right-2 p-3 bg-primary-500 rounded-2xl text-black shadow-xl scale-90 active:scale-75 transition-transform"
+                            className="absolute -bottom-2 -right-2 p-3.5 bg-primary-500 rounded-2xl text-black shadow-xl hover:bg-primary-400 transition-colors z-10"
                         >
                             <Camera className="w-4 h-4" />
                         </button>
-                    </div>
+                    </motion.div>
 
-                    <h1 className="text-3xl font-black italic uppercase tracking-tighter mb-1">
+                    <h1 className="text-4xl font-black italic uppercase tracking-tighter mb-2 text-gradient">
                         {profile.full_name || 'USUARIO'}
                     </h1>
-                    <div className="flex items-center gap-2">
-                        <div className="px-3 py-1 bg-[var(--card-bg)] rounded-full border border-[var(--border-color)] shadow-sm">
-                            <span className="text-[8px] font-black text-primary-500 uppercase tracking-widest italic">{profile.role}</span>
-                        </div>
-                        <span className="text-[10px] text-zinc-500 font-bold uppercase italic">{user.email}</span>
+                    <div className="flex items-center gap-3">
+                        <span className="badge-gold">MODO {profile.role}</span>
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase italic tracking-widest">{user.email}</span>
                     </div>
                 </div>
 
-                <div className="glass-card mb-6 overflow-hidden p-1 flex">
+                {/* PREMIUM ROLE SWITCHER */}
+                <div className="glass-card mb-10 p-1.5 flex gap-1 relative z-10 backdrop-blur-3xl shadow-primary-500/5">
                     <button
                         onClick={() => handleRoleSwitch('client')}
                         disabled={roleLoading}
-                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'client' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
+                        className={`flex-1 py-5 rounded-[2.5rem] text-[10px] font-black uppercase italic tracking-[0.2em] transition-all duration-500 ${profile.role === 'client' ? 'bg-primary-500 text-black shadow-xl shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
                     >
-                        MODO CLIENTE
+                        CLIENTE
                     </button>
                     <button
                         onClick={() => handleRoleSwitch('driver')}
                         disabled={roleLoading}
-                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'driver' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
+                        className={`flex-1 py-5 rounded-[2.5rem] text-[10px] font-black uppercase italic tracking-[0.2em] transition-all duration-500 ${profile.role === 'driver' ? 'bg-primary-500 text-black shadow-xl shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
                     >
-                        MODO CHOFER
+                        CHOFER
                     </button>
                 </div>
 
-                <div className="space-y-4 mb-10">
-                    <div className="glass-card p-6 shadow-xl">
-                        <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 italic">
+                <div className="space-y-6 mb-12">
+                    <div className="glass-card p-8 shadow-2xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <Settings className="w-20 h-20" />
+                        </div>
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-8 italic flex items-center gap-3">
+                            <span className="w-1.5 h-1.5 bg-primary-500 rounded-full" />
                             Información Personal
                         </h3>
-                        <form onSubmit={handleUpdate} className="space-y-5">
-                            <div className="space-y-2">
-                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Nombre Completo</label>
+                        <form onSubmit={handleUpdate} className="space-y-6">
+                            <div className="space-y-3">
+                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-4 italic opacity-60">Nombre Completo</label>
                                 <input
                                     className="input-field"
                                     placeholder="Ej: Juan Pérez"
@@ -150,8 +160,8 @@ const Profile = () => {
                                     onChange={e => setFormData({ ...formData, full_name: e.target.value })}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Número de Celular</label>
+                            <div className="space-y-3">
+                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-4 italic opacity-60">Número de Celular</label>
                                 <input
                                     className="input-field"
                                     type="tel"
@@ -162,117 +172,79 @@ const Profile = () => {
                             </div>
 
                             {message.text && (
-                                <p className={`text-[9px] font-black uppercase italic text-center ${message.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+                                <div className={`p-4 rounded-2xl border text-[10px] font-black uppercase italic text-center ${message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
                                     {message.text}
-                                </p>
+                                </div>
                             )}
 
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-primary-500 text-black text-[11px] font-black uppercase italic rounded-2xl shadow-lg shadow-primary-500/20 active:scale-95 transition-transform"
+                                className="premium-button w-full"
                             >
-                                {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'GUARDAR CAMBIOS'}
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                                    <>
+                                        <Save className="w-5 h-5" />
+                                        <span>GUARDAR CAMBIOS</span>
+                                    </>
+                                )}
                             </button>
                         </form>
                     </div>
                 </div>
 
-                {/* Driver / Advanced Menu */}
-                <div className="space-y-3 mb-10">
+                {/* ADVANCED MENU */}
+                <div className="space-y-4 mb-12">
                     {profile.role === 'driver' && (
-                        <>
+                        <div className="grid grid-cols-2 gap-4">
                             <button
                                 onClick={() => navigate('/wallet')}
-                                className="w-full flex items-center justify-between p-6 glass-card border-green-500/20 bg-green-500/5 group"
+                                className="p-6 glass-card bg-emerald-500/5 border-emerald-500/10 hover:bg-emerald-500/10 transition-all text-left group"
                             >
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-green-500 rounded-xl text-black">
-                                        <DollarSign className="w-5 h-5 text-black" />
-                                    </div>
-                                    <div className="text-left">
-                                        <p className="text-[9px] font-black text-zinc-500 uppercase italic">Finanzas</p>
-                                        <p className="text-xs font-black uppercase italic">MI BILLETERA</p>
-                                    </div>
-                                </div>
-                                <ChevronRight className="w-5 h-5 text-green-500 group-hover:translate-x-1 transition-transform" />
+                                <DollarSign className="w-8 h-8 text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
+                                <p className="text-[9px] font-black text-zinc-500 uppercase italic">Finanzas</p>
+                                <p className="text-xs font-black uppercase italic">WALLET</p>
                             </button>
-
                             <button
                                 onClick={() => navigate('/driver')}
-                                className="w-full flex items-center justify-between p-6 glass-card border-primary-500/20 bg-primary-500/5 group"
+                                className="p-6 glass-card bg-primary-500/5 border-primary-500/10 hover:bg-primary-500/10 transition-all text-left group"
                             >
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-primary-500 rounded-xl text-black">
-                                        <Truck className="w-5 h-5" />
-                                    </div>
-                                    <div className="text-left">
-                                        <p className="text-[9px] font-black text-zinc-500 uppercase italic">Control</p>
-                                        <p className="text-xs font-black uppercase italic">PANEL DE CHOFER</p>
-                                    </div>
-                                </div>
-                                <ChevronRight className="w-5 h-5 text-primary-500 group-hover:translate-x-1 transition-transform" />
+                                <Truck className="w-8 h-8 text-primary-500 mb-4 group-hover:scale-110 transition-transform" />
+                                <p className="text-[9px] font-black text-zinc-500 uppercase italic">Operativo</p>
+                                <p className="text-xs font-black uppercase italic">PANEL</p>
                             </button>
-                        </>
+                        </div>
                     )}
 
-                    {profile.role === 'admin' && (
-                        <button
-                            onClick={() => navigate('/admin')}
-                            className="w-full flex items-center justify-between p-6 glass-card border-secondary-600/20 bg-secondary-600/5 group"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-secondary-600 rounded-xl text-black">
-                                    <ShieldCheck className="w-5 h-5" />
-                                </div>
-                                <div className="text-left">
-                                    <p className="text-[9px] font-black text-zinc-500 uppercase italic">Sistema</p>
-                                    <p className="text-xs font-black uppercase italic">PANEL DE ADMIN</p>
-                                </div>
-                            </div>
-                            <ChevronRight className="w-5 h-5 text-secondary-600 group-hover:translate-x-1 transition-transform" />
-                        </button>
-                    )}
-
-                    <div className="glass-card overflow-hidden divide-y divide-white/5">
-                        <button className="w-full flex items-center justify-between p-5 hover:bg-zinc-900/50 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <ShieldCheck className="w-5 h-5 text-zinc-500" />
-                                <span className="text-xs font-black text-zinc-400 uppercase italic tracking-wider">Seguridad</span>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-800" />
-                        </button>
+                    <div className="glass-card overflow-hidden divide-y divide-[var(--border-color)]">
+                        <MenuButton
+                            icon={<ShieldCheck className="w-5 h-5" />}
+                            title="Seguridad & Privacidad"
+                            onClick={() => { }}
+                        />
                         <button
                             onClick={toggleTheme}
-                            className={`w-full flex items-center justify-between p-5 hover:bg-zinc-900/50 transition-colors border-t border-white/5`}
+                            className={`w-full flex items-center justify-between p-6 hover:bg-white/5 transition-all text-left`}
                         >
-                            <div className="flex items-center gap-4">
-                                {theme === 'dark' ? <Moon className="w-5 h-5 text-zinc-500" /> : <Sun className="w-5 h-5 text-primary-500" />}
-                                <span className={`text-xs font-black uppercase italic tracking-wider ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                                    Modo {theme === 'dark' ? 'Oscuro' : 'Claro'}
-                                </span>
+                            <div className="flex items-center gap-5">
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-zinc-900 text-zinc-400' : 'bg-primary-100 text-primary-600'}`}>
+                                    {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black uppercase italic tracking-widest text-[var(--text-color)]">APARIENCIA</p>
+                                    <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest italic">{theme === 'dark' ? 'MODO OSCURO' : 'MODO CLARO'}</p>
+                                </div>
                             </div>
-                            <div className={`w-12 h-6 rounded-full p-1 transition-colors ${theme === 'dark' ? 'bg-zinc-800' : 'bg-primary-500'} relative`}>
-                                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${theme === 'dark' ? 'translate-x-0' : 'translate-x-6'}`} />
+                            <div className={`w-14 h-7 rounded-full p-1.5 transition-all duration-500 shadow-inner ${theme === 'dark' ? 'bg-zinc-800' : 'bg-primary-500'} relative`}>
+                                <div className={`w-4 h-4 bg-white rounded-full shadow-lg transition-transform duration-500 ${theme === 'dark' ? 'translate-x-0' : 'translate-x-7'}`} />
                             </div>
                         </button>
-                        <button className="w-full flex items-center justify-between p-5 hover:bg-zinc-900/50 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <Settings className="w-5 h-5 text-zinc-500" />
-                                <span className="text-xs font-black text-zinc-400 uppercase italic tracking-wider">Ajustes</span>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-800" />
-                        </button>
-                        <button
-                            onClick={() => addNotification({ message: '¡Notificación de prueba operativa!', type: 'success' })}
-                            className="w-full flex items-center justify-between p-5 hover:bg-zinc-900/50 transition-colors border-t border-white/5"
-                        >
-                            <div className="flex items-center gap-4">
-                                <Bell className="w-5 h-5 text-primary-500" />
-                                <span className="text-xs font-black uppercase italic tracking-wider">Probar Notificaciones</span>
-                            </div>
-                            <div className="px-2 py-0.5 bg-primary-500/10 rounded text-[7px] font-black text-primary-500 uppercase italic">Test</div>
-                        </button>
+                        <MenuButton
+                            icon={<Bell className="w-5 h-5 text-primary-500" />}
+                            title="Prueba de Notificaciones"
+                            onClick={() => addNotification({ message: '¡Canal de comunicación verificado!', type: 'success' })}
+                            badge="OPERATIVO"
+                        />
                     </div>
                 </div>
 
@@ -282,14 +254,32 @@ const Profile = () => {
                         await signOut()
                         navigate('/auth')
                     }}
-                    className="w-full flex items-center justify-center gap-3 p-6 bg-red-500/5 border border-red-500/10 rounded-[2rem] text-red-500 text-[10px] font-black uppercase italic tracking-widest hover:bg-red-500 hover:text-black transition-all"
+                    className="w-full flex items-center justify-center gap-4 p-7 bg-red-500/5 hover:bg-red-500 text-red-500 hover:text-black border border-red-500/10 rounded-[2.5rem] text-xs font-black uppercase italic tracking-[0.3em] transition-all duration-500 group shadow-xl"
                 >
-                    <LogOut className="w-5 h-5" />
+                    <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                     CERRAR SESIÓN
                 </button>
             </div>
         </div>
     )
 }
+
+const MenuButton = ({ icon, title, onClick, badge }) => (
+    <button
+        onClick={onClick}
+        className="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-all text-left group"
+    >
+        <div className="flex items-center gap-5">
+            <div className="w-12 h-12 rounded-2xl bg-zinc-900/50 border border-white/5 flex items-center justify-center text-zinc-500 group-hover:text-white group-hover:border-primary-500/30 transition-all">
+                {icon}
+            </div>
+            <div>
+                <p className="text-xs font-black uppercase italic tracking-widest text-[var(--text-color)]">{title}</p>
+                {badge && <p className="text-[7px] font-black text-primary-500 uppercase tracking-widest italic mt-1">{badge}</p>}
+            </div>
+        </div>
+        <ChevronRight className="w-5 h-5 text-zinc-800 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
+    </button>
+)
 
 export default Profile

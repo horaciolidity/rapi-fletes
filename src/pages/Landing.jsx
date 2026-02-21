@@ -12,105 +12,116 @@ const Landing = () => {
     }, [])
 
     return (
-        <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] selection:bg-primary-500 selection:text-black font-sans pb-20">
-            {/* Hero Section - App Style */}
-            <section className="relative min-h-[90vh] pb-16 overflow-hidden flex flex-col items-center justify-center">
+        <div className="min-h-screen text-[var(--text-color)] selection:bg-primary-500 selection:text-black font-sans pb-20">
+            {/* Hero Section */}
+            <section className="relative min-h-[95vh] flex flex-col items-center justify-center overflow-hidden pt-20">
                 <div className="absolute inset-0 -z-10">
                     <video
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        className="w-full h-full object-cover opacity-60 scale-105"
-                        style={{ filter: 'grayscale(0.2) contrast(1.1)' }}
+                        autoPlay loop muted playsInline
+                        className="w-full h-full object-cover opacity-40 scale-110"
+                        style={{ filter: 'grayscale(0.4) brightness(0.8)' }}
                     >
                         <source src="/imagenes/1.mp4" type="video/mp4" />
                     </video>
-                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] via-[var(--bg-color)]/20 to-transparent" />
-                    <div className="absolute inset-0 bg-black/40" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] via-transparent to-transparent" />
                 </div>
 
                 <div className="container mx-auto px-6 text-center z-10">
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
+                        initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="inline-flex items-center gap-2 px-6 py-2 bg-primary-500 rounded-full mb-10 shadow-lg shadow-primary-500/20"
+                        className="badge-gold mb-8 inline-block"
                     >
-                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black italic">Logística de Élite</span>
+                        LOGÍSTICA DE ÉLITE 2026
                     </motion.div>
 
-                    <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-6xl sm:text-8xl font-black mb-8 leading-[0.85] tracking-tighter italic uppercase drop-shadow-2xl"
-                    >
-                        RÁPIDO<br />
-                        <span className="text-primary-500">SEGURO</span>
-                    </motion.h1>
+                    <div className="overflow-hidden mb-6">
+                        <motion.h1
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                            className="text-7xl sm:text-9xl font-black leading-[0.85] tracking-tighter italic uppercase text-gradient"
+                        >
+                            MOVEMOS<br />TRABAJAMOS
+                        </motion.h1>
+                    </div>
 
                     <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="text-sm text-zinc-200 mb-12 max-w-sm mx-auto leading-relaxed font-black italic uppercase tracking-widest drop-shadow-md"
+                        className="text-[10px] sm:text-xs text-zinc-400 mb-14 max-w-sm mx-auto leading-loose font-black italic uppercase tracking-[0.4em]"
                     >
-                        Tu carga en buenas manos. <br />
-                        <span className="opacity-80">Mudanzas inteligentes 24/7.</span>
+                        INTELIGENCIA EN CARGA<br />
+                        <span className="text-white/40">MUDANZAS DE ALTO NIVEL</span>
                     </motion.p>
 
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="flex flex-col gap-5 px-4 w-full max-w-sm mx-auto"
+                        className="flex flex-col gap-6 w-full max-w-xs mx-auto"
                     >
-                        <Link to="/booking" className="premium-button w-full group flex items-center justify-center gap-4 py-6 text-lg">
-                            <span>PEDIR UN FLETE</span>
-                            <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                        <Link to="/booking" className="premium-button group">
+                            <span>RESERVAR AHORA</span>
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                         </Link>
-                        <Link to="/auth" className="px-10 py-5 bg-white/10 backdrop-blur-3xl text-white rounded-full text-[11px] font-black uppercase tracking-widest italic border border-white/20 hover:bg-white/20 transition-all active:scale-95">
-                            Ser parte de la flota
+                        <Link to="/auth" className="glass-button">
+                            Unirse a la flota
                         </Link>
                     </motion.div>
                 </div>
+
+                {/* Performance HUD Indicators */}
+                <div className="absolute bottom-12 left-10 hidden lg:flex flex-col gap-4 text-left border-l border-primary-500/30 pl-6">
+                    <div>
+                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1 italic">Status</p>
+                        <p className="text-[10px] font-bold text-white uppercase italic">Sistema Online</p>
+                    </div>
+                    <div>
+                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1 italic">Latencia</p>
+                        <p className="text-[10px] font-bold text-primary-500 uppercase italic">0.4ms Response</p>
+                    </div>
+                </div>
             </section>
 
-            {/* Scrolling Banner Compact */}
-            <div className="py-6 bg-primary-500 overflow-hidden whitespace-nowrap border-y-4 border-black -rotate-1 relative z-20">
-                <div className="flex gap-10 animate-infinite-scroll">
-                    {[1, 2, 3].map(i => (
-                        <span key={i} className="text-2xl font-black italic uppercase tracking-tighter text-black flex items-center gap-6">
-                            Carga Segura <Star className="w-6 h-6 fill-black" />
-                            Logística 4.0 <Star className="w-6 h-6 fill-black" />
-                            Precios Bajos <Star className="w-6 h-6 fill-black" />
-                        </span>
+            {/* Premium Ticker */}
+            <div className="relative z-20 py-8 bg-black border-y-2 border-primary-500/20 whitespace-nowrap overflow-hidden">
+                <div className="flex gap-20 animate-infinite-scroll">
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="flex gap-20 shrink-0">
+                            {['MÁXIMA VELOCIDAD', 'CARGA PREMIUM', 'RASTREO GPS 24/7', 'SEGURO TOTAL'].map(text => (
+                                <span key={text} className="text-3xl font-black italic uppercase tracking-tighter flex items-center gap-6">
+                                    <span className="text-white">{text}</span>
+                                    <Star className="w-4 h-4 fill-primary-500 text-primary-500 animate-pulse" />
+                                </span>
+                            ))}
+                        </div>
                     ))}
                 </div>
             </div>
 
-            {/* Fleet Section - Horizontal Scroll on Mobile */}
-            <section className="py-20 relative">
+            {/* Fleet Section */}
+            <section className="py-32">
                 <div className="container mx-auto px-6">
-                    <div className="flex flex-col mb-12">
-                        <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-2 leading-none">LA FLOTA</h2>
-                        <p className="text-zinc-500 font-bold uppercase tracking-wider text-[10px] italic">Vehículos para cada necesidad</p>
-                    </div>
+                    <header className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                        <div>
+                            <span className="badge-gold mb-4 inline-block">MERCADO</span>
+                            <h2 className="text-5xl font-black italic uppercase tracking-tighter leading-none text-gradient">NUESTRA FLOTA</h2>
+                        </div>
+                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.3em] italic max-w-xs text-right opacity-60">
+                            Vehículos certificados con estándares de alta gama para transporte seguro.
+                        </p>
+                    </header>
 
                     {loading ? (
-                        <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-none">
+                        <div className="flex gap-8 overflow-x-auto pb-6 scrollbar-none">
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="min-w-[280px] aspect-[4/5] rounded-[2.5rem] bg-zinc-900 animate-pulse" />
+                                <div key={i} className="min-w-[320px] h-[500px] rounded-[3rem] bg-white/5 animate-pulse" />
                             ))}
                         </div>
-                    ) : error ? (
-                        <div className="glass-card p-10 text-center border-red-500/20">
-                            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                            <h3 className="text-xl font-black uppercase italic mb-2">Error</h3>
-                            <button onClick={fetchCategories} className="text-primary-500 font-black italic uppercase text-xs underline">Reintentar</button>
-                        </div>
                     ) : (
-                        <div className="flex gap-6 overflow-x-auto pb-10 scrollbar-none px-2 -mx-2">
+                        <div className="flex gap-8 overflow-x-auto pb-10 scrollbar-none px-4 -mx-4 group/fleet">
                             {categories.map((cat, idx) => (
                                 <CategoryCard key={cat.id} category={cat} index={idx} />
                             ))}
@@ -119,24 +130,24 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* Features Section - Compact */}
-            <section className="py-20 bg-[var(--card-bg)] border-t border-[var(--border-color)] rounded-t-[3rem]">
+            {/* Values Section */}
+            <section className="py-32 border-t border-[var(--border-color)] overflow-hidden">
                 <div className="container mx-auto px-10">
-                    <div className="grid grid-cols-1 gap-12">
-                        <FeatureCard
-                            icon={<Shield className="w-8 h-8 text-primary-500" />}
-                            title="MÁXIMA SEGURIDAD"
-                            desc="Verificación rigurosa de conductores."
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
+                        <FeatureItem
+                            icon={<Shield className="w-10 h-10" />}
+                            title="BLINDAJE TOTAL"
+                            desc="Carga asegurada al 100% durante todo el trayecto."
                         />
-                        <FeatureCard
-                            icon={<MapPin className="w-8 h-8 text-primary-500" />}
-                            title="SEGUIMIENTO EN VIVO"
-                            desc="Rastreo GPS en tiempo real."
+                        <FeatureItem
+                            icon={<MapPin className="w-10 h-10" />}
+                            title="PRECISIÓN GPS"
+                            desc="Rastreo satelital con actualizaciones cada 3 segundos."
                         />
-                        <FeatureCard
-                            icon={<Clock className="w-8 h-8 text-primary-500" />}
-                            title="SERVICIO RÁPIDO"
-                            desc="Llegamos en menos de 15 minutos."
+                        <FeatureItem
+                            icon={<Clock className="w-10 h-10" />}
+                            title="TIEMPO RÁPIDO"
+                            desc="Optimización de rutas por IA para entregas veloces."
                         />
                     </div>
                 </div>
@@ -146,34 +157,35 @@ const Landing = () => {
 }
 
 const CategoryCard = ({ category, index }) => {
-    const imgPath = `/imagenes/categories/${category.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === 'camion' ? 'camion' : category.name.toLowerCase()}.jpg`;
+    const imgPath = `/imagenes/categories/${category.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === 'camion' ? 'camion' : category.name.toLowerCase()}.jpg`
+
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="min-w-[280px] glass-card p-0 group relative overflow-hidden border-zinc-800 hover:border-primary-500/50 flex flex-col"
+            className="min-w-[320px] md:min-w-[400px] glass-card group/card hover:-translate-y-4 transition-all duration-700 h-[550px] flex flex-col"
         >
-            <div className="relative h-48 w-full overflow-hidden">
-                <img src={imgPath} alt={category.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="h-[280px] relative overflow-hidden">
+                <img src={imgPath} alt={category.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover/card:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                <div className="absolute bottom-4 left-6">
-                    <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">{category.name}</h3>
+                <div className="absolute bottom-6 left-8">
+                    <h3 className="text-4xl font-black italic uppercase tracking-tighter text-white leading-none drop-shadow-lg">{category.name}</h3>
                 </div>
             </div>
 
-            <div className="p-8 flex flex-col justify-between flex-1">
-                <p className="text-zinc-500 font-bold text-[10px] leading-relaxed italic uppercase tracking-tight line-clamp-3 mb-8">
+            <div className="p-10 flex flex-col justify-between flex-1">
+                <p className="text-zinc-500 font-bold text-[11px] leading-relaxed italic uppercase tracking-tight opacity-80 mb-8">
                     {category.description}
                 </p>
 
-                <div className="flex items-center justify-between pt-6 border-t border-[var(--border-color)]">
+                <div className="flex items-center justify-between pt-8 border-t border-white/5">
                     <div>
-                        <p className="text-[8px] font-black uppercase tracking-widest text-zinc-700 mb-1">Desde</p>
-                        <p className="text-2xl font-black italic text-primary-500">$ {category.base_price}</p>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-1 italic opacity-50">TARIFA BASE</p>
+                        <p className="text-3xl font-black italic text-primary-500 tracking-tighter">$ {category.base_price}</p>
                     </div>
-                    <Link to="/booking" className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center text-black shadow-lg shadow-primary-500/20 active:scale-90 transition-all">
-                        <ArrowRight className="w-6 h-6" />
+                    <Link to="/booking" className="w-16 h-16 bg-white/5 hover:bg-primary-500 rounded-[1.5rem] flex items-center justify-center text-white hover:text-black transition-all duration-500 active:scale-90 border border-white/10 group/btn">
+                        <ArrowRight className="w-6 h-6 transition-transform group-hover/btn:translate-x-1" />
                     </Link>
                 </div>
             </div>
@@ -181,14 +193,16 @@ const CategoryCard = ({ category, index }) => {
     )
 }
 
-const FeatureCard = ({ icon, title, desc }) => (
-    <div className="flex items-center gap-6">
-        <div className="w-16 h-16 min-w-[64px] bg-[var(--bg-color)] rounded-2xl flex items-center justify-center border border-[var(--border-color)]">
-            {icon}
+const FeatureItem = ({ icon, title, desc }) => (
+    <div className="flex flex-col items-start gap-8 group">
+        <div className="w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center border border-white/10 group-hover:bg-primary-500 transition-all duration-700 shadow-xl">
+            <div className="text-white group-hover:text-black transition-colors duration-700">
+                {icon}
+            </div>
         </div>
         <div>
-            <h3 className="text-lg font-black italic uppercase tracking-tighter mb-1">{title}</h3>
-            <p className="text-zinc-500 font-bold italic leading-tight text-[11px] uppercase tracking-tight">{desc}</p>
+            <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-4 text-gradient">{title}</h3>
+            <p className="text-zinc-500 font-bold italic leading-relaxed text-xs uppercase tracking-widest opacity-80">{desc}</p>
         </div>
     </div>
 )
