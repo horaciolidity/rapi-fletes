@@ -180,43 +180,6 @@ const Booking = () => {
         if (result) setStep(4)
     }
 
-    const isProfileIncomplete = !profile?.full_name || !profile?.phone || !profile?.avatar_url
-
-    if (isProfileIncomplete) {
-        return (
-            <div className="min-h-screen bg-[var(--bg-color)] flex items-center justify-center p-6">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="glass-card p-10 text-center flex flex-col items-center max-w-md border-red-500/20"
-                >
-                    <div className="w-20 h-20 bg-red-500/10 rounded-[2rem] flex items-center justify-center mb-6 border border-red-500/30">
-                        <AlertTriangle className="w-10 h-10 text-red-500" />
-                    </div>
-                    <h3 className="text-2xl font-black italic text-[var(--text-color)] uppercase mb-4 leading-none text-balance">
-                        PERFIL<br /><span className="text-red-500">INCOMPLETO</span>
-                    </h3>
-                    <p className="text-xs font-bold text-zinc-500 uppercase italic mb-8 leading-relaxed">
-                        Para solicitar un flete, primero debes completar tu nombre, teléfono y foto de perfil por seguridad.
-                    </p>
-                    <button
-                        onClick={() => navigate('/profile')}
-                        className="premium-button w-full flex items-center justify-center gap-3 py-5"
-                    >
-                        <User className="w-5 h-5" />
-                        COMPLETAR AHORA
-                    </button>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="mt-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest italic"
-                    >
-                        VOLVER AL INICIO
-                    </button>
-                </motion.div>
-            </div>
-        )
-    }
-
     return (
         <div className="fixed inset-0 bg-black overflow-hidden font-sans">
             {/* Fullscreen Map Background */}

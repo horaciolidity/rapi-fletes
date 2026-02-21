@@ -39,11 +39,6 @@ const Profile = () => {
     const handleUpdate = async (e) => {
         e.preventDefault()
 
-        if (!formData.full_name || !formData.phone) {
-            setMessage({ type: 'error', text: 'El nombre y el teléfono son obligatorios' })
-            return
-        }
-
         setLoading(true)
         setMessage({ type: '', text: '' })
 
@@ -75,8 +70,6 @@ const Profile = () => {
         setRoleLoading(false)
     }
 
-    const isProfileIncomplete = !profile?.full_name || !profile?.phone || !profile?.avatar_url
-
     const handleAvatarUpdate = () => {
         const url = prompt('Ingrese la URL de su foto de perfil:', formData.avatar_url)
         if (url !== null) {
@@ -93,17 +86,6 @@ const Profile = () => {
     return (
         <div className="pb-24 pt-10 min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] font-sans selection:bg-primary-500">
             <div className="container mx-auto px-6 max-w-md">
-
-                {isProfileIncomplete && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3"
-                    >
-                        <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
-                        <p className="text-[10px] font-black text-red-500 uppercase italic">Tu perfil está incompleto. Completa tu nombre, teléfono y foto para poder operar.</p>
-                    </motion.div>
-                )}
 
                 {/* Profile Header Card */}
                 <div className="flex flex-col items-center mb-10 pt-10">
@@ -136,50 +118,46 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Role Switcher */}
                 <div className="glass-card mb-6 overflow-hidden p-1 flex">
                     <button
                         onClick={() => handleRoleSwitch('client')}
-                        disabled={roleLoading || isProfileIncomplete}
-                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'client' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'} ${isProfileIncomplete && 'opacity-50 cursor-not-allowed'}`}
+                        disabled={roleLoading}
+                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'client' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
                     >
                         MODO CLIENTE
                     </button>
                     <button
                         onClick={() => handleRoleSwitch('driver')}
-                        disabled={roleLoading || isProfileIncomplete}
-                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'driver' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'} ${isProfileIncomplete && 'opacity-50 cursor-not-allowed'}`}
+                        disabled={roleLoading}
+                        className={`flex-1 py-4 px-2 rounded-[2rem] text-[10px] font-black uppercase italic tracking-widest transition-all ${profile.role === 'driver' ? 'bg-primary-500 text-black shadow-lg shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
                     >
                         MODO CHOFER
                     </button>
                 </div>
 
-                {/* Account Settings Forms */}
                 <div className="space-y-4 mb-10">
                     <div className="glass-card p-6 shadow-xl">
-                        <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 italic flex items-center gap-2">
-                            Información Personal <span className="text-red-500">*</span>
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-6 italic">
+                            Información Personal
                         </h3>
                         <form onSubmit={handleUpdate} className="space-y-5">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Nombre Completo <span className="text-red-500">*</span></label>
+                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Nombre Completo</label>
                                 <input
                                     className="input-field"
                                     placeholder="Ej: Juan Pérez"
                                     value={formData.full_name}
                                     onChange={e => setFormData({ ...formData, full_name: e.target.value })}
-                                    required
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Número de Celular <span className="text-red-500">*</span></label>
+                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-2 italic">Número de Celular</label>
                                 <input
                                     className="input-field"
                                     type="tel"
                                     placeholder="Ej: +54 9 261 1234567"
                                     value={formData.phone}
                                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                    required
                                 />
                             </div>
 
