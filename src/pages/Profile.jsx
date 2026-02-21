@@ -199,19 +199,19 @@ const Profile = () => {
                         <div className="grid grid-cols-2 gap-4">
                             <button
                                 onClick={() => navigate('/wallet')}
-                                className="p-6 glass-card bg-emerald-500/5 border-emerald-500/10 hover:bg-emerald-500/10 transition-all text-left group"
+                                className="p-5 glass-card bg-emerald-500/5 border-emerald-500/10 hover:bg-emerald-500/10 transition-all text-left group"
                             >
-                                <DollarSign className="w-8 h-8 text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
-                                <p className="text-[9px] font-black text-zinc-500 uppercase italic">Finanzas</p>
-                                <p className="text-xs font-black uppercase italic">WALLET</p>
+                                <DollarSign className="w-7 h-7 text-emerald-500 mb-3 group-hover:scale-110 transition-transform" />
+                                <p className="text-[8px] font-black text-zinc-500 uppercase italic">Finanzas</p>
+                                <p className="text-[10px] font-black uppercase italic">WALLET</p>
                             </button>
                             <button
                                 onClick={() => navigate('/driver')}
-                                className="p-6 glass-card bg-primary-500/5 border-primary-500/10 hover:bg-primary-500/10 transition-all text-left group"
+                                className="p-5 glass-card bg-primary-500/5 border-primary-500/10 hover:bg-primary-500/10 transition-all text-left group"
                             >
-                                <Truck className="w-8 h-8 text-primary-500 mb-4 group-hover:scale-110 transition-transform" />
-                                <p className="text-[9px] font-black text-zinc-500 uppercase italic">Operativo</p>
-                                <p className="text-xs font-black uppercase italic">PANEL</p>
+                                <Truck className="w-7 h-7 text-primary-500 mb-3 group-hover:scale-110 transition-transform" />
+                                <p className="text-[8px] font-black text-zinc-500 uppercase italic">Operativo</p>
+                                <p className="text-[10px] font-black uppercase italic">PANEL</p>
                             </button>
                         </div>
                     )}
@@ -224,19 +224,19 @@ const Profile = () => {
                         />
                         <button
                             onClick={toggleTheme}
-                            className={`w-full flex items-center justify-between p-6 hover:bg-white/5 transition-all text-left`}
+                            className={`w-full flex items-center justify-between p-4 hover:bg-white/5 transition-all text-left`}
                         >
-                            <div className="flex items-center gap-5">
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-zinc-900 text-zinc-400' : 'bg-primary-100 text-primary-600'}`}>
-                                    {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                            <div className="flex items-center gap-4">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-zinc-900 text-zinc-400' : 'bg-primary-100 text-primary-600'}`}>
+                                    {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
                                 </div>
                                 <div>
-                                    <p className="text-xs font-black uppercase italic tracking-widest text-[var(--text-color)]">APARIENCIA</p>
+                                    <p className="text-[10px] font-black uppercase italic tracking-widest text-[var(--text-color)]">APARIENCIA</p>
                                     <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest italic">{theme === 'dark' ? 'MODO OSCURO' : 'MODO CLARO'}</p>
                                 </div>
                             </div>
-                            <div className={`w-14 h-7 rounded-full p-1.5 transition-all duration-500 shadow-inner ${theme === 'dark' ? 'bg-zinc-800' : 'bg-primary-500'} relative`}>
-                                <div className={`w-4 h-4 bg-white rounded-full shadow-lg transition-transform duration-500 ${theme === 'dark' ? 'translate-x-0' : 'translate-x-7'}`} />
+                            <div className={`w-12 h-6 rounded-full p-1 transition-all duration-500 shadow-inner ${theme === 'dark' ? 'bg-zinc-800' : 'bg-primary-500'} relative`}>
+                                <div className={`w-4 h-4 bg-white rounded-full shadow-lg transition-transform duration-500 ${theme === 'dark' ? 'translate-x-0' : 'translate-x-6'}`} />
                             </div>
                         </button>
                         <MenuButton
@@ -254,9 +254,9 @@ const Profile = () => {
                         await signOut()
                         navigate('/auth')
                     }}
-                    className="w-full flex items-center justify-center gap-4 p-7 bg-red-500/5 hover:bg-red-500 text-red-500 hover:text-black border border-red-500/10 rounded-[2.5rem] text-xs font-black uppercase italic tracking-[0.3em] transition-all duration-500 group shadow-xl"
+                    className="w-full flex items-center justify-center gap-3 p-5 bg-red-500/5 hover:bg-red-500 text-red-500 hover:text-black border border-red-500/10 rounded-[2rem] text-[10px] font-black uppercase italic tracking-[0.2em] transition-all duration-500 group shadow-lg"
                 >
-                    <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                    <LogOut className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                     CERRAR SESIÓN
                 </button>
             </div>
@@ -267,18 +267,18 @@ const Profile = () => {
 const MenuButton = ({ icon, title, onClick, badge }) => (
     <button
         onClick={onClick}
-        className="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-all text-left group"
+        className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-all text-left group"
     >
-        <div className="flex items-center gap-5">
-            <div className="w-12 h-12 rounded-2xl bg-zinc-900/50 border border-white/5 flex items-center justify-center text-zinc-500 group-hover:text-white group-hover:border-primary-500/30 transition-all">
-                {icon}
+        <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-zinc-900/50 border border-white/5 flex items-center justify-center text-zinc-500 group-hover:text-white group-hover:border-primary-500/30 transition-all">
+                {React.cloneElement(icon, { size: 18 })}
             </div>
             <div>
-                <p className="text-xs font-black uppercase italic tracking-widest text-[var(--text-color)]">{title}</p>
-                {badge && <p className="text-[7px] font-black text-primary-500 uppercase tracking-widest italic mt-1">{badge}</p>}
+                <p className="text-[10px] font-black uppercase italic tracking-widest text-[var(--text-color)]">{title}</p>
+                {badge && <p className="text-[7px] font-black text-primary-500 uppercase tracking-widest italic mt-0.5">{badge}</p>}
             </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-zinc-800 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
+        <ChevronRight className="w-4 h-4 text-zinc-800 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
     </button>
 )
 

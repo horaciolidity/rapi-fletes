@@ -40,7 +40,7 @@ const Landing = () => {
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}
                             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                            className="text-7xl sm:text-9xl font-black leading-[0.85] tracking-tighter italic uppercase text-gradient"
+                            className="text-6xl sm:text-8xl font-black leading-[0.85] tracking-tighter italic uppercase text-gradient"
                         >
                             MOVEMOS<br />TRABAJAMOS
                         </motion.h1>
@@ -50,7 +50,7 @@ const Landing = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="text-[10px] sm:text-xs text-zinc-400 mb-14 max-w-sm mx-auto leading-loose font-black italic uppercase tracking-[0.4em]"
+                        className="text-[9px] sm:text-[10px] text-zinc-400 mb-10 max-w-sm mx-auto leading-loose font-black italic uppercase tracking-[0.4em]"
                     >
                         INTELIGENCIA EN CARGA<br />
                         <span className="text-white/40">MUDANZAS DE ALTO NIVEL</span>
@@ -164,7 +164,7 @@ const CategoryCard = ({ category, index }) => {
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="min-w-[320px] md:min-w-[400px] glass-card group/card hover:-translate-y-4 transition-all duration-700 h-[550px] flex flex-col"
+            className="min-w-[320px] md:min-w-[400px] glass-card shadow-[0_40px_100px_rgba(0,0,0,0.8)] border-white/10 p-5 backdrop-blur-3xl overflow-hidden group/card hover:-translate-y-4 transition-all duration-700 h-[550px] flex flex-col"
         >
             <div className="h-[280px] relative overflow-hidden">
                 <img src={imgPath} alt={category.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover/card:scale-110" />

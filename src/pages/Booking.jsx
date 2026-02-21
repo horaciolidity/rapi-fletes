@@ -198,7 +198,7 @@ const Booking = () => {
                                 initial={{ opacity: 0, scale: 0.95, y: -20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                                className="glass-card shadow-[0_40px_100px_rgba(0,0,0,0.8)] border-white/10 p-7 backdrop-blur-3xl overflow-hidden"
+                                className="glass-card shadow-[0_40px_100px_rgba(0,0,0,0.8)] border-white/10 p-5 backdrop-blur-3xl overflow-hidden"
                             >
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-500/30 to-transparent" />
 

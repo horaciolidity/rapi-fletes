@@ -66,7 +66,7 @@ const AppContent = () => {
   }, [])
 
   return (
-    <div className="flex flex-col min-h-screen selection:bg-primary-500 selection:text-white max-w-md mx-auto relative md:max-w-none transition-colors duration-500 overflow-x-hidden">
+    <div className="flex flex-col min-h-screen selection:bg-primary-500 selection:text-white max-w-lg mx-auto relative transition-colors duration-500 overflow-x-hidden">
       <div className="bg-mesh" />
       {!isAuthPage && <Navbar />}
       <NotificationManager />

@@ -171,11 +171,6 @@ const DriverDashboard = () => {
         await acceptFlete(id, user.id)
         setSelectedFleteId(null)
         setActiveTab('active')
-
-        // Auto-navigate to pickup on accept
-        if (flete) {
-            openGoogleMaps(flete.pickup_lat, flete.pickup_lng)
-        }
     }
 
 
@@ -388,13 +383,22 @@ const DriverDashboard = () => {
                     {/* ACTION BUTTON AREA - Extra Compact */}
                     <div className="space-y-1.5">
                         {activeFlete.status === 'accepted' && (
-                            <button
-                                onClick={() => onStatusChange(activeFlete.id, 'arrived_pickup')}
-                                className="w-full py-3 bg-[#276EF1] text-white text-sm font-black uppercase rounded-xl shadow-lg hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-2"
-                            >
-                                <MapPin className="w-4 h-4" />
-                                <span>Llegué al Origen</span>
-                            </button>
+                            <div className="space-y-1.5">
+                                <button
+                                    onClick={() => openGoogleMaps(activeFlete.pickup_lat, activeFlete.pickup_lng)}
+                                    className="w-full py-3 bg-primary-500 text-black text-sm font-black uppercase rounded-xl shadow-lg hover:bg-primary-400 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <Navigation className="w-4 h-4" />
+                                    <span>Ir a Punto de Origen</span>
+                                </button>
+                                <button
+                                    onClick={() => onStatusChange(activeFlete.id, 'arrived_pickup')}
+                                    className="w-full py-3 bg-[#276EF1] text-white text-sm font-black uppercase rounded-xl shadow-lg hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <MapPin className="w-4 h-4" />
+                                    <span>Llegué al Origen</span>
+                                </button>
+                            </div>
                         )}
 
                         {activeFlete.status === 'arrived_pickup' && (
@@ -635,13 +639,22 @@ const DriverDashboard = () => {
                                                         </div>
 
                                                         {activeFlete.status === 'accepted' && (
-                                                            <button
-                                                                onClick={() => handleStatusChange(activeFlete.id, 'arrived_pickup')}
-                                                                className="w-full py-4 bg-blue-600 text-lg font-black uppercase rounded-2xl shadow-xl hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3"
-                                                            >
-                                                                <MapPin className="w-5 h-5 text-white" />
-                                                                <span className="text-white">Llegué al Origen</span>
-                                                            </button>
+                                                            <div className="space-y-3">
+                                                                <button
+                                                                    onClick={() => openGoogleMaps(activeFlete.pickup_lat, activeFlete.pickup_lng)}
+                                                                    className="w-full py-4 bg-primary-500 text-black text-lg font-black uppercase rounded-2xl shadow-xl hover:bg-primary-400 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                                                >
+                                                                    <Navigation className="w-5 h-5" />
+                                                                    <span>Ir a Punto de Origen</span>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleStatusChange(activeFlete.id, 'arrived_pickup')}
+                                                                    className="w-full py-4 bg-blue-600 text-lg font-black uppercase rounded-2xl shadow-xl hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                                                >
+                                                                    <MapPin className="w-5 h-5 text-white" />
+                                                                    <span className="text-white">Llegué al Origen</span>
+                                                                </button>
+                                                            </div>
                                                         )}
 
                                                         {activeFlete.status === 'arrived_pickup' && (
