@@ -712,7 +712,10 @@ const DriverDashboard = () => {
                                                                 <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
                                                                 <span className="text-[11px] font-black text-primary-500 uppercase italic tracking-widest">VIAJE EN CURSO</span>
                                                             </div>
-                                                            <span className="px-3 py-1 bg-zinc-900 border border-white/5 rounded-full text-[9px] font-bold text-zinc-500 uppercase italic">{activeFlete.status}</span>
+                                                            <div className="flex flex-col items-end gap-1">
+                                                                <span className="px-3 py-1 bg-zinc-900 border border-white/5 rounded-full text-[9px] font-bold text-zinc-500 uppercase italic">{activeFlete.status}</span>
+                                                                <span className="px-3 py-1 bg-primary-500/10 border border-primary-500/20 rounded-full text-[8px] font-black text-primary-500 uppercase italic tracking-tighter">{activeFlete.vehicle_categories?.name}</span>
+                                                            </div>
                                                         </div>
 
                                                         <div className="flex justify-between items-center bg-[var(--bg-color)]/50 p-4 rounded-2xl border border-[var(--border-color)]">
@@ -733,6 +736,14 @@ const DriverDashboard = () => {
                                                                 <Phone className="w-5 h-5" />
                                                             </a>
                                                         </div>
+
+                                                        {/* SHIPMENT DETAILS PANEL - HIGHLIGHTED */}
+                                                        {activeFlete.shipment_details && (
+                                                            <div className="p-4 bg-primary-500/5 border border-primary-500/10 rounded-2xl">
+                                                                <p className="text-[8px] font-black text-primary-500 uppercase tracking-widest mb-2 italic">📦 CARGAMENTO (DE DETALLE):</p>
+                                                                <p className="text-[10px] font-bold text-zinc-300 uppercase italic leading-relaxed tracking-tight">{activeFlete.shipment_details}</p>
+                                                            </div>
+                                                        )}
 
                                                         <div className="space-y-3">
                                                             <div className="flex items-start gap-4 p-3 bg-zinc-950/50 rounded-xl">

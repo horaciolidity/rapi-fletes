@@ -401,14 +401,15 @@ const Booking = () => {
                                             </div>
 
                                             <div className="glass-card p-6 border-white/5 bg-white/5 space-y-4">
-                                                <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest italic flex items-center gap-2">
-                                                    <Package className="w-3 h-3" /> DETALLES OPERATIVOS
+                                                <label className="text-[9px] font-black text-primary-500 uppercase tracking-widest italic flex items-center gap-2">
+                                                    <Package className="w-3 h-3" /> CARGAMENTO (LUJO DE DETALLE)
                                                 </label>
                                                 <textarea
                                                     className="w-full px-5 py-4 bg-zinc-950/40 border border-white/5 rounded-2xl text-[10px] font-black italic text-white outline-none focus:border-primary-500/30 min-h-[100px] resize-none uppercase tracking-widest placeholder:text-zinc-800"
-                                                    placeholder="OBJETOS, VOLUMEN, PISO..."
+                                                    placeholder="POR FAVOR, DETALLA TU CARGA CON EL MÁXIMO LUJO DE DETALLE (OBJETOS, VOLUMEN, CANTIDAD, PISO)..."
                                                     value={shipmentDetails}
                                                     onChange={(e) => setShipmentDetails(e.target.value)}
+                                                    required
                                                 />
                                             </div>
 
@@ -434,10 +435,10 @@ const Booking = () => {
                                             <button onClick={() => setStep(2)} className="p-6 glass-card bg-white/5 border-white/5 text-zinc-600 hover:text-white transition-all rotate-180"><ArrowRight className="w-6 h-6" /></button>
                                             <button
                                                 onClick={() => createFlete(user.id, shipmentDetails, passengerTravels).then(res => res && setStep(4))}
-                                                disabled={loading}
-                                                className="premium-button flex-grow flex items-center justify-center gap-6 py-6 shadow-[0_20px_50px_rgba(245,158,11,0.3)] transition-all duration-700"
+                                                disabled={loading || shipmentDetails.length < 10}
+                                                className={`premium-button flex-grow flex items-center justify-center gap-6 py-6 shadow-[0_20px_50px_rgba(245,158,11,0.3)] transition-all duration-700 ${shipmentDetails.length < 10 ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
                                             >
-                                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <> <span className="text-[12px] font-black tracking-[0.2em] uppercase italic">GENERAR ORDEN</span> <CheckCircle2 className="w-6 h-6" /> </>}
+                                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <> <span className="text-[12px] font-black tracking-[0.2em] uppercase italic">{shipmentDetails.length < 10 ? 'MÍNIMO 10 CARACTERES' : 'GENERAR ORDEN'}</span> <CheckCircle2 className="w-6 h-6" /> </>}
                                             </button>
                                         </div>
                                     </div>

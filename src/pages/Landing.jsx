@@ -152,6 +152,36 @@ const Landing = () => {
                     </div>
                 </div>
             </section>
+
+            {/* QR CODE SECTION - Marketing */}
+            <section className="py-24 relative overflow-hidden">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500/10 blur-[120px] rounded-full pointer-events-none" />
+                <div className="container mx-auto px-10 relative z-10 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        className="inline-block p-10 glass-card border-primary-500/20 bg-black/60 backdrop-blur-3xl"
+                    >
+                        <div className="flex flex-col md:flex-row items-center gap-12 text-left">
+                            <div className="bg-white p-4 rounded-3xl shadow-[0_0_50px_rgba(255,255,255,0.1)] relative group">
+                                <img
+                                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://rapi-fletes.vercel.app/&bgcolor=ffffff&color=000000&margin=10"
+                                    alt="QR Rapi Fletes"
+                                    className="w-40 h-40 md:w-52 md:h-52 rounded-xl"
+                                />
+                                <div className="absolute inset-0 border-4 border-black/5 rounded-xl pointer-events-none" />
+                            </div>
+                            <div className="max-w-xs">
+                                <span className="badge-gold mb-4 inline-block">ACCESO INSTANTÁNEO</span>
+                                <h2 className="text-4xl font-black italic uppercase text-white tracking-tighter mb-4 leading-none">ESCANEA Y CARGA</h2>
+                                <p className="text-[10px] font-bold text-zinc-500 uppercase italic tracking-widest leading-relaxed">
+                                    Lleva la logística de élite contigo. Accede a nuestra plataforma directamente desde tu móvil con un simple escaneo.
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
         </div>
     )
 }
