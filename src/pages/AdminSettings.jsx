@@ -44,21 +44,34 @@ const AdminSettings = () => {
         setSuccess(false)
 
         try {
+            console.group('Admin Settings: Guardado Maestro Iniciado')
+
             // Save global settings
+            console.log('1/2 Guardando moneda:', localSettings.currency_symbol)
             await updateSetting('currency_symbol', localSettings.currency_symbol)
 
             // Save category prices
+            console.log('2/2 Guardando precios de categorías...')
             for (const cat of localPrices) {
+                console.log(`Actualizando ${cat.name} (ID: ${cat.id})...`)
                 await updateVehicleCategory(cat.id, {
                     base_price: parseFloat(cat.base_price),
                     price_per_km: parseFloat(cat.price_per_km)
                 })
             }
 
+            // RE-FETCH DATA to ensure UI is in sync
+            console.log('Refrescando datos desde el servidor...')
+            await fetchSettings()
+            await fetchCategories()
+
+            console.groupEnd()
             setSuccess(true)
             setTimeout(() => setSuccess(false), 3000)
         } catch (err) {
-            console.error(err)
+            console.groupEnd()
+            console.error('Error al guardar:', err)
+            alert('ERROR CRÍTICO AL GUARDAR: ' + (err.message || 'Error desconocido'))
         } finally {
             setSaving(false)
         }
@@ -154,8 +167,8 @@ const AdminSettings = () => {
                         onClick={handleSave}
                         disabled={saving}
                         className={`w-full py-5 rounded-2xl font-black italic uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all ${success
-                                ? 'bg-green-500 text-black'
-                                : 'bg-primary-500 text-black shadow-[0_20px_50px_rgba(245,158,11,0.3)] hover:scale-[1.02]'
+                            ? 'bg-green-500 text-black'
+                            : 'bg-primary-500 text-black shadow-[0_20px_50px_rgba(245,158,11,0.3)] hover:scale-[1.02]'
                             }`}
                     >
                         {saving ? (

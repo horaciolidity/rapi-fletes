@@ -30,34 +30,52 @@ export const useAdminStore = create((set, get) => ({
     // Update App Setting
     updateSetting: async (key, value) => {
         try {
-            const { error } = await supabase
+            const payload = {
+                key,
+                value: String(value),
+                updated_at: new Date()
+            }
+
+            let { error, status } = await supabase
                 .from('app_settings')
-                .update({ value, updated_at: new Date() })
-                .eq('key', key)
-            if (error) throw error
+                .upsert(payload, { onConflict: 'key' })
+
+            if (error) {
+                // Fallback if updated_at is missing
+                if (error.message?.includes('updated_at') || error.code === 'PGRST204') {
+                    delete payload.updated_at
+                    const { error: retryError } = await supabase
+                        .from('app_settings')
+                        .upsert(payload, { onConflict: 'key' })
+                    if (retryError) throw retryError
+                } else {
+                    throw error
+                }
+            }
+
             set(state => ({ settings: { ...state.settings, [key]: value } }))
             return true
         } catch (err) {
             console.error('Error updating setting:', err)
-            return false
+            throw err
         }
     },
 
     // Update Vehicle Category (Prices)
     updateVehicleCategory: async (categoryId, updates) => {
         try {
-            // First try with updated_at
-            const { error } = await supabase
+            const payload = {
+                ...updates,
+                updated_at: new Date()
+            }
+
+            const { error, count } = await supabase
                 .from('vehicle_categories')
-                .update({
-                    ...updates,
-                    updated_at: new Date()
-                })
+                .update(payload)
                 .eq('id', categoryId)
 
             if (error) {
-                // If it fails because of updated_at column missing, try without it
-                if (error.message?.includes('updated_at')) {
+                if (error.message?.includes('updated_at') || error.code === 'PGRST204') {
                     const { error: retryError } = await supabase
                         .from('vehicle_categories')
                         .update(updates)
@@ -67,10 +85,11 @@ export const useAdminStore = create((set, get) => ({
                 }
                 throw error
             }
+
             return true
         } catch (err) {
             console.error('Error updating category:', err)
-            return false
+            throw err
         }
     },
 
