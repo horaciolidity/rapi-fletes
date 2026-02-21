@@ -9,6 +9,7 @@ import FreightMap from '../components/map/FreightMap'
 import ChatWidget from '../components/chat/ChatWidget'
 import RatingModal from '../components/trip/RatingModal'
 import DriverInfoCard from '../components/driver/DriverInfoCard'
+import TripStopwatch from '../components/trip/TripStopwatch'
 
 const MyFletes = () => {
     const { user, profile } = useAuthStore()
@@ -199,6 +200,24 @@ const MyFletes = () => {
                                             fleteId={selectedFlete.id}
                                         />
                                         <div className="absolute top-4 left-4 p-3 bg-[var(--card-bg)]/80 backdrop-blur-xl rounded-xl border border-[var(--border-color)] flex items-center gap-3">
+                                            {/* LIVE STOPWATCH FOR CLIENT */}
+                                            <TripStopwatch flete={selectedFlete} />
+
+                                            {/* PROMINENT PRICE AT DESTINATION FOR CLIENT */}
+                                            {selectedFlete.status === 'arrived_dropoff' && (
+                                                <motion.div
+                                                    initial={{ scale: 0.9, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    className="absolute bottom-4 left-1/2 -translate-x-1/2 p-8 bg-primary-500 rounded-[2rem] text-black text-center shadow-[0_20px_50px_rgba(245,158,11,0.4)] z-10"
+                                                >
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2">MONTO A PAGAR</p>
+                                                    <h2 className="text-6xl font-black italic tracking-tighter">${selectedFlete.estimated_price}</h2>
+                                                    <div className="mt-4 flex items-center justify-center gap-2">
+                                                        <DollarSign className="w-5 h-5" />
+                                                        <span className="text-xs font-bold uppercase italic">Efectivo o Transferencia</span>
+                                                    </div>
+                                                </motion.div>
+                                            )}
                                             <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
                                             <p className="text-[9px] font-black text-[var(--text-color)] italic uppercase">{getStatusTheme(selectedFlete.status).label}</p>
                                         </div>

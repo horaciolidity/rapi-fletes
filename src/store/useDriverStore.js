@@ -152,9 +152,15 @@ export const useDriverStore = create((set, get) => ({
         }
 
         // Auto-set timestamps based on status
-        if (status === 'in_transit') {
+        if (status === 'accepted') {
+            updateData.accepted_at = new Date()
+        } else if (status === 'arrived_pickup') {
+            updateData.arrived_pickup_time = new Date()
+        } else if (status === 'in_transit') {
             // Trip starts when driver begins journey to destination
             updateData.trip_start_time = new Date()
+        } else if (status === 'arrived_dropoff') {
+            updateData.arrived_dropoff_time = new Date()
         } else if (status === 'completed') {
             updateData.trip_end_time = new Date()
         }

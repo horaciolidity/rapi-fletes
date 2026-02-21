@@ -6,6 +6,7 @@ import { useAuthStore } from '../store/useAuthStore'
 import { useNavigate } from 'react-router-dom'
 import FreightMap from '../components/map/FreightMap'
 import ChatWidget from '../components/chat/ChatWidget'
+import TripStopwatch from '../components/trip/TripStopwatch'
 import TripTimer from '../components/trip/TripTimer'
 import RatingModal from '../components/trip/RatingModal'
 import { supabase } from '../api/supabase'
@@ -755,6 +756,25 @@ const DriverDashboard = () => {
                                                                 <p className="text-[11px] font-black text-zinc-300 italic uppercase leading-tight">{activeFlete.dropoff_address}</p>
                                                             </div>
                                                         </div>
+
+                                                        {/* LIVE STOPWATCH */}
+                                                        <TripStopwatch flete={activeFlete} />
+
+                                                        {/* PROMINENT PRICE AT DESTINATION */}
+                                                        {activeFlete.status === 'arrived_dropoff' && (
+                                                            <motion.div
+                                                                initial={{ scale: 0.9, opacity: 0 }}
+                                                                animate={{ scale: 1, opacity: 1 }}
+                                                                className="mt-6 p-8 bg-green-500 rounded-[2rem] text-black text-center shadow-[0_20px_50px_rgba(34,197,94,0.4)]"
+                                                            >
+                                                                <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2">COBRAR AL PASAJERO</p>
+                                                                <h2 className="text-6xl font-black italic tracking-tighter">${activeFlete.estimated_price}</h2>
+                                                                <div className="mt-4 flex items-center justify-center gap-2">
+                                                                    <DollarSign className="w-5 h-5" />
+                                                                    <span className="text-xs font-bold uppercase italic">Efectivo o Transferencia</span>
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ) : (
