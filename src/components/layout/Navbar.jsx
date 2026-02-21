@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, User, LogOut, Menu, X, Bell, LayoutDashboard, History, ShieldCheck, Settings } from 'lucide-react'
+import { Truck, User, LogOut, Menu, X, Bell, LayoutDashboard, History, ShieldCheck, Settings, ArrowRight, Clock } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/useAuthStore'
 import { useNotificationStore } from '../../store/useNotificationStore'
