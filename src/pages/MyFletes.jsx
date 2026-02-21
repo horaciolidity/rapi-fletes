@@ -199,29 +199,40 @@ const MyFletes = () => {
                                             enableLiveTracking={['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(selectedFlete.status)}
                                             fleteId={selectedFlete.id}
                                         />
-                                        <div className="absolute top-4 left-4 p-3 bg-[var(--card-bg)]/80 backdrop-blur-xl rounded-xl border border-[var(--border-color)] flex items-center gap-3">
-                                            {/* LIVE STOPWATCH FOR CLIENT */}
-                                            <TripStopwatch flete={selectedFlete} />
 
-                                            {/* PROMINENT PRICE AT DESTINATION FOR CLIENT */}
-                                            {selectedFlete.status === 'arrived_dropoff' && (
-                                                <motion.div
-                                                    initial={{ scale: 0.9, opacity: 0 }}
-                                                    animate={{ scale: 1, opacity: 1 }}
-                                                    className="absolute bottom-4 left-1/2 -translate-x-1/2 p-8 bg-primary-500 rounded-[2rem] text-black text-center shadow-[0_20px_50px_rgba(245,158,11,0.4)] z-10"
-                                                >
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2">MONTO A PAGAR</p>
-                                                    <h2 className="text-6xl font-black italic tracking-tighter">${selectedFlete.estimated_price}</h2>
-                                                    <div className="mt-4 flex items-center justify-center gap-2">
-                                                        <DollarSign className="w-5 h-5" />
-                                                        <span className="text-xs font-bold uppercase italic">Efectivo o Transferencia</span>
-                                                    </div>
-                                                </motion.div>
-                                            )}
+                                        {/* Simple Status Floating Badge */}
+                                        <div className="absolute top-4 left-4 p-2.5 bg-black/60 backdrop-blur-xl rounded-xl border border-white/5 flex items-center gap-2 z-10">
                                             <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
-                                            <p className="text-[9px] font-black text-[var(--text-color)] italic uppercase">{getStatusTheme(selectedFlete.status).label}</p>
+                                            <p className="text-[8px] font-black text-white italic uppercase">{getStatusTheme(selectedFlete.status).label}</p>
                                         </div>
+
+                                        {/* PROMINENT PRICE AT DESTINATION FOR CLIENT (Moved outside absolute box if needed, but keeping logic consistent) */}
+                                        {selectedFlete.status === 'arrived_dropoff' && (
+                                            <motion.div
+                                                initial={{ scale: 0.9, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                className="absolute inset-x-4 bottom-4 p-6 bg-primary-500 rounded-[2rem] text-black text-center shadow-[0_20px_50px_rgba(245,158,11,0.4)] z-20"
+                                            >
+                                                <p className="text-[8px] font-black uppercase tracking-[0.3em] mb-1">TOTAL A PAGAR</p>
+                                                <h2 className="text-4xl font-black italic tracking-tighter">${selectedFlete.estimated_price}</h2>
+                                                <div className="mt-2 flex items-center justify-center gap-2">
+                                                    <DollarSign className="w-4 h-4" />
+                                                    <span className="text-[8px] font-black uppercase italic">Efectivo o Transferencia</span>
+                                                </div>
+                                            </motion.div>
+                                        )}
                                     </div>
+
+                                    {/* LIVE STOPWATCH IN DEDICATED SECTION */}
+                                    {['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(selectedFlete.status) && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="glass-card p-6 border-primary-500/20 bg-primary-500/5"
+                                        >
+                                            <TripStopwatch flete={selectedFlete} />
+                                        </motion.div>
+                                    )}
 
                                     {/* Info Card */}
                                     <div className="glass-card p-6 space-y-6">

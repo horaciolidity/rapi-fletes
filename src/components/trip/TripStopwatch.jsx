@@ -75,7 +75,7 @@ const TripStopwatch = ({ flete }) => {
     )
 
     return (
-        <div className="space-y-2 mt-4">
+        <div className="space-y-2">
             <div className="flex items-center gap-2 mb-3">
                 <Clock className="w-3 h-3 text-primary-500" />
                 <span className="text-[9px] font-black text-primary-500 uppercase italic tracking-widest">CRONÓMETRO DE VIAJE</span>
