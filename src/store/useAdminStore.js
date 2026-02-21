@@ -46,6 +46,7 @@ export const useAdminStore = create((set, get) => ({
     // Update Vehicle Category (Prices)
     updateVehicleCategory: async (categoryId, updates) => {
         try {
+            // First try with updated_at
             const { error } = await supabase
                 .from('vehicle_categories')
                 .update({
@@ -53,7 +54,19 @@ export const useAdminStore = create((set, get) => ({
                     updated_at: new Date()
                 })
                 .eq('id', categoryId)
-            if (error) throw error
+
+            if (error) {
+                // If it fails because of updated_at column missing, try without it
+                if (error.message?.includes('updated_at')) {
+                    const { error: retryError } = await supabase
+                        .from('vehicle_categories')
+                        .update(updates)
+                        .eq('id', categoryId)
+                    if (retryError) throw retryError
+                    return true
+                }
+                throw error
+            }
             return true
         } catch (err) {
             console.error('Error updating category:', err)
