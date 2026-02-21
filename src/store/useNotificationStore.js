@@ -23,22 +23,33 @@ export const useNotificationStore = create(
                     popups: [{ ...notification, id }, ...state.popups]
                 }))
 
-                // Play Sound (Repeat for better awareness)
-                const playSound = () => {
+                // Haptic Feedback & Sound (Repeat for better awareness)
+                const triggerAlert = () => {
+                    // Sound
                     const audio = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_783424ffc4.mp3')
-                    audio.volume = 0.5
+                    audio.volume = 0.7
                     audio.play().catch(e => console.log('Audio play failed:', e))
+
+                    // Vibration
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate([200, 100, 200]) // Vibrate pattern: pulse, pause, pulse
+                    }
                 }
 
-                playSound()
-                setTimeout(playSound, 500)
+                triggerAlert()
+                setTimeout(triggerAlert, 600)
 
                 // Browser Notification
                 if (get().permission === 'granted') {
-                    new Notification('RapiFletes', {
-                        body: notification.message,
-                        icon: '/icons/icon-192x192.png',
-                    })
+                    try {
+                        new Notification('RapiFletes Logistics', {
+                            body: notification.message,
+                            icon: '/imagenes/1.jpg',
+                            vibrate: [200, 100, 200]
+                        })
+                    } catch (e) {
+                        console.error('Browser notification error:', e)
+                    }
                 }
 
                 // Auto remove in-app POPUP after 5s

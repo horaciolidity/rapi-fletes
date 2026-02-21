@@ -34,25 +34,31 @@ const NotificationManager = () => {
                 const newDriver = payload.new.driver_id
 
                 let message = ''
+                let type = 'info' // Default type, will be overridden
 
                 if (profile?.role === 'driver') {
                     if (!oldDriver && newDriver === user.id) {
                         message = '🔔 ¡Has sido asignado a un nuevo viaje!'
+                        type = 'success'
                     } else if (oldStatus !== newStatus && newStatus === 'cancelled') {
                         message = '❌ El cliente ha cancelado el viaje.'
+                        type = 'error'
                     }
                 } else {
                     if (oldStatus === 'pending' && newStatus === 'accepted') {
                         message = '🚚 ¡Un chofer ha aceptado tu viaje!'
-                    } else if (oldStatus !== newStatus && newStatus === 'picked_up') {
-                        message = '📦 El chofer ya retiró la carga.'
+                        type = 'success'
+                    } else if (oldStatus !== newStatus && newStatus === 'in_transit') {
+                        message = '📦 Viaje en curso: El chofer ha iniciado el trayecto.'
+                        type = 'info'
                     } else if (newStatus === 'completed') {
                         message = '✅ ¡Viaje completado con éxito!'
+                        type = 'success'
                     }
                 }
 
                 if (message) {
-                    addNotification({ message, type: 'info' })
+                    addNotification({ message, type })
                 }
             })
             .on('postgres_changes', {
@@ -60,10 +66,11 @@ const NotificationManager = () => {
                 schema: 'public',
                 table: 'fletes'
             }, (payload) => {
-                if (profile?.role === 'driver' && payload.new.status === 'pending') {
+                // Solo notificar a choferes verificados sobre nuevos fletes disponibles
+                if (profile?.role === 'driver' && profile?.verification_status === 'verified' && payload.new.status === 'pending') {
                     addNotification({
-                        message: `🔔 NUEVO PEDIDO: $${payload.new.estimated_price} - ${payload.new.pickup_address.split(',')[0]}`,
-                        type: 'success'
+                        message: `🔔 NUEVO PEDIDO DISPONIBLE: $${payload.new.estimated_price} - ${payload.new.pickup_address.split(',')[0]}`,
+                        type: 'info'
                     })
                 }
             })
