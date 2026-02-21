@@ -64,20 +64,20 @@ const Navbar = () => {
                 </div>
 
                 {/* Logo Section */}
-                <Link to="/" className="flex items-center gap-4 group relative">
+                <Link to="/" className="flex items-center gap-3 group relative">
                     <div className="relative">
-                        <div className="w-10 h-10 md:w-16 md:h-16 rounded-2xl md:rounded-[1.5rem] bg-black overflow-hidden border border-primary-500/20 shadow-2xl transition-all duration-700 group-hover:rotate-[8deg] group-hover:scale-105">
+                        <div className="w-9 h-9 md:w-14 md:h-14 rounded-xl md:rounded-[1.2rem] bg-black overflow-hidden border border-primary-500/20 shadow-xl transition-all duration-700 group-hover:rotate-[8deg] group-hover:scale-105">
                             <img src="/imagenes/1.jpg" alt="Rapi Fletes" className="w-full h-full object-cover opacity-80" />
                             <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/20 to-transparent" />
                         </div>
-                        <div className="absolute -inset-2 bg-primary-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute -inset-2 bg-primary-500/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-xl md:text-4xl font-black tracking-tighter uppercase italic leading-none text-gradient">
+                        <span className="text-lg md:text-3xl font-black tracking-tighter uppercase italic leading-none text-gradient">
                             RAPI<span className="text-primary-500">FLETES</span>
                         </span>
-                        <span className="text-[7px] md:text-[10px] font-black tracking-[0.6em] text-zinc-500 leading-none mt-2 opacity-60 italic uppercase flex items-center gap-2">
-                            <span className="block h-[1px] w-4 bg-primary-500/30" />
+                        <span className="text-[6px] md:text-[9px] font-black tracking-[0.5em] text-zinc-500 leading-none mt-1.5 opacity-60 italic uppercase flex items-center gap-2">
+                            <span className="block h-[1px] w-3 bg-primary-500/30" />
                             Elite Logistics
                         </span>
                     </div>

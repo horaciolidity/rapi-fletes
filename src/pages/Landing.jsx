@@ -40,9 +40,9 @@ const Landing = () => {
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}
                             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                            className="text-6xl sm:text-8xl font-black leading-[0.85] tracking-tighter italic uppercase text-gradient"
+                            className="text-5xl sm:text-7xl font-black leading-[0.85] tracking-tighter italic uppercase text-gradient"
                         >
-                            MOVEMOS<br />TRABAJAMOS
+                            PUNTUAL Y<br />CONFIABLE
                         </motion.h1>
                     </div>
 
@@ -169,13 +169,13 @@ const CategoryCard = ({ category, index }) => {
             <div className="h-[280px] relative overflow-hidden">
                 <img src={imgPath} alt={category.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover/card:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                <div className="absolute bottom-6 left-8">
-                    <h3 className="text-4xl font-black italic uppercase tracking-tighter text-white leading-none drop-shadow-lg">{category.name}</h3>
+                <div className="absolute bottom-6 left-6">
+                    <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none drop-shadow-lg">{category.name}</h3>
                 </div>
             </div>
 
-            <div className="p-10 flex flex-col justify-between flex-1">
-                <p className="text-zinc-500 font-bold text-[11px] leading-relaxed italic uppercase tracking-tight opacity-80 mb-8">
+            <div className="p-8 flex flex-col justify-between flex-1">
+                <p className="text-zinc-500 font-bold text-[10px] leading-relaxed italic uppercase tracking-tight opacity-80 mb-6">
                     {category.description}
                 </p>
 
