@@ -65,7 +65,7 @@ export const useChatStore = create((set, get) => ({
         return true
     },
 
-    subscribeToMessages: (fleteId) => {
+    subscribeToMessages: (fleteId, currentUserId) => {
         if (!fleteId) return null;
 
         const channel = supabase
@@ -75,10 +75,36 @@ export const useChatStore = create((set, get) => ({
                 schema: 'public',
                 table: 'messages',
                 filter: `flete_id=eq.${fleteId}`
-            }, (payload) => {
-                // To avoid duplicate optimistic messages, we just refetch
-                // or we could replace. Let's refetch for simplicity.
-                get().fetchMessages(fleteId)
+            }, async (payload) => {
+                const newMsg = payload.new
+
+                // Add to local state if not already exists (avoiding duplicate with optimistic)
+                set(state => {
+                    const exists = state.messages.some(m => m.id === newMsg.id || (m.isOptimistic && m.content === newMsg.content))
+                    if (exists) {
+                        // Replace optimistic with real one
+                        return {
+                            messages: state.messages.map(m =>
+                                (m.isOptimistic && m.content === newMsg.content) ? newMsg : m
+                            )
+                        }
+                    }
+                    return { messages: [...state.messages, newMsg] }
+                })
+
+                // NOTIFICATION LOGIC
+                // Only notify if the message is from THE OTHER person
+                if (newMsg.sender_id !== currentUserId) {
+                    const { useNotificationStore } = await import('./useNotificationStore')
+                    const { useAuthStore } = await import('./useAuthStore')
+
+                    // We try to get the sender's name if possible, or just a generic message
+                    useNotificationStore.getState().addNotification({
+                        title: 'NUEVO MENSAJE',
+                        message: `Tienes un nuevo mensaje en tu flete activo: "${newMsg.content.slice(0, 30)}${newMsg.content.length > 30 ? '...' : ''}"`,
+                        type: 'chat'
+                    })
+                }
             })
             .subscribe()
 

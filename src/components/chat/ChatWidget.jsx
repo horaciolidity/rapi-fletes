@@ -15,12 +15,12 @@ const ChatWidget = ({ fleteId, receiverName }) => {
     useEffect(() => {
         if (fleteId) {
             fetchMessages(fleteId)
-            const channel = subscribeToMessages(fleteId)
+            const channel = subscribeToMessages(fleteId, user?.id)
             return () => {
                 if (channel) channel.unsubscribe()
             }
         }
-    }, [fleteId])
+    }, [fleteId, user?.id])
 
     useEffect(() => {
         if (scrollRef.current) {
