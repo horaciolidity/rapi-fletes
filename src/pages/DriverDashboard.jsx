@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User, Search, X, MessageSquare } from 'lucide-react'
+import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User, Search, X, MessageSquare, Camera } from 'lucide-react'
 import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { useNotificationStore } from '../store/useNotificationStore'
@@ -42,7 +42,9 @@ const DriverDashboard = () => {
         photo: null,
         doc_license: null,
         doc_insurance: null,
-        doc_vnt: null
+        doc_vnt: null,
+        profile_photo: null,
+        doc_dni: null
     })
 
     const { vehicles, fetchMyVehicles, addVehicle, setActiveVehicle } = useDriverStore()
@@ -154,16 +156,31 @@ const DriverDashboard = () => {
         setIsSubmitting(true)
 
         try {
-            // 1. Subir archivos a Firebase
+            // 1. Subir archivos a Storage
             const uploadPromises = []
-            const fileFields = ['photo', 'doc_license', 'doc_insurance', 'doc_vnt']
+            const vehicleFileFields = ['photo', 'doc_license', 'doc_insurance', 'doc_vnt']
+            const profileFileFields = ['profile_photo', 'doc_dni']
             const urls = {}
 
-            for (const field of fileFields) {
+            // Subir archivos de vehículo
+            for (const field of vehicleFileFields) {
                 if (formData[field]) {
                     const path = `${user.id}/${formData.license_plate}/${field}_${Date.now()}`
                     uploadPromises.push(
                         uploadFile(formData[field], 'vehicles', path).then(url => { urls[`${field}_url`] = url })
+                    )
+                }
+            }
+
+            // Subir archivos de perfil/chofer
+            for (const field of profileFileFields) {
+                if (formData[field]) {
+                    const path = `${user.id}/${field}_${Date.now()}`
+                    uploadPromises.push(
+                        uploadFile(formData[field], 'profiles', path).then(url => {
+                            if (field === 'profile_photo') urls['avatar_url'] = url
+                            else if (field === 'doc_dni') urls['document_image_url'] = url
+                        })
                     )
                 }
             }
@@ -190,12 +207,17 @@ const DriverDashboard = () => {
                     doc_insurance: null, doc_vnt: null
                 })
 
-                // Si es la primera vez (estado none), actualizamos perfil a pending
+                // Si es la primera vez (estado none), actualizamos perfil a pending y subimos datos de chofer
                 if (profile.verification_status === 'none') {
-                    await updateProfile(user.id, {
+                    const profileUpdates = {
                         phone: formData.phone,
                         verification_status: 'pending'
-                    })
+                    }
+
+                    if (urls.avatar_url) profileUpdates.avatar_url = urls.avatar_url
+                    if (urls.document_image_url) profileUpdates.document_image_url = urls.document_image_url
+
+                    await updateProfile(user.id, profileUpdates)
                     fetchProfile(user.id)
                 }
             }
@@ -379,27 +401,85 @@ const DriverDashboard = () => {
                             />
                         </div>
                         <div className="space-y-4 py-4 border-t border-white/5 mt-4">
-                            <h4 className="text-[9px] font-black text-primary-500 uppercase tracking-widest italic">Documentación Requerida</h4>
+                            <h4 className="text-[9px] font-black text-primary-500 uppercase tracking-widest italic">Documentación del Chofer</h4>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Foto de Perfil</label>
+                                    <div className="relative group">
+                                        <input
+                                            type="file"
+                                            className="input-field py-3 text-[10px]"
+                                            accept="image/*"
+                                            capture="user"
+                                            onChange={e => setFormData({ ...formData, profile_photo: e.target.files[0] })}
+                                            required
+                                        />
+                                        <Camera className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-hover:text-primary-500 transition-colors pointer-events-none" />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">DNI (Frente)</label>
+                                    <input
+                                        type="file"
+                                        className="input-field py-3 text-[10px]"
+                                        accept="image/*,.pdf"
+                                        onChange={e => setFormData({ ...formData, doc_dni: e.target.files[0] })}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Licencia de Conducir</label>
+                                <input
+                                    type="file"
+                                    className="input-field py-3 text-[10px]"
+                                    accept="image/*,.pdf"
+                                    onChange={e => setFormData({ ...formData, doc_license: e.target.files[0] })}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 py-4 border-t border-white/5 mt-4">
+                            <h4 className="text-[9px] font-black text-primary-500 uppercase tracking-widest italic">Documentación del Vehículo</h4>
 
                             <div className="space-y-2">
                                 <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Foto del Vehículo</label>
-                                <input type="file" className="input-field py-3 text-[10px]" accept="image/*" onChange={e => setFormData({ ...formData, photo: e.target.files[0] })} required />
+                                <div className="relative group">
+                                    <input
+                                        type="file"
+                                        className="input-field py-3 text-[10px]"
+                                        accept="image/*"
+                                        capture="environment"
+                                        onChange={e => setFormData({ ...formData, photo: e.target.files[0] })}
+                                        required
+                                    />
+                                    <Car className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-hover:text-primary-500 transition-colors pointer-events-none" />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Licencia Conducir</label>
-                                    <input type="file" className="input-field py-3 text-[10px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_license: e.target.files[0] })} required />
+                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Seguro Vigente</label>
+                                    <input
+                                        type="file"
+                                        className="input-field py-3 text-[10px]"
+                                        accept="image/*,.pdf"
+                                        onChange={e => setFormData({ ...formData, doc_insurance: e.target.files[0] })}
+                                        required
+                                    />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Seguro Vigente</label>
-                                    <input type="file" className="input-field py-3 text-[10px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_insurance: e.target.files[0] })} required />
+                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Cédula / VNT</label>
+                                    <input
+                                        type="file"
+                                        className="input-field py-3 text-[10px]"
+                                        accept="image/*,.pdf"
+                                        onChange={e => setFormData({ ...formData, doc_vnt: e.target.files[0] })}
+                                        required
+                                    />
                                 </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Cédula / VNT</label>
-                                <input type="file" className="input-field py-3 text-[10px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_vnt: e.target.files[0] })} required />
                             </div>
                         </div>
 
@@ -565,6 +645,12 @@ const DriverDashboard = () => {
                                     <p className="text-[8px] font-black text-zinc-500 uppercase italic leading-none mb-1">COMPLETADOS</p>
                                     <p className="text-xl font-black text-[var(--text-color)] italic leading-none">{completedHistory.length}</p>
                                 </div>
+                                <button
+                                    onClick={() => navigate('/profile')}
+                                    className="bg-[var(--card-bg)]/80 backdrop-blur-xl p-4 rounded-3xl border border-[var(--border-color)] text-zinc-400 hover:text-primary-500 transition-colors"
+                                >
+                                    <User className="w-6 h-6" />
+                                </button>
                             </div>
                         </div>
 
@@ -909,6 +995,30 @@ const DriverDashboard = () => {
                                                                 </button>
                                                             )}
                                                         </div>
+
+                                                        {/* Documentation Info */}
+                                                        <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-2 gap-2">
+                                                            {v.photo_url && (
+                                                                <a href={v.photo_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-2 bg-zinc-900/50 rounded-lg text-[8px] font-black text-zinc-500 uppercase italic hover:text-primary-500 transition-colors">
+                                                                    <Car className="w-3 h-3" /> Foto Vehículo
+                                                                </a>
+                                                            )}
+                                                            {v.doc_license_url && (
+                                                                <a href={v.doc_license_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-2 bg-zinc-900/50 rounded-lg text-[8px] font-black text-zinc-500 uppercase italic hover:text-primary-500 transition-colors">
+                                                                    <FileText className="w-3 h-3" /> Licencia
+                                                                </a>
+                                                            )}
+                                                            {v.doc_insurance_url && (
+                                                                <a href={v.doc_insurance_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-2 bg-zinc-900/50 rounded-lg text-[8px] font-black text-zinc-500 uppercase italic hover:text-primary-500 transition-colors">
+                                                                    <ShieldCheck className="w-3 h-3" /> Seguro
+                                                                </a>
+                                                            )}
+                                                            {v.doc_vnt_url && (
+                                                                <a href={v.doc_vnt_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-2 bg-zinc-900/50 rounded-lg text-[8px] font-black text-zinc-500 uppercase italic hover:text-primary-500 transition-colors">
+                                                                    <FileText className="w-3 h-3" /> Cédula/VNT
+                                                                </a>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 ))}
 
@@ -937,16 +1047,27 @@ const DriverDashboard = () => {
                                                             <textarea className="input-field text-xs resize-none" placeholder="JUSTIFICACIÓN (Capacidad, tipo de caja, etc)" value={formData.justification} onChange={e => setFormData({ ...formData, justification: e.target.value })} required />
 
                                                             <div className="space-y-3 py-3 border-t border-white/5">
-                                                                <p className="text-[8px] font-black text-primary-500 uppercase italic">Archivos de Verificación</p>
+                                                                <p className="text-[8px] font-black text-primary-500 uppercase italic">Documentación del Chofer</p>
                                                                 <div className="grid grid-cols-2 gap-2">
                                                                     <div className="space-y-1">
-                                                                        <label className="text-[7px] text-zinc-500 uppercase font-black">Foto Vehículo</label>
-                                                                        <input type="file" className="input-field py-2 text-[9px]" accept="image/*" onChange={e => setFormData({ ...formData, photo: e.target.files[0] })} required />
+                                                                        <label className="text-[7px] text-zinc-500 uppercase font-black">📷 Foto Perfil</label>
+                                                                        <input type="file" className="input-field py-2 text-[9px]" accept="image/*" capture="user" onChange={e => setFormData({ ...formData, profile_photo: e.target.files[0] })} />
                                                                     </div>
                                                                     <div className="space-y-1">
-                                                                        <label className="text-[7px] text-zinc-500 uppercase font-black">Licencia</label>
-                                                                        <input type="file" className="input-field py-2 text-[9px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_license: e.target.files[0] })} required />
+                                                                        <label className="text-[7px] text-zinc-500 uppercase font-black">DNI</label>
+                                                                        <input type="file" className="input-field py-2 text-[9px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_dni: e.target.files[0] })} />
                                                                     </div>
+                                                                </div>
+                                                                <div className="space-y-1">
+                                                                    <label className="text-[7px] text-zinc-500 uppercase font-black">Licencia de Conducir</label>
+                                                                    <input type="file" className="input-field py-2 text-[9px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_license: e.target.files[0] })} required />
+                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-3 py-3 border-t border-white/5">
+                                                                <p className="text-[8px] font-black text-primary-500 uppercase italic">Documentación del Vehículo</p>
+                                                                <div className="space-y-1">
+                                                                    <label className="text-[7px] text-zinc-500 uppercase font-black">📸 Foto del Vehículo</label>
+                                                                    <input type="file" className="input-field py-2 text-[9px]" accept="image/*" capture="environment" onChange={e => setFormData({ ...formData, photo: e.target.files[0] })} required />
                                                                 </div>
                                                                 <div className="grid grid-cols-2 gap-2">
                                                                     <div className="space-y-1">

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, Phone, Mail, Camera, Save, Loader2, ShieldCheck, Truck, MapPin, Settings, LogOut, ChevronRight, Bell, DollarSign, AlertTriangle } from 'lucide-react'
+import { User, Phone, Camera, Save, Loader2, ShieldCheck, Truck, MapPin, Settings, LogOut, ChevronRight, Bell, DollarSign, AlertTriangle, CheckCircle2, Upload } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 import { useNotificationStore } from '../store/useNotificationStore'
 import { useNavigate } from 'react-router-dom'
@@ -21,7 +21,8 @@ const Profile = () => {
         full_name: '',
         phone: '',
         avatar_url: '',
-        province: ''
+        province: '',
+        document_image_url: ''
     })
 
     useEffect(() => {
@@ -34,7 +35,8 @@ const Profile = () => {
                 full_name: profile.full_name || '',
                 phone: profile.phone || '',
                 avatar_url: profile.avatar_url || '',
-                province: profile.province || ''
+                province: profile.province || '',
+                document_image_url: profile.document_image_url || ''
             })
         }
     }, [user, profile])
@@ -92,6 +94,29 @@ const Profile = () => {
         } catch (error) {
             console.error("Error updating avatar:", error)
             addNotification({ message: 'Error al subir la imagen', type: 'error' })
+        }
+        setLoading(false)
+    }
+
+    const handleDocumentUpdate = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+
+        setLoading(true)
+        try {
+            const path = `${user.id}/dni_${Date.now()}`
+            const url = await uploadFile(file, 'profiles', path)
+
+            if (url) {
+                setFormData(prev => ({ ...prev, document_image_url: url }))
+                const res = await updateProfile(user.id, { document_image_url: url })
+                if (res.data) {
+                    addNotification({ message: 'Documentación actualizada', type: 'success' })
+                }
+            }
+        } catch (error) {
+            console.error("Error updating document:", error)
+            addNotification({ message: 'Error al subir el documento', type: 'error' })
         }
         setLoading(false)
     }
@@ -237,6 +262,53 @@ const Profile = () => {
                                         : "Tus pedidos se identificarán con esta zona preferente."}
                                 </p>
                             </div>
+
+                            {profile.role === 'driver' && (
+                                <div className="space-y-3 pt-6 border-t border-white/5">
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4 italic flex items-center gap-3">
+                                        <span className="w-1.5 h-1.5 bg-primary-500 rounded-full" />
+                                        Documentación Personal
+                                    </h3>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-4 italic opacity-60 text-gradient">DNI / IDENTIFICACIÓN</label>
+                                        <div className="glass-card p-4 flex items-center justify-between border-white/5 bg-zinc-950/40">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-lg bg-zinc-900 flex items-center justify-center text-zinc-500">
+                                                    {formData.document_image_url ? <CheckCircle2 className="text-primary-500" /> : <ShieldCheck />}
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-black text-white italic uppercase tracking-tight">DNI FRENTE</p>
+                                                    <p className="text-[8px] font-black text-zinc-600 uppercase italic">{formData.document_image_url ? 'DOCUMENTO CARGADO' : 'PENDIENTE DE CARGA'}</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => document.getElementById('dni-upload').click()}
+                                                className="p-3 bg-zinc-900 hover:bg-zinc-800 rounded-xl transition-all"
+                                            >
+                                                <Upload className="w-4 h-4 text-primary-500" />
+                                            </button>
+                                            <input
+                                                id="dni-upload"
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*,.pdf"
+                                                onChange={handleDocumentUpdate}
+                                            />
+                                        </div>
+                                        {formData.document_image_url && (
+                                            <a
+                                                href={formData.document_image_url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="text-[8px] font-black text-primary-500 uppercase italic px-4 underline block"
+                                            >
+                                                Ver documento actual
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                             {message.text && (
                                 <div className={`p-4 rounded-2xl border text-[10px] font-black uppercase italic text-center ${message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
