@@ -220,17 +220,43 @@ export const useDriverStore = create((set, get) => ({
         return { data, error }
     },
 
-    subscribeToNewFletes: () => {
+    subscribeToNewFletes: (driverId) => {
         const channel = supabase
             .channel('fletes_marketplace')
             .on('postgres_changes', {
-                event: '*',
+                event: 'INSERT',
+                schema: 'public',
+                table: 'fletes'
+            }, async (payload) => {
+                const newFlete = payload.new
+
+                if (newFlete.status === 'pending') {
+                    // Refetch to get related info (category name, etc)
+                    await get().fetchAvailableFletes(driverId)
+
+                    // Trigger sound/alert if it matches driver's category
+                    const { availableFletes } = get()
+                    const matchingFlete = availableFletes.find(f => f.id === newFlete.id)
+
+                    if (matchingFlete) {
+                        const { useNotificationStore } = await import('./useNotificationStore')
+                        const catName = matchingFlete.vehicle_categories?.name || 'FLETE'
+
+                        useNotificationStore.getState().addNotification({
+                            title: `¡NUEVO VIAJE [${catName}]!`,
+                            message: `Hay una solicitud de ${catName} en ${newFlete.pickup_address.split(',')[0]}`,
+                            type: 'info'
+                        })
+                    }
+                }
+            })
+            .on('postgres_changes', {
+                event: 'UPDATE',
                 schema: 'public',
                 table: 'fletes'
             }, (payload) => {
-                // Whenever any flete changes, we refresh the marketplace list
-                // if it affects pending status. It's safer to just refetch.
-                get().fetchAvailableFletes()
+                // If a flete is accepted or cancelled by someone else, refresh the list
+                get().fetchAvailableFletes(driverId)
             })
             .subscribe()
 

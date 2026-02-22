@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User, Search, X } from 'lucide-react'
 import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
+import { useNotificationStore } from '../store/useNotificationStore'
 import { useNavigate } from 'react-router-dom'
 import FreightMap from '../components/map/FreightMap'
 import ChatWidget from '../components/chat/ChatWidget'
@@ -25,7 +26,9 @@ const DriverDashboard = () => {
     const [categories, setCategories] = useState([])
     const [completedTripId, setCompletedTripId] = useState(null)
     const [showPassengerConfirm, setShowPassengerConfirm] = useState(false)
+    const [showChatTutorial, setShowChatTutorial] = useState(false)
     const [isInternalNav, setIsInternalNav] = useState(false)
+    const { requestPermission } = useNotificationStore()
     const [driverLatLng, setDriverLatLng] = useState(null)
     const [formData, setFormData] = useState({
         brand: '',
@@ -45,6 +48,7 @@ const DriverDashboard = () => {
             return
         }
         fetchProfile(user.id)
+        requestPermission() // Ensure browser notification permission is asked
     }, [user])
 
     useEffect(() => {
@@ -115,8 +119,19 @@ const DriverDashboard = () => {
         } else {
             setIsInternalNav(false)
             localStorage.removeItem('last_flete_status')
+            setShowChatTutorial(false)
         }
     }, [activeFlete?.status, activeFlete?.id])
+
+    // Trigger Chat Tutorial when flete is accepted
+    useEffect(() => {
+        if (activeFlete?.status === 'accepted') {
+            const hasSeen = localStorage.getItem(`tutorial_chat_${activeFlete.id}`)
+            if (!hasSeen) {
+                setShowChatTutorial(true)
+            }
+        }
+    }, [activeFlete?.status])
 
     const openGoogleMaps = (lat, lng, label = '') => {
         const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`
@@ -1042,6 +1057,56 @@ const DriverDashboard = () => {
                 title="¿CÓMO FUE EL VIAJE?"
                 subtitle="Califica tu experiencia con el cliente"
             />
+
+            {/* CHAT TUTORIAL OVERLAY */}
+            <AnimatePresence>
+                {showChatTutorial && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+                        {/* Background Shadow */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm pointer-events-auto"
+                            onClick={() => {
+                                setShowChatTutorial(false)
+                                localStorage.setItem(`tutorial_chat_${activeFlete?.id}`, 'true')
+                            }}
+                        />
+
+                        {/* Tutorial Card */}
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.8, opacity: 0, y: 20 }}
+                            className="relative z-[110] bg-zinc-950 border-2 border-primary-500 rounded-[2.5rem] p-8 max-w-sm mx-6 shadow-[0_0_80px_rgba(245,158,11,0.3)] text-center pointer-events-auto"
+                        >
+                            <div className="w-20 h-20 bg-primary-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-primary-500/20">
+                                <MessageSquare className="w-10 h-10 text-primary-500" />
+                            </div>
+                            <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-4">COMUNICACIÓN ELITE</h3>
+                            <p className="text-[11px] font-bold text-zinc-400 uppercase italic leading-relaxed mb-8">
+                                ¡Viaje aceptado! Antes de moverte, presentate con el cliente. Toca el botón de chat abajo a la derecha para coordinar detalles.
+                            </p>
+                            <button
+                                onClick={() => {
+                                    setShowChatTutorial(false)
+                                    localStorage.setItem(`tutorial_chat_${activeFlete?.id}`, 'true')
+                                    // Optionally trigger a click on the chat button or just dismiss
+                                }}
+                                className="premium-button w-full py-5"
+                            >
+                                ENTENDIDO, VAMOS
+                            </button>
+
+                            {/* Pointer Arrow */}
+                            <div className="absolute -bottom-10 right-4 animate-bounce">
+                                <ChevronRight className="w-12 h-12 text-primary-500 rotate-90" />
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
         </div>
     )
