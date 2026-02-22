@@ -6,6 +6,7 @@ import { useNotificationStore } from '../store/useNotificationStore'
 import { useNavigate } from 'react-router-dom'
 import { useThemeStore } from '../store/useThemeStore'
 import { Moon, Sun } from 'lucide-react'
+import { uploadFile } from '../services/storageService'
 
 const Profile = () => {
     const { user, profile, updateProfile, fetchProfile, signOut } = useAuthStore()
@@ -19,7 +20,8 @@ const Profile = () => {
     const [formData, setFormData] = useState({
         full_name: '',
         phone: '',
-        avatar_url: ''
+        avatar_url: '',
+        province: ''
     })
 
     useEffect(() => {
@@ -31,7 +33,8 @@ const Profile = () => {
             setFormData({
                 full_name: profile.full_name || '',
                 phone: profile.phone || '',
-                avatar_url: profile.avatar_url || ''
+                avatar_url: profile.avatar_url || '',
+                province: profile.province || ''
             })
         }
     }, [user, profile])
@@ -70,11 +73,27 @@ const Profile = () => {
         setRoleLoading(false)
     }
 
-    const handleAvatarUpdate = () => {
-        const url = prompt('Ingrese la URL de su foto de perfil:', formData.avatar_url)
-        if (url !== null) {
-            setFormData({ ...formData, avatar_url: url })
+    const handleAvatarUpdate = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+
+        setLoading(true)
+        try {
+            const path = `${user.id}/avatar_${Date.now()}`
+            const url = await uploadFile(file, 'profiles', path)
+
+            if (url) {
+                setFormData(prev => ({ ...prev, avatar_url: url }))
+                const res = await updateProfile(user.id, { avatar_url: url })
+                if (res.data) {
+                    addNotification({ message: 'Foto de perfil actualizada', type: 'success' })
+                }
+            }
+        } catch (error) {
+            console.error("Error updating avatar:", error)
+            addNotification({ message: 'Error al subir la imagen', type: 'error' })
         }
+        setLoading(false)
     }
 
     if (!profile) return (
@@ -107,11 +126,19 @@ const Profile = () => {
                             </div>
                         </div>
                         <button
-                            onClick={handleAvatarUpdate}
-                            className="absolute -bottom-2 -right-2 p-3.5 bg-primary-500 rounded-2xl text-black shadow-xl hover:bg-primary-400 transition-colors z-10"
+                            onClick={() => document.getElementById('avatar-upload').click()}
+                            disabled={loading}
+                            className="absolute -bottom-2 -right-2 p-3.5 bg-primary-500 rounded-2xl text-black shadow-xl hover:bg-primary-400 transition-colors z-10 disabled:opacity-50"
                         >
-                            <Camera className="w-4 h-4" />
+                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
                         </button>
+                        <input
+                            id="avatar-upload"
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleAvatarUpdate}
+                        />
                     </motion.div>
 
                     <h1 className="text-4xl font-black italic uppercase tracking-tighter mb-2 text-gradient">
@@ -169,6 +196,46 @@ const Profile = () => {
                                     value={formData.phone}
                                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                 />
+                            </div>
+
+                            <div className="space-y-3">
+                                <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-4 italic opacity-60">Zona / Provincia de Operación</label>
+                                <select
+                                    className="input-field bg-zinc-950/40"
+                                    value={formData.province}
+                                    onChange={e => setFormData({ ...formData, province: e.target.value })}
+                                >
+                                    <option value="">Todas las regiones</option>
+                                    <option value="Buenos Aires">Buenos Aires</option>
+                                    <option value="Ciudad Autónoma de Buenos Aires">CABA</option>
+                                    <option value="Catamarca">Catamarca</option>
+                                    <option value="Chaco">Chaco</option>
+                                    <option value="Chubut">Chubut</option>
+                                    <option value="Córdoba">Córdoba</option>
+                                    <option value="Corrientes">Corrientes</option>
+                                    <option value="Entre Ríos">Entre Ríos</option>
+                                    <option value="Formosa">Formosa</option>
+                                    <option value="Jujuy">Jujuy</option>
+                                    <option value="La Pampa">La Pampa</option>
+                                    <option value="La Rioja">La Rioja</option>
+                                    <option value="Mendoza">Mendoza</option>
+                                    <option value="Misiones">Misiones</option>
+                                    <option value="Neuquén">Neuquén</option>
+                                    <option value="Río Negro">Río Negro</option>
+                                    <option value="Salta">Salta</option>
+                                    <option value="San Juan">San Juan</option>
+                                    <option value="San Luis">San Luis</option>
+                                    <option value="Santa Cruz">Santa Cruz</option>
+                                    <option value="Santa Fe">Santa Fe</option>
+                                    <option value="Santiago del Estero">Santiago del Estero</option>
+                                    <option value="Tierra del Fuego">Tierra del Fuego</option>
+                                    <option value="Tucumán">Tucumán</option>
+                                </select>
+                                <p className="text-[8px] text-zinc-600 italic px-4 uppercase font-bold">
+                                    {profile.role === 'driver'
+                                        ? "Solo verás viajes que se originen en esta zona."
+                                        : "Tus pedidos se identificarán con esta zona preferente."}
+                                </p>
                             </div>
 
                             {message.text && (

@@ -11,6 +11,7 @@ import TripStopwatch from '../components/trip/TripStopwatch'
 import TripTimer from '../components/trip/TripTimer'
 import RatingModal from '../components/trip/RatingModal'
 import { supabase } from '../api/supabase'
+import { uploadFile } from '../services/storageService'
 
 const DriverDashboard = () => {
     const { user, profile, updateProfile, fetchProfile } = useAuthStore()
@@ -37,7 +38,11 @@ const DriverDashboard = () => {
         license_plate: '',
         category_id: '',
         justification: '',
-        phone: ''
+        phone: '',
+        photo: null,
+        doc_license: null,
+        doc_insurance: null,
+        doc_vnt: null
     })
 
     const { vehicles, fetchMyVehicles, addVehicle, setActiveVehicle } = useDriverStore()
@@ -148,28 +153,54 @@ const DriverDashboard = () => {
         e.preventDefault()
         setIsSubmitting(true)
 
-        const vehicleData = {
-            brand: formData.brand.toUpperCase(),
-            model: formData.model.toUpperCase(),
-            year: parseInt(formData.year),
-            license_plate: formData.license_plate.toUpperCase(),
-            category_id: parseInt(formData.category_id),
-            justification: formData.justification
-        }
+        try {
+            // 1. Subir archivos a Firebase
+            const uploadPromises = []
+            const fileFields = ['photo', 'doc_license', 'doc_insurance', 'doc_vnt']
+            const urls = {}
 
-        const res = await addVehicle(user.id, vehicleData)
-        if (res) {
-            setShowAddVehicle(false)
-            setFormData({ ...formData, brand: '', model: '', year: '', license_plate: '', justification: '' })
-
-            // Si es la primera vez (estado none), actualizamos perfil a pending
-            if (profile.verification_status === 'none') {
-                await updateProfile(user.id, {
-                    phone: formData.phone,
-                    verification_status: 'pending'
-                })
-                fetchProfile(user.id)
+            for (const field of fileFields) {
+                if (formData[field]) {
+                    const path = `${user.id}/${formData.license_plate}/${field}_${Date.now()}`
+                    uploadPromises.push(
+                        uploadFile(formData[field], 'vehicles', path).then(url => { urls[`${field}_url`] = url })
+                    )
+                }
             }
+
+            await Promise.all(uploadPromises)
+
+            // 2. Preparar data final
+            const vehicleData = {
+                brand: formData.brand.toUpperCase(),
+                model: formData.model.toUpperCase(),
+                year: parseInt(formData.year),
+                license_plate: formData.license_plate.toUpperCase(),
+                category_id: parseInt(formData.category_id),
+                justification: formData.justification,
+                ...urls
+            }
+
+            const res = await addVehicle(user.id, vehicleData)
+            if (res) {
+                setShowAddVehicle(false)
+                setFormData({
+                    brand: '', model: '', year: '', license_plate: '',
+                    justification: '', photo: null, doc_license: null,
+                    doc_insurance: null, doc_vnt: null
+                })
+
+                // Si es la primera vez (estado none), actualizamos perfil a pending
+                if (profile.verification_status === 'none') {
+                    await updateProfile(user.id, {
+                        phone: formData.phone,
+                        verification_status: 'pending'
+                    })
+                    fetchProfile(user.id)
+                }
+            }
+        } catch (error) {
+            console.error("Error al registrar vehículo:", error)
         }
         setIsSubmitting(false)
     }
@@ -347,6 +378,31 @@ const DriverDashboard = () => {
                                 required
                             />
                         </div>
+                        <div className="space-y-4 py-4 border-t border-white/5 mt-4">
+                            <h4 className="text-[9px] font-black text-primary-500 uppercase tracking-widest italic">Documentación Requerida</h4>
+
+                            <div className="space-y-2">
+                                <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Foto del Vehículo</label>
+                                <input type="file" className="input-field py-3 text-[10px]" accept="image/*" onChange={e => setFormData({ ...formData, photo: e.target.files[0] })} required />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Licencia Conducir</label>
+                                    <input type="file" className="input-field py-3 text-[10px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_license: e.target.files[0] })} required />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Seguro Vigente</label>
+                                    <input type="file" className="input-field py-3 text-[10px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_insurance: e.target.files[0] })} required />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Cédula / VNT</label>
+                                <input type="file" className="input-field py-3 text-[10px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_vnt: e.target.files[0] })} required />
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">WhatsApp de contacto</label>
                             <input className="input-field py-4" placeholder="+54 9 11 ..." value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
@@ -634,10 +690,13 @@ const DriverDashboard = () => {
                                                     )}
                                                 </motion.div>
                                             )) : (
-                                                <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5">
+                                                <div className="text-center py-20 bg-black/60 backdrop-blur-xl rounded-[2.5rem] border border-white/5 px-6">
                                                     <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4 text-zinc-800" />
-                                                    <p className="text-[10px] font-black uppercase italic tracking-widest text-zinc-700">BUSCANDO PEDIDOS...</p>
+                                                    <p className="text-[10px] font-black uppercase italic tracking-widest text-zinc-700">
+                                                        BUSCANDO EN {profile.province ? profile.province.toUpperCase() : 'TODAS LAS ZONAS'}
+                                                    </p>
                                                     <p className="text-[8px] text-zinc-600 uppercase font-black mt-2">Categoría: {vehicles.find(v => v.id === profile.active_vehicle_id)?.vehicle_categories?.name}</p>
+                                                    {!profile.province && <p className="text-[7px] text-primary-500/50 uppercase font-black mt-1 italic">Configura tu zona en Perfil para filtrar mejor</p>}
                                                 </div>
                                             )}
                                         </motion.div>
@@ -876,6 +935,31 @@ const DriverDashboard = () => {
                                                                 {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                                                             </select>
                                                             <textarea className="input-field text-xs resize-none" placeholder="JUSTIFICACIÓN (Capacidad, tipo de caja, etc)" value={formData.justification} onChange={e => setFormData({ ...formData, justification: e.target.value })} required />
+
+                                                            <div className="space-y-3 py-3 border-t border-white/5">
+                                                                <p className="text-[8px] font-black text-primary-500 uppercase italic">Archivos de Verificación</p>
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <div className="space-y-1">
+                                                                        <label className="text-[7px] text-zinc-500 uppercase font-black">Foto Vehículo</label>
+                                                                        <input type="file" className="input-field py-2 text-[9px]" accept="image/*" onChange={e => setFormData({ ...formData, photo: e.target.files[0] })} required />
+                                                                    </div>
+                                                                    <div className="space-y-1">
+                                                                        <label className="text-[7px] text-zinc-500 uppercase font-black">Licencia</label>
+                                                                        <input type="file" className="input-field py-2 text-[9px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_license: e.target.files[0] })} required />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <div className="space-y-1">
+                                                                        <label className="text-[7px] text-zinc-500 uppercase font-black">Seguro</label>
+                                                                        <input type="file" className="input-field py-2 text-[9px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_insurance: e.target.files[0] })} required />
+                                                                    </div>
+                                                                    <div className="space-y-1">
+                                                                        <label className="text-[7px] text-zinc-500 uppercase font-black">Cédula/VNT</label>
+                                                                        <input type="file" className="input-field py-2 text-[9px]" accept="image/*,.pdf" onChange={e => setFormData({ ...formData, doc_vnt: e.target.files[0] })} required />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
                                                             <button type="submit" disabled={isSubmitting} className="premium-button w-full py-4 text-xs">
                                                                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'SOLICITAR APROBACIÓN'}
                                                             </button>

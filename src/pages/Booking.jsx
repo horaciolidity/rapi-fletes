@@ -23,6 +23,7 @@ const Booking = () => {
     const [geoError, setGeoError] = useState(null)
     const [shipmentDetails, setShipmentDetails] = useState('')
     const [passengerTravels, setPassengerTravels] = useState(false)
+    const [pickupProvince, setPickupProvince] = useState(null)
 
     useEffect(() => {
         if (profile?.role === 'driver') {
@@ -58,15 +59,18 @@ const Booking = () => {
                             .join(', ')
                         setPAddress(address)
                         setPickup({ address, lat: latitude, lng: longitude })
+                        setPickupProvince(props.state)
                     } else {
                         const address = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
                         setPAddress(address)
                         setPickup({ address, lat: latitude, lng: longitude })
+                        setPickupProvince(null)
                     }
                 } catch (err) {
                     const fallbackAddress = "Mi Ubicación"
                     setPAddress(fallbackAddress)
                     setPickup({ address: fallbackAddress, lat: latitude, lng: longitude })
+                    setPickupProvince(null)
                 } finally {
                     setIsLocating(false)
                 }
@@ -112,7 +116,8 @@ const Booking = () => {
                 return {
                     display_name: label,
                     lat: f.geometry.coordinates[1],
-                    lon: f.geometry.coordinates[0]
+                    lon: f.geometry.coordinates[0],
+                    state: p.state
                 }
             })
             setSearchResults(results)
@@ -144,6 +149,7 @@ const Booking = () => {
             if (!pickup) {
                 setPAddress(address)
                 setPickup(item)
+                setPickupProvince(data?.features[0]?.properties?.state || null)
             } else {
                 setDAddress(address)
                 setDropoff(item)
@@ -163,6 +169,7 @@ const Booking = () => {
         if (activeSearch === 'pickup') {
             setPAddress(result.display_name)
             setPickup(item)
+            setPickupProvince(result.state || null)
         } else {
             setDAddress(result.display_name)
             setDropoff(item)
@@ -447,7 +454,7 @@ const Booking = () => {
                                         <div className="flex gap-4">
                                             <button onClick={() => setStep(2)} className="p-6 glass-card bg-white/5 border-white/5 text-zinc-600 hover:text-white transition-all rotate-180"><ArrowRight className="w-6 h-6" /></button>
                                             <button
-                                                onClick={() => createFlete(user.id, shipmentDetails, passengerTravels).then(res => res && setStep(4))}
+                                                onClick={() => createFlete(user.id, shipmentDetails, passengerTravels, pickupProvince).then(res => res && setStep(4))}
                                                 disabled={loading || shipmentDetails.length < 10}
                                                 className={`premium-button flex-grow flex items-center justify-center gap-6 py-6 shadow-[0_20px_50px_rgba(245,158,11,0.3)] transition-all duration-700 ${shipmentDetails.length < 10 ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
                                             >

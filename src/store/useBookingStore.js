@@ -151,7 +151,7 @@ export const useBookingStore = create((set, get) => ({
         set({ estimate: isNaN(total) ? 0 : Math.round(total) })
     },
 
-    createFlete: async (userId, shipmentDetails = '', passengerTravels = false) => {
+    createFlete: async (userId, shipmentDetails = '', passengerTravels = false, pickupProvince = null) => {
         const { pickup, dropoff, selectedCategory, estimate, duration } = get()
         if (!pickup || !dropoff || !selectedCategory) {
             set({ error: "Faltan datos para completar la reserva" })
@@ -172,6 +172,7 @@ export const useBookingStore = create((set, get) => ({
                         pickup_address: pickup.address,
                         pickup_lat: pickup.lat,
                         pickup_lng: pickup.lng,
+                        pickup_province: pickupProvince,
                         dropoff_address: dropoff.address,
                         dropoff_lat: dropoff.lat,
                         dropoff_lng: dropoff.lng,

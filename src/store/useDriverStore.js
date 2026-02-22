@@ -11,10 +11,10 @@ export const useDriverStore = create((set, get) => ({
     fetchAvailableFletes: async (driverId) => {
         set({ loading: true, error: null })
         try {
-            // Get active vehicle category
+            // Get active vehicle category and driver's province
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('active_vehicle_id')
+                .select('active_vehicle_id, province')
                 .eq('id', driverId)
                 .single()
 
@@ -39,6 +39,11 @@ export const useDriverStore = create((set, get) => ({
 
             if (activeCategoryId) {
                 query = query.eq('category_id', activeCategoryId)
+            }
+
+            // Filter by province if the driver has one set
+            if (profileData?.province) {
+                query = query.eq('pickup_province', profileData.province)
             }
 
             const { data, error } = await query.order('created_at', { ascending: false })
@@ -67,7 +72,12 @@ export const useDriverStore = create((set, get) => ({
         set({ loading: true, error: null })
         const { data, error } = await supabase
             .from('vehicles')
-            .insert([{ ...vehicleData, driver_id: driverId, verification_status: 'pending' }])
+            .insert([{
+                ...vehicleData,
+                driver_id: driverId,
+                verification_status: 'pending',
+                created_at: new Date()
+            }])
             .select()
             .single()
 
