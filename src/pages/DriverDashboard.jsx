@@ -198,7 +198,10 @@ const DriverDashboard = () => {
                 license_plate: formData.license_plate.toUpperCase(),
                 category_id: parseInt(formData.category_id),
                 justification: formData.justification,
-                ...urls
+                photo_url: urls.photo_url || null,
+                doc_license_url: urls.doc_license_url || null,
+                doc_insurance_url: urls.doc_insurance_url || null,
+                doc_vnt_url: urls.doc_vnt_url || null
             }
 
             const res = await addVehicle(user.id, vehicleData)
