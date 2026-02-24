@@ -34,7 +34,8 @@ const AdminSettings = () => {
                 id: c.id,
                 name: c.name,
                 base_price: c.base_price,
-                price_per_km: c.price_per_km
+                price_per_km: c.price_per_km,
+                commission_rate: c.commission_rate || 10
             })))
         }
     }, [categories])
@@ -56,7 +57,8 @@ const AdminSettings = () => {
                 console.log(`Actualizando ${cat.name} (ID: ${cat.id})...`)
                 await updateVehicleCategory(cat.id, {
                     base_price: parseFloat(cat.base_price),
-                    price_per_km: parseFloat(cat.price_per_km)
+                    price_per_km: parseFloat(cat.price_per_km),
+                    commission_rate: parseFloat(cat.commission_rate)
                 })
             }
 
@@ -155,37 +157,56 @@ const AdminSettings = () => {
                                             }}
                                         />
                                     </div>
+
+                                    <div className="col-span-2 mt-2">
+                                        <label className="text-[8px] font-black text-primary-500 uppercase italic mb-1 block">Comisión de Plataforma (%)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max="99"
+                                                className="w-full bg-zinc-950 border border-primary-500/20 rounded-xl px-4 py-3 text-xs font-black text-white outline-none focus:border-primary-500/50"
+                                                value={cat.commission_rate}
+                                                onChange={e => {
+                                                    const newPrices = [...localPrices]
+                                                    newPrices[idx].commission_rate = e.target.value
+                                                    setLocalPrices(newPrices)
+                                                }}
+                                            />
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-zinc-500">%</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </section>
+            </div>
 
-                {/* Floating Save Button */}
-                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-lg px-6 z-50">
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className={`w-full py-5 rounded-2xl font-black italic uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all ${success
-                            ? 'bg-green-500 text-black'
-                            : 'bg-primary-500 text-black shadow-[0_20px_50px_rgba(245,158,11,0.3)] hover:scale-[1.02]'
-                            }`}
-                    >
-                        {saving ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : success ? (
-                            <>
-                                <CheckCircle className="w-5 h-5" />
-                                <span>CAMBIOS GUARDADOS</span>
-                            </>
-                        ) : (
-                            <>
-                                <Save className="w-5 h-5" />
-                                <span>GUARDAR CONFIGURACIÓN</span>
-                            </>
-                        )}
-                    </button>
-                </div>
+            {/* Floating Save Button */}
+            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-lg px-6 z-50">
+                <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className={`w-full py-5 rounded-2xl font-black italic uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all ${success
+                        ? 'bg-green-500 text-black'
+                        : 'bg-primary-500 text-black shadow-[0_20px_50px_rgba(245,158,11,0.3)] hover:scale-[1.02]'
+                        }`}
+                >
+                    {saving ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : success ? (
+                        <>
+                            <CheckCircle className="w-5 h-5" />
+                            <span>CAMBIOS GUARDADOS</span>
+                        </>
+                    ) : (
+                        <>
+                            <Save className="w-5 h-5" />
+                            <span>GUARDAR CONFIGURACIÓN</span>
+                        </>
+                    )}
+                </button>
             </div>
         </div>
     )

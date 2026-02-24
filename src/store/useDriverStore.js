@@ -130,15 +130,28 @@ export const useDriverStore = create((set, get) => ({
 
     acceptFlete: async (fleteId, driverId) => {
         set({ loading: true, error: null })
+
+        // 1. Charge the commission & accept trip atomically via RPC
+        const { useWalletStore } = await import('./useWalletStore')
+        const result = await useWalletStore.getState().chargeCommission(driverId, fleteId)
+
+        if (!result?.success) {
+            set({
+                error: result?.error || 'Error al cobrar comisión. Verificá tu saldo.',
+                loading: false
+            })
+            return result
+        }
+
+        // 2. Fetch the newly accepted flete with all relations for the store
         const { data, error } = await supabase
             .from('fletes')
-            .update({
-                driver_id: driverId,
-                status: 'accepted',
-                updated_at: new Date()
-            })
+            .select(`
+                *,
+                vehicle_categories (name, base_price),
+                profiles:user_id (full_name, phone, avatar_url)
+            `)
             .eq('id', fleteId)
-            .select()
             .maybeSingle()
 
         if (error) {
@@ -147,9 +160,8 @@ export const useDriverStore = create((set, get) => ({
         }
 
         set({ activeFlete: data, loading: false })
-        // Refresh available list
-        get().fetchAvailableFletes()
-        return data
+        get().fetchAvailableFletes(driverId)
+        return { ...data, commissionCharged: result.commission_amount }
     },
 
     updateFleteStatus: async (fleteId, status, additionalData = {}) => {

@@ -29,6 +29,9 @@ const DriverDashboard = () => {
     const [showPassengerConfirm, setShowPassengerConfirm] = useState(false)
     const [showChatTutorial, setShowChatTutorial] = useState(false)
     const [isInternalNav, setIsInternalNav] = useState(false)
+    const [regStep, setRegStep] = useState(0)
+    const [showCommissionModal, setShowCommissionModal] = useState(false)
+    const [pendingCommissionData, setPendingCommissionData] = useState(null)
     const { requestPermission } = useNotificationStore()
     const [driverLatLng, setDriverLatLng] = useState(null)
     const [formData, setFormData] = useState({
@@ -201,10 +204,13 @@ const DriverDashboard = () => {
             const res = await addVehicle(user.id, vehicleData)
             if (res) {
                 setShowAddVehicle(false)
+                setRegStep(0)
                 setFormData({
                     brand: '', model: '', year: '', license_plate: '',
-                    justification: '', photo: null, doc_license: null,
-                    doc_insurance: null, doc_vnt: null
+                    category_id: '', justification: '', phone: '',
+                    photo: null, doc_license: null,
+                    doc_insurance: null, doc_vnt: null,
+                    profile_photo: null, doc_dni: null
                 })
 
                 // Si es la primera vez (estado none), actualizamos perfil a pending y subimos datos de chofer
@@ -236,10 +242,34 @@ const DriverDashboard = () => {
     }
 
     const handleAccept = async (id) => {
-        const flete = availableFletes.find(f => f.id === id)
-        await acceptFlete(id, user.id)
-        setSelectedFleteId(null)
-        setActiveTab('active')
+        const { useWalletStore } = await import('../store/useWalletStore')
+        const calc = await useWalletStore.getState().calculateCommission(user.id, id)
+
+        if (calc) {
+            setPendingCommissionData(calc)
+            setShowCommissionModal(true)
+        } else {
+            // Fallback if calculation fails
+            await acceptFlete(id, user.id)
+            setSelectedFleteId(null)
+            setActiveTab('active')
+        }
+    }
+
+    const confirmAccept = async () => {
+        if (!pendingCommissionData) return
+        setIsSubmitting(true)
+        const res = await acceptFlete(pendingCommissionData.flete_id, user.id)
+        setIsSubmitting(false)
+
+        if (res && !res.error) {
+            setShowCommissionModal(false)
+            setPendingCommissionData(null)
+            setSelectedFleteId(null)
+            setActiveTab('active')
+        } else if (res?.error) {
+            alert(res.error)
+        }
     }
 
 
@@ -345,152 +375,369 @@ const DriverDashboard = () => {
     )
 
     if (profile.verification_status === 'none') {
-        return (
-            <div className="pb-24 pt-10 min-h-screen bg-black font-sans px-6">
-                <div className="max-w-md mx-auto py-10">
-                    <header className="mb-10">
-                        <div className="w-16 h-16 bg-primary-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-primary-500/20">
-                            <Car className="w-8 h-8 text-black" />
-                        </div>
-                        <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white">REGISTRO<br /><span className="text-primary-500">CONDUCTOR</span></h1>
-                        <p className="text-[10px] text-zinc-500 font-bold uppercase italic mt-4">Completa los datos de tu primer vehículo para comenzar.</p>
-                    </header>
-                    <form onSubmit={handleAddVehicle} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Marca</label>
-                                <input className="input-field py-4" placeholder="EJ: FORD" value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} required />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Modelo</label>
-                                <input className="input-field py-4" placeholder="EJ: F100" value={formData.model} onChange={e => setFormData({ ...formData, model: e.target.value })} required />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Año</label>
-                                <input type="number" className="input-field py-4" placeholder="2020" value={formData.year} onChange={e => setFormData({ ...formData, year: e.target.value })} required />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Patente</label>
-                                <input className="input-field py-4 uppercase" placeholder="ABC-123" value={formData.license_plate} onChange={e => setFormData({ ...formData, license_plate: e.target.value })} required />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Categoría del Vehículo</label>
-                            <select
-                                className="input-field py-4 bg-zinc-900 border-white/5 text-white"
-                                value={formData.category_id}
-                                onChange={e => setFormData({ ...formData, category_id: e.target.value })}
-                                required
-                            >
-                                <option value="">Selecciona una categoría</option>
-                                {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">¿Por qué aplica a esta categoría?</label>
-                            <textarea
-                                className="input-field py-4 min-h-[80px] resize-none"
-                                placeholder="Ej: Mi camioneta tiene caja extendida ideal para fletes medianos..."
-                                value={formData.justification}
-                                onChange={e => setFormData({ ...formData, justification: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-4 py-4 border-t border-white/5 mt-4">
-                            <h4 className="text-[9px] font-black text-primary-500 uppercase tracking-widest italic">Documentación del Chofer</h4>
+        const steps = [
+            {
+                id: 1,
+                icon: '🤳',
+                title: 'IDENTIDAD',
+                subtitle: 'Foto tuya sosteniendo el DNI',
+                desc: 'Tomá una selfie clara con tu DNI en la mano, que se vea tu cara y los datos del documento.',
+                fields: [
+                    { key: 'profile_photo', label: 'Selfie con DNI en mano', accept: 'image/*', capture: 'user', required: true, hint: '📷 Cámara frontal recomendada' }
+                ]
+            },
+            {
+                id: 2,
+                icon: '🪪',
+                title: 'LICENCIA DE CONDUCIR',
+                subtitle: 'Carnet habilitante vigente',
+                desc: 'Fotografiá el frente de tu licencia de conducir. Debe estar vigente y ser legible.',
+                fields: [
+                    { key: 'doc_license', label: 'Foto del carnet (frente)', accept: 'image/*,.pdf', capture: 'environment', required: true, hint: '📄 Imagen o PDF aceptado' }
+                ]
+            },
+            {
+                id: 3,
+                icon: '📋',
+                title: 'DOCUMENTOS DEL VEHÍCULO',
+                subtitle: 'Tarjeta verde + Seguro al día',
+                desc: 'Subí la tarjeta verde (cédula del vehículo) y el comprobante del seguro vigente.',
+                fields: [
+                    { key: 'doc_vnt', label: 'Tarjeta verde / Cédula', accept: 'image/*,.pdf', capture: 'environment', required: true, hint: '🟢 Debe estar a nombre del titular' },
+                    { key: 'doc_insurance', label: 'Seguro vigente', accept: 'image/*,.pdf', capture: 'environment', required: true, hint: '🔵 Póliza o comprobante digital' }
+                ]
+            },
+            {
+                id: 4,
+                icon: '🚛',
+                title: 'FOTO DEL VEHÍCULO',
+                subtitle: 'Vista panorámica completa',
+                desc: 'Tomá una foto panorámica del vehículo completo. Que se vea el frente, costado y la patente claramente.',
+                fields: [
+                    { key: 'photo', label: 'Foto panorámica del vehículo', accept: 'image/*', capture: 'environment', required: true, hint: '🚗 Incluí frente + costado + patente' }
+                ]
+            }
+        ]
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Foto de Perfil</label>
-                                    <div className="relative group">
-                                        <input
-                                            type="file"
-                                            className="input-field py-3 text-[10px]"
-                                            accept="image/*"
-                                            capture="user"
-                                            onChange={e => setFormData({ ...formData, profile_photo: e.target.files[0] })}
-                                            required
-                                        />
-                                        <Camera className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-hover:text-primary-500 transition-colors pointer-events-none" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">DNI (Frente)</label>
-                                    <input
-                                        type="file"
-                                        className="input-field py-3 text-[10px]"
-                                        accept="image/*,.pdf"
-                                        onChange={e => setFormData({ ...formData, doc_dni: e.target.files[0] })}
-                                        required
-                                    />
-                                </div>
+        const currentStepData = steps[regStep]
+        const isLastStep = regStep === steps.length - 1
+
+        const isStepComplete = (step) => {
+            return step.fields.every(f => !f.required || formData[f.key])
+        }
+
+        const allStepsComplete = steps.every(isStepComplete)
+
+        return (
+            <div className="min-h-screen bg-black font-sans overflow-hidden">
+                {/* Background glow */}
+                <div className="fixed inset-0 pointer-events-none">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary-500/5 rounded-full blur-[100px]" />
+                </div>
+
+                <div className="relative max-w-md mx-auto px-6 py-12 pb-32">
+                    {/* Header */}
+                    <div className="mb-10">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 bg-primary-500 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
+                                <Truck className="w-5 h-5 text-black" />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Licencia de Conducir</label>
-                                <input
-                                    type="file"
-                                    className="input-field py-3 text-[10px]"
-                                    accept="image/*,.pdf"
-                                    onChange={e => setFormData({ ...formData, doc_license: e.target.files[0] })}
-                                    required
+                            <div>
+                                <p className="text-[8px] font-black text-primary-500 uppercase tracking-[0.3em] italic">Rapi Fletes</p>
+                                <h1 className="text-sm font-black text-white italic uppercase tracking-tight leading-none">Registro de Conductor</h1>
+                            </div>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <p className="text-[9px] font-black text-zinc-500 uppercase italic tracking-widest">Paso {regStep + 1} de {steps.length}</p>
+                                <p className="text-[9px] font-black text-primary-500 uppercase italic">{Math.round(((regStep + 1) / steps.length) * 100)}% completado</p>
+                            </div>
+                            <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
+                                <motion.div
+                                    className="h-full bg-gradient-to-r from-primary-600 to-primary-400 rounded-full"
+                                    animate={{ width: `${((regStep + 1) / steps.length) * 100}%` }}
+                                    transition={{ duration: 0.4, ease: 'easeOut' }}
                                 />
                             </div>
-                        </div>
-
-                        <div className="space-y-4 py-4 border-t border-white/5 mt-4">
-                            <h4 className="text-[9px] font-black text-primary-500 uppercase tracking-widest italic">Documentación del Vehículo</h4>
-
-                            <div className="space-y-2">
-                                <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Foto del Vehículo</label>
-                                <div className="relative group">
-                                    <input
-                                        type="file"
-                                        className="input-field py-3 text-[10px]"
-                                        accept="image/*"
-                                        capture="environment"
-                                        onChange={e => setFormData({ ...formData, photo: e.target.files[0] })}
-                                        required
+                            {/* Step dots */}
+                            <div className="flex gap-2 mt-2">
+                                {steps.map((s, i) => (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => i < regStep && setRegStep(i)}
+                                        className={`flex-1 h-1.5 rounded-full transition-all duration-300 ${i < regStep ? 'bg-primary-500 cursor-pointer' :
+                                            i === regStep ? 'bg-primary-400 animate-pulse' :
+                                                'bg-zinc-800 cursor-default'
+                                            }`}
                                     />
-                                    <Car className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-hover:text-primary-500 transition-colors pointer-events-none" />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Vehicle data — always visible above steps */}
+                    {regStep === 0 && (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 mb-8">
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="text-2xl">🚗</span>
+                                <div>
+                                    <h2 className="text-lg font-black italic uppercase tracking-tight text-white leading-none">DATOS DEL VEHÍCULO</h2>
+                                    <p className="text-[9px] font-black text-zinc-500 uppercase italic">Completá primero los datos básicos</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Marca</label>
+                                    <input className="input-field py-3.5 text-sm" placeholder="EJ: FORD" value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} required />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Modelo</label>
+                                    <input className="input-field py-3.5 text-sm" placeholder="EJ: F100" value={formData.model} onChange={e => setFormData({ ...formData, model: e.target.value })} required />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Año</label>
+                                    <input type="number" className="input-field py-3.5 text-sm" placeholder="2020" value={formData.year} onChange={e => setFormData({ ...formData, year: e.target.value })} required />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Patente</label>
+                                    <input className="input-field py-3.5 text-sm uppercase" placeholder="ABC-123" value={formData.license_plate} onChange={e => setFormData({ ...formData, license_plate: e.target.value })} required />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">Categoría del Vehículo</label>
+                                <select className="input-field py-3.5 bg-zinc-900 text-white" value={formData.category_id} onChange={e => setFormData({ ...formData, category_id: e.target.value })} required>
+                                    <option value="">Seleccioná una categoría</option>
+                                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">WhatsApp de contacto</label>
+                                <input className="input-field py-3.5 text-sm" placeholder="+54 9 11 ..." value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
+                            </div>
+                            <div className="pt-2 border-t border-white/5 mt-2">
+                                <p className="text-[8px] font-black text-zinc-700 uppercase italic px-2">A continuación deberás subir 4 documentos de verificación →</p>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* Step card */}
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={regStep}
+                            initial={{ opacity: 0, x: 30 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -30 }}
+                            transition={{ duration: 0.25 }}
+                            className="glass-card p-6 border-white/10 bg-zinc-950 mb-6"
+                        >
+                            {/* Step header */}
+                            <div className="flex items-start gap-4 mb-6">
+                                <div className="w-14 h-14 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-2xl shrink-0">
+                                    {currentStepData.icon}
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[7px] font-black text-primary-500 uppercase tracking-[0.3em] italic bg-primary-500/10 px-2 py-0.5 rounded-full">
+                                            PASO {currentStepData.id}/{steps.length}
+                                        </span>
+                                        {isStepComplete(currentStepData) && (
+                                            <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest italic bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                <CheckCircle2 className="w-2.5 h-2.5" /> LISTO
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h2 className="text-base font-black italic uppercase tracking-tight text-white leading-tight">{currentStepData.title}</h2>
+                                    <p className="text-[9px] font-bold text-zinc-500 italic uppercase">{currentStepData.subtitle}</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Seguro Vigente</label>
-                                    <input
-                                        type="file"
-                                        className="input-field py-3 text-[10px]"
-                                        accept="image/*,.pdf"
-                                        onChange={e => setFormData({ ...formData, doc_insurance: e.target.files[0] })}
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[8px] font-bold text-zinc-500 uppercase px-2 italic">Cédula / VNT</label>
-                                    <input
-                                        type="file"
-                                        className="input-field py-3 text-[10px]"
-                                        accept="image/*,.pdf"
-                                        onChange={e => setFormData({ ...formData, doc_vnt: e.target.files[0] })}
-                                        required
-                                    />
-                                </div>
+                            {/* Description */}
+                            <div className="bg-zinc-900/60 rounded-2xl p-4 mb-5 border border-white/5">
+                                <p className="text-[10px] font-bold text-zinc-400 italic leading-relaxed">{currentStepData.desc}</p>
                             </div>
-                        </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest px-2 italic">WhatsApp de contacto</label>
-                            <input className="input-field py-4" placeholder="+54 9 11 ..." value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
-                        </div>
-                        <button type="submit" disabled={isSubmitting} className="premium-button w-full py-5">
-                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'ENVIAR SOLICITUD'}
-                        </button>
-                    </form>
+                            {/* File fields */}
+                            <div className="space-y-4">
+                                {currentStepData.fields.map(field => (
+                                    <div key={field.key} className="space-y-2">
+                                        <label className="text-[8px] font-black text-zinc-500 uppercase tracking-widest px-1 italic flex items-center gap-2">
+                                            {field.label}
+                                            {field.required && <span className="text-primary-500">★</span>}
+                                        </label>
+
+                                        <div className={`relative group rounded-2xl border-2 transition-all duration-200 overflow-hidden ${formData[field.key]
+                                            ? 'border-primary-500/40 bg-primary-500/5'
+                                            : 'border-dashed border-zinc-800 hover:border-zinc-600'
+                                            }`}>
+                                            {formData[field.key] ? (
+                                                <div className="flex items-center gap-4 p-4">
+                                                    <div className="w-10 h-10 rounded-xl bg-primary-500/10 flex items-center justify-center shrink-0">
+                                                        <CheckCircle2 className="w-5 h-5 text-primary-500" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-[10px] font-black text-white italic truncate">{formData[field.key].name}</p>
+                                                        <p className="text-[8px] font-bold text-primary-500 uppercase italic">
+                                                            {(formData[field.key].size / 1024).toFixed(0)} KB — archivo seleccionado
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, [field.key]: null })}
+                                                        className="p-2 rounded-xl bg-zinc-900 text-zinc-500 hover:text-red-400 transition-colors"
+                                                    >
+                                                        <X className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <label htmlFor={`file-${field.key}`} className="flex flex-col items-center gap-3 p-6 cursor-pointer">
+                                                    <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-xl">
+                                                        {field.capture === 'user' ? '🤳' : '📁'}
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <p className="text-[10px] font-black text-white uppercase italic">Tocar para seleccionar</p>
+                                                        <p className="text-[8px] font-bold text-zinc-600 uppercase italic mt-1">{field.hint}</p>
+                                                    </div>
+                                                    <input
+                                                        id={`file-${field.key}`}
+                                                        type="file"
+                                                        className="hidden"
+                                                        accept={field.accept}
+                                                        capture={field.capture}
+                                                        onChange={e => setFormData({ ...formData, [field.key]: e.target.files[0] })}
+                                                    />
+                                                </label>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* Navigation buttons */}
+                    <div className="flex gap-3">
+                        {regStep > 0 && (
+                            <button
+                                type="button"
+                                onClick={() => setRegStep(r => r - 1)}
+                                className="flex-none px-6 py-4 bg-zinc-900 border border-white/5 rounded-2xl text-zinc-400 font-black italic text-[10px] uppercase hover:bg-zinc-800 transition-colors"
+                            >
+                                ← ATRÁS
+                            </button>
+                        )}
+
+                        {!isLastStep ? (
+                            <button
+                                type="button"
+                                disabled={!isStepComplete(currentStepData) && regStep > 0}
+                                onClick={() => setRegStep(r => r + 1)}
+                                className="flex-1 py-4 premium-button text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                SIGUIENTE →
+                            </button>
+                        ) : (
+                            <form onSubmit={handleAddVehicle} className="flex-1">
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting || !allStepsComplete || !formData.brand || !formData.license_plate || !formData.category_id}
+                                    className="w-full py-4 premium-button text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? (
+                                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                                    ) : (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <ShieldCheck className="w-4 h-4" />
+                                            ENVIAR SOLICITUD
+                                        </span>
+                                    )}
+                                </button>
+                            </form>
+                        )}
+                    </div>
+
+                    {/* Help text */}
+                    <p className="text-center text-[8px] font-black text-zinc-700 uppercase italic mt-6 leading-relaxed">
+                        ★ campos obligatorios — Una vez enviada la solicitud quedará en revisión.<br />
+                        Podrás usar la app mientras esperas la aprobación.
+                    </p>
+                </div>
+            </div>
+        )
+    }
+
+    if (profile.verification_status === 'pending') {
+        return (
+            <div className="min-h-screen bg-black font-sans flex flex-col items-center justify-center px-6">
+                <div className="fixed inset-0 pointer-events-none">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-yellow-500/5 rounded-full blur-[120px]" />
+                </div>
+                <div className="relative max-w-sm w-full text-center space-y-8">
+                    {/* Animated clock */}
+                    <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                        className="w-24 h-24 rounded-[2rem] bg-yellow-500/10 border-2 border-yellow-500/30 flex items-center justify-center mx-auto shadow-[0_0_60px_rgba(234,179,8,0.15)]"
+                    >
+                        <Clock className="w-10 h-10 text-yellow-500" />
+                    </motion.div>
+
+                    <div className="space-y-3">
+                        <span className="inline-block text-[8px] font-black text-yellow-500 uppercase tracking-[0.4em] italic bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20">
+                            En revisión
+                        </span>
+                        <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white">
+                            SOLICITUD<br /><span className="text-yellow-500">PENDIENTE</span>
+                        </h1>
+                        <p className="text-[11px] font-bold text-zinc-500 italic leading-relaxed uppercase">
+                            Nuestro equipo está revisando tu documentación.<br />
+                            Te notificaremos cuando seas aprobado.
+                        </p>
+                    </div>
+
+                    {/* Status checklist */}
+                    <div className="glass-card p-5 text-left space-y-3 border-yellow-500/10 bg-yellow-500/3">
+                        <p className="text-[8px] font-black text-yellow-500 uppercase tracking-widest italic mb-3">Estado de tu solicitud</p>
+                        {[
+                            { label: 'Selfie con DNI', done: !!profile.document_image_url },
+                            { label: 'Licencia de conducir', done: true },
+                            { label: 'Tarjeta verde + Seguro', done: true },
+                            { label: 'Foto del vehículo', done: true },
+                            { label: 'Revisión del equipo', done: false, pending: true },
+                        ].map((item, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                                <div className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 ${item.pending ? 'bg-yellow-500/20 border border-yellow-500/30' :
+                                    item.done ? 'bg-emerald-500/20' : 'bg-zinc-900'
+                                    }`}>
+                                    {item.pending
+                                        ? <Clock className="w-3 h-3 text-yellow-500" />
+                                        : item.done
+                                            ? <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                            : <div className="w-2 h-2 rounded-full bg-zinc-700" />
+                                    }
+                                </div>
+                                <span className={`text-[10px] font-black uppercase italic ${item.pending ? 'text-yellow-500' : item.done ? 'text-zinc-300' : 'text-zinc-600'
+                                    }`}>{item.label}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="bg-zinc-950 border border-white/5 rounded-2xl p-4">
+                        <p className="text-[9px] font-black text-zinc-500 uppercase italic leading-relaxed">
+                            ⚡ Mientras esperás la aprobación podés explorar la app y configurar tu perfil. No podrás aceptar viajes hasta ser verificado.
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={() => navigate('/profile')}
+                        className="w-full py-4 bg-zinc-900 border border-white/5 rounded-2xl text-zinc-400 font-black italic text-[10px] uppercase hover:bg-zinc-800 transition-colors"
+                    >
+                        <User className="w-4 h-4 inline mr-2" />
+                        IR A MI PERFIL
+                    </button>
                 </div>
             </div>
         )
@@ -1247,6 +1494,93 @@ const DriverDashboard = () => {
                             </div>
                         </motion.div>
                     </>
+                )}
+            </AnimatePresence>
+
+            {/* Commission Modal */}
+            <AnimatePresence>
+                {showCommissionModal && pendingCommissionData && (
+                    <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ y: "100%", opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: "100%", opacity: 0 }}
+                            className="w-full max-w-sm bg-zinc-950 border border-white/10 rounded-[2.5rem] p-8 space-y-6 shadow-2xl relative overflow-hidden pointer-events-auto"
+                        >
+                            {/* Glow Background */}
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary-500/10 rounded-full blur-[60px] pointer-events-none" />
+
+                            <div className="relative z-10 text-center">
+                                <div className="w-16 h-16 bg-primary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-primary-500/20">
+                                    <DollarSign className="w-8 h-8 text-primary-500" />
+                                </div>
+                                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-2">DETALLE DEL VIAJE</h3>
+                                <p className="text-[9px] font-black text-zinc-500 uppercase italic tracking-widest">Verificá los montos antes de aceptar</p>
+                            </div>
+
+                            <div className="relative z-10 space-y-3">
+                                <div className="flex justify-between items-center p-4 bg-zinc-900/50 rounded-2xl border border-white/5">
+                                    <span className="text-[10px] font-black text-zinc-400 uppercase italic">Valor del Viaje</span>
+                                    <span className="text-xl font-black text-white italic">$ {pendingCommissionData.trip_value}</span>
+                                </div>
+
+                                <div className="flex justify-between items-center p-4 bg-zinc-900/50 rounded-2xl border border-white/5">
+                                    <div>
+                                        <span className="text-[10px] font-black text-primary-500 uppercase italic block">Comisión ({pendingCommissionData.commission_rate}%)</span>
+                                        <span className="text-[8px] font-bold text-zinc-500 uppercase italic">Se descontará de tu billetera</span>
+                                    </div>
+                                    <span className="text-xl font-black text-red-500 italic">-$ {pendingCommissionData.commission_amount}</span>
+                                </div>
+
+                                <div className="flex justify-between items-center p-4 bg-primary-500/5 rounded-2xl border border-primary-500/20">
+                                    <span className="text-[10px] font-black text-primary-500 uppercase italic">Tu Ganancia Neta</span>
+                                    <span className="text-2xl font-black text-primary-500 italic">$ {(pendingCommissionData.trip_value - pendingCommissionData.commission_amount).toFixed(2)}</span>
+                                </div>
+
+                                <div className="pt-2">
+                                    <div className="flex justify-between text-[10px] font-black uppercase italic mb-2">
+                                        <span className="text-zinc-600">Tu Saldo Actual</span>
+                                        <span className={pendingCommissionData.can_afford ? 'text-green-500' : 'text-red-500'}>
+                                            $ {pendingCommissionData.current_balance.toFixed(2)}
+                                        </span>
+                                    </div>
+                                    {!pendingCommissionData.can_afford && (
+                                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 text-left">
+                                            <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                                            <p className="text-[9px] font-bold text-red-400 uppercase italic leading-tight">
+                                                Saldo insuficiente. Necesitás al menos $ {pendingCommissionData.commission_amount} para tomar este viaje.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="relative z-10 space-y-3 flex flex-col pt-4">
+                                {pendingCommissionData.can_afford ? (
+                                    <button
+                                        onClick={confirmAccept}
+                                        disabled={isSubmitting}
+                                        className="premium-button w-full py-5 text-sm"
+                                    >
+                                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'CONFIRMAR Y ACEPTAR'}
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => navigate('/wallet')}
+                                        className="premium-button w-full py-5 text-sm bg-zinc-900 border-zinc-800 text-zinc-400"
+                                    >
+                                        RECARGAR SALDO
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => { setShowCommissionModal(false); setPendingCommissionData(null); }}
+                                    className="w-full py-4 text-[10px] font-black text-zinc-600 uppercase italic tracking-widest hover:text-white transition-colors"
+                                >
+                                    CANCELAR
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 

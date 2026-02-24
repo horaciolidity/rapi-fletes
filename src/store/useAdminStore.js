@@ -8,6 +8,7 @@ export const useAdminStore = create((set, get) => ({
     users: [],
     pendingVehicles: [],
     activityLogs: [],
+    categories: [], // Vehicle categories with commission rates
     settings: {}, // Global app settings (currency, etc)
     reportedRanking: [], // Users with most complaints
     loading: false,
@@ -61,7 +62,23 @@ export const useAdminStore = create((set, get) => ({
         }
     },
 
-    // Update Vehicle Category (Prices)
+    // Fetch all vehicle categories (with commission rates)
+    fetchCategories: async () => {
+        try {
+            const { data, error } = await supabase
+                .from('vehicle_categories')
+                .select('*')
+                .order('name')
+            if (error) throw error
+            set({ categories: data || [] })
+            return data || []
+        } catch (err) {
+            console.error('Error fetching categories:', err)
+            return []
+        }
+    },
+
+    // Update Vehicle Category (Prices + Commission)
     updateVehicleCategory: async (categoryId, updates) => {
         try {
             const payload = {
@@ -69,7 +86,7 @@ export const useAdminStore = create((set, get) => ({
                 updated_at: new Date()
             }
 
-            const { error, count } = await supabase
+            const { error } = await supabase
                 .from('vehicle_categories')
                 .update(payload)
                 .eq('id', categoryId)
@@ -90,6 +107,63 @@ export const useAdminStore = create((set, get) => ({
         } catch (err) {
             console.error('Error updating category:', err)
             throw err
+        }
+    },
+
+    // Refund trip commission to driver (admin action)
+    refundTripCommission: async (driverId, fleteId, adminNote = 'Devolución por soporte') => {
+        try {
+            const { data, error } = await supabase.rpc('refund_trip_commission', {
+                p_driver_id: driverId,
+                p_flete_id: fleteId,
+                p_admin_note: adminNote
+            })
+            if (error) throw error
+            return data
+        } catch (err) {
+            console.error('Error refunding commission:', err)
+            return { success: false, error: err.message }
+        }
+    },
+
+    // Add manual wallet credit (admin support tool)
+    addWalletCredit: async (driverId, amount, note = 'Crédito por soporte') => {
+        try {
+            const { data, error } = await supabase.rpc('admin_add_wallet_credit', {
+                p_driver_id: driverId,
+                p_amount: parseFloat(amount),
+                p_note: note
+            })
+            if (error) throw error
+            return data
+        } catch (err) {
+            console.error('Error adding wallet credit:', err)
+            return { success: false, error: err.message }
+        }
+    },
+
+    // Fetch all driver wallet transactions (admin overview)
+    fetchAllWalletTransactions: async (filters = {}) => {
+        try {
+            let query = supabase
+                .from('transactions')
+                .select(`
+                    *,
+                    wallet:wallets!wallet_id (driver_id, balance,
+                        driver:profiles!driver_id (full_name, phone))
+                `)
+                .order('created_at', { ascending: false })
+                .limit(filters.limit || 100)
+
+            if (filters.type) query = query.eq('transaction_category', filters.type)
+            if (filters.walletId) query = query.eq('wallet_id', filters.walletId)
+
+            const { data, error } = await query
+            if (error) throw error
+            return data || []
+        } catch (err) {
+            console.error('Error fetching wallet transactions:', err)
+            return []
         }
     },
 
@@ -515,6 +589,7 @@ export const useAdminStore = create((set, get) => ({
             stats: null,
             complaints: [],
             users: [],
+            categories: [],
             pendingVehicles: [],
             activityLogs: [],
             loading: false,

@@ -5,6 +5,7 @@ export const useWalletStore = create((set, get) => ({
     wallet: null,
     transactions: [],
     rechargeRequests: [],
+    transactionFilter: 'all', // 'all' | 'deposit' | 'commission' | 'refund' | 'support' | 'withdrawal'
     loading: false,
     error: null,
 
@@ -20,7 +21,6 @@ export const useWalletStore = create((set, get) => ({
 
             if (error) throw error
 
-            // Si no existe billetera, crearla
             if (!data) {
                 const { data: newWallet, error: createError } = await supabase
                     .from('wallets')
@@ -42,17 +42,22 @@ export const useWalletStore = create((set, get) => ({
         }
     },
 
-    // Obtener transacciones
-    fetchTransactions: async (walletId, limit = 50) => {
+    // Obtener transacciones con filtro por categoría opcional
+    fetchTransactions: async (walletId, limit = 100, category = null) => {
         set({ loading: true, error: null })
         try {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('transactions')
                 .select('*')
                 .eq('wallet_id', walletId)
                 .order('created_at', { ascending: false })
                 .limit(limit)
 
+            if (category && category !== 'all') {
+                query = query.eq('transaction_category', category)
+            }
+
+            const { data, error } = await query
             if (error) throw error
             set({ transactions: data, loading: false })
             return data
@@ -60,6 +65,50 @@ export const useWalletStore = create((set, get) => ({
             console.error('Error fetching transactions:', err)
             set({ error: err.message, loading: false })
             return []
+        }
+    },
+
+    // Cambiar filtro activo y re-fetch
+    setTransactionFilter: async (filter) => {
+        set({ transactionFilter: filter })
+        const { wallet } = get()
+        if (wallet) {
+            await get().fetchTransactions(wallet.id, 100, filter)
+        }
+    },
+
+    // Calcular cuánto se cobraría de comisión SIN cobrar (para mostrar al chofer)
+    calculateCommission: async (driverId, fleteId) => {
+        try {
+            const { data, error } = await supabase.rpc('calculate_trip_commission', {
+                p_driver_id: driverId,
+                p_flete_id: fleteId
+            })
+            if (error) throw error
+            return data
+        } catch (err) {
+            console.error('Error calculating commission:', err)
+            return null
+        }
+    },
+
+    // Cobrar comisión atómicamente al aceptar un viaje
+    chargeCommission: async (driverId, fleteId) => {
+        try {
+            const { data, error } = await supabase.rpc('charge_trip_commission', {
+                p_driver_id: driverId,
+                p_flete_id: fleteId
+            })
+            if (error) throw error
+
+            if (data?.success) {
+                await get().fetchWallet(driverId)
+            }
+
+            return data // { success, commission_amount, commission_rate, new_balance } or { success: false, error }
+        } catch (err) {
+            console.error('Error charging commission:', err)
+            return { success: false, error: err.message }
         }
     },
 
@@ -106,7 +155,7 @@ export const useWalletStore = create((set, get) => ({
         }
     },
 
-    // Obtener solicitudes de recarga del chofer
+    // Obtener solicitudes de recarga
     fetchRechargeRequests: async (driverId) => {
         set({ loading: true, error: null })
         try {
@@ -127,10 +176,9 @@ export const useWalletStore = create((set, get) => ({
         }
     },
 
-    // Procesar recarga aprobada (llamado desde webhook o frontend)
+    // Procesar recarga aprobada
     processApprovedRecharge: async (rechargeId, paymentId, mpResponse) => {
         try {
-            // Llamar a la función de Supabase
             const { data, error } = await supabase.rpc('process_approved_recharge', {
                 p_recharge_id: rechargeId,
                 p_payment_id: paymentId,
@@ -139,67 +187,12 @@ export const useWalletStore = create((set, get) => ({
 
             if (error) throw error
 
-            // Refrescar wallet
             const wallet = get().wallet
-            if (wallet) {
-                await get().fetchWallet(wallet.driver_id)
-            }
+            if (wallet) await get().fetchWallet(wallet.driver_id)
 
             return true
         } catch (err) {
             console.error('Error processing approved recharge:', err)
-            return false
-        }
-    },
-
-    // Agregar ganancia de viaje
-    addTripEarning: async (walletId, amount, fleteId) => {
-        try {
-            const { data, error } = await supabase.rpc('update_wallet_balance', {
-                p_wallet_id: walletId,
-                p_amount: amount,
-                p_type: 'trip_earning',
-                p_description: `Ganancia de viaje #${fleteId.substring(0, 8)}`,
-                p_reference_id: fleteId
-            })
-
-            if (error) throw error
-
-            // Refrescar wallet
-            const wallet = get().wallet
-            if (wallet) {
-                await get().fetchWallet(wallet.driver_id)
-            }
-
-            return true
-        } catch (err) {
-            console.error('Error adding trip earning:', err)
-            return false
-        }
-    },
-
-    // Descontar comisión
-    deductCommission: async (walletId, amount, fleteId) => {
-        try {
-            const { data, error } = await supabase.rpc('update_wallet_balance', {
-                p_wallet_id: walletId,
-                p_amount: -Math.abs(amount), // Negativo para descontar
-                p_type: 'commission',
-                p_description: `Comisión de plataforma - Viaje #${fleteId.substring(0, 8)}`,
-                p_reference_id: fleteId
-            })
-
-            if (error) throw error
-
-            // Refrescar wallet
-            const wallet = get().wallet
-            if (wallet) {
-                await get().fetchWallet(wallet.driver_id)
-            }
-
-            return true
-        } catch (err) {
-            console.error('Error deducting commission:', err)
             return false
         }
     },
@@ -210,6 +203,7 @@ export const useWalletStore = create((set, get) => ({
             wallet: null,
             transactions: [],
             rechargeRequests: [],
+            transactionFilter: 'all',
             loading: false,
             error: null
         })
