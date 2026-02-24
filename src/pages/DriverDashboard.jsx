@@ -203,16 +203,6 @@ const DriverDashboard = () => {
 
             const res = await addVehicle(user.id, vehicleData)
             if (res) {
-                setShowAddVehicle(false)
-                setRegStep(0)
-                setFormData({
-                    brand: '', model: '', year: '', license_plate: '',
-                    category_id: '', justification: '', phone: '',
-                    photo: null, doc_license: null,
-                    doc_insurance: null, doc_vnt: null,
-                    profile_photo: null, doc_dni: null
-                })
-
                 // Si es la primera vez (estado none), actualizamos perfil a pending y subimos datos de chofer
                 if (profile.verification_status === 'none') {
                     const profileUpdates = {
@@ -224,11 +214,26 @@ const DriverDashboard = () => {
                     if (urls.document_image_url) profileUpdates.document_image_url = urls.document_image_url
 
                     await updateProfile(user.id, profileUpdates)
-                    fetchProfile(user.id)
+                    await fetchProfile(user.id)
                 }
+
+                alert("¡Registro enviado con éxito! Tu solicitud está siendo revisada por un administrador.")
+
+                setShowAddVehicle(false)
+                setRegStep(0)
+                setFormData({
+                    brand: '', model: '', year: '', license_plate: '',
+                    category_id: '', justification: '', phone: '',
+                    photo: null, doc_license: null,
+                    doc_insurance: null, doc_vnt: null,
+                    profile_photo: null, doc_dni: null
+                })
+            } else {
+                alert("Error al registrar vehículo. Por favor, verifica los datos (la patente podría ya estar registrada).")
             }
         } catch (error) {
             console.error("Error al registrar vehículo:", error)
+            alert("Ocurrió un error inesperado: " + error.message)
         }
         setIsSubmitting(false)
     }
@@ -423,7 +428,11 @@ const DriverDashboard = () => {
         const isLastStep = regStep === steps.length - 1
 
         const isStepComplete = (step) => {
-            return step.fields.every(f => !f.required || formData[f.key])
+            const fieldsComplete = step.fields.every(f => !f.required || formData[f.key])
+            if (regStep === 0) {
+                return fieldsComplete && formData.brand && formData.license_plate && formData.category_id && formData.phone && formData.year
+            }
+            return fieldsComplete
         }
 
         const allStepsComplete = steps.every(isStepComplete)
@@ -633,7 +642,7 @@ const DriverDashboard = () => {
                         {!isLastStep ? (
                             <button
                                 type="button"
-                                disabled={!isStepComplete(currentStepData) && regStep > 0}
+                                disabled={!isStepComplete(currentStepData)}
                                 onClick={() => setRegStep(r => r + 1)}
                                 className="flex-1 py-4 premium-button text-xs disabled:opacity-40 disabled:cursor-not-allowed"
                             >
