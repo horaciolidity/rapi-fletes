@@ -575,6 +575,9 @@ export const useAdminStore = create((set, get) => ({
                 loading: false
             }))
 
+            // Refrescar estadísticas para el dashboard
+            await get().fetchStats()
+
             return data
         } catch (err) {
             console.error('Error verifying vehicle:', err)

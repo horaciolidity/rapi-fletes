@@ -179,6 +179,45 @@ const AdminVehicles = () => {
                                     </div>
                                 </div>
 
+                                {/* Documents Gallery */}
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black text-zinc-600 uppercase italic px-4 tracking-[0.2em]">DOCUMENTACIÓN ADJUNTA</h4>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {[
+                                            { label: 'Vehículo', url: selectedVehicle.photo_url },
+                                            { label: 'Licencia', url: selectedVehicle.doc_license_url },
+                                            { label: 'Seguro', url: selectedVehicle.doc_insurance_url },
+                                            { label: 'VNT', url: selectedVehicle.doc_vnt_url },
+                                            { label: 'Foto Perfil', url: selectedVehicle.driver?.avatar_url },
+                                            { label: 'DNI / Identidad', url: selectedVehicle.driver?.document_image_url }
+                                        ].map((doc, idx) => (
+                                            <div key={idx} className="space-y-2">
+                                                <p className="text-[8px] font-black text-primary-500 uppercase italic px-2">{doc.label}</p>
+                                                <div className="aspect-video bg-zinc-900 rounded-2xl border border-white/5 overflow-hidden group relative cursor-zoom-in">
+                                                    {doc.url ? (
+                                                        <>
+                                                            <img
+                                                                src={doc.url}
+                                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                                alt={doc.label}
+                                                                onClick={() => window.open(doc.url, '_blank')}
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                <FileText className="w-6 h-6 text-white" />
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <div className="w-full h-full flex flex-col items-center justify-center gap-2 opacity-20">
+                                                            <XCircle className="w-6 h-6" />
+                                                            <span className="text-[8px] font-bold uppercase italic">No cargado</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 {/* Justification */}
                                 <div className="bg-primary-500/5 p-8 rounded-[2.5rem] border border-primary-500/10 relative overflow-hidden">
                                     <FileText className="absolute top-6 right-8 w-12 h-12 text-primary-500/10 rotate-12" />
