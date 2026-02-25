@@ -240,12 +240,12 @@ body {
 }
 
 .map-tiles-dark {
-  filter: brightness(0.9) contrast(1.2) saturate(1.4) hue-rotate(-5deg) !important;
-  background-color: #0c0c0e !important;
+  filter: contrast(1.2) saturate(1.8) brightness(1.1) !important;
+  background-color: #111 !important;
 }
 
-.light .map-tiles-bright {
-  filter: brightness(1.02) contrast(1.1) saturate(1.2) !important;
+.map-tiles-bright {
+  filter: contrast(1.1) saturate(1.4) brightness(1.05) !important;
 }
 
 /* UI Feedback */
