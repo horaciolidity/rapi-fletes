@@ -240,7 +240,7 @@ body {
 }
 
 .dark .map-tiles-bright {
-  filter: invert(100%) hue-rotate(180deg) brightness(4.5) contrast(1.8) saturate(2.5) !important;
+  filter: invert(100%) hue-rotate(180deg) brightness(0.9) contrast(1.1) saturate(0.5) !important;
 }
 
 .light .map-tiles-bright {
