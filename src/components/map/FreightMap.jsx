@@ -421,10 +421,7 @@ const FreightMap = ({
             >
                 <TileLayer
                     attribution='&copy; OpenStreetMap'
-                    url={theme === 'dark'
-                        ? "https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png"
-                        : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                    }
+                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                     className={theme === 'dark' ? "map-tiles-dark" : "map-tiles-bright"}
                 />
 
