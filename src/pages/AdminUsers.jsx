@@ -88,7 +88,7 @@ const AdminUsers = () => {
     )
 
     return (
-        <div className="min-h-screen bg-black pb-24 text-white">
+        <div className="min-h-screen bg-black pb-32 text-white">
             <div className="bg-gradient-to-b from-zinc-950 to-black border-b border-zinc-900 p-6">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

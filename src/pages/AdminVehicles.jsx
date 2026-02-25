@@ -34,7 +34,7 @@ const AdminVehicles = () => {
     }
 
     return (
-        <div className="min-h-screen bg-black pb-24 font-sans text-white">
+        <div className="min-h-screen bg-black pb-32 font-sans text-white">
             {/* Header */}
             <div className="bg-gradient-to-b from-zinc-950 to-black border-b border-zinc-900 p-6 sticky top-0 z-30 backdrop-blur-xl">
                 <div className="max-w-5xl mx-auto flex justify-between items-center">

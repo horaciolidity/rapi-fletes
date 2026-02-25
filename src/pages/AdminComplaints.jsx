@@ -70,7 +70,7 @@ const AdminComplaints = () => {
     }
 
     return (
-        <div className="min-h-screen bg-black pb-24">
+        <div className="min-h-screen bg-black pb-32">
             {/* Header */}
             <div className="bg-gradient-to-b from-zinc-950 to-black border-b border-zinc-900 p-6">
                 <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter mb-2">
@@ -94,8 +94,8 @@ const AdminComplaints = () => {
                             key={f.value}
                             onClick={() => setFilter(f.value)}
                             className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase italic whitespace-nowrap transition-colors ${filter === f.value
-                                    ? 'bg-primary-500 text-black'
-                                    : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'
+                                ? 'bg-primary-500 text-black'
+                                : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'
                                 }`}
                         >
                             {f.label} ({f.count})

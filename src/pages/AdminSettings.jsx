@@ -88,7 +88,7 @@ const AdminSettings = () => {
     }
 
     return (
-        <div className="min-h-screen bg-black pb-24 text-white">
+        <div className="min-h-screen bg-black pb-48 text-white">
             <div className="bg-gradient-to-b from-zinc-950 to-black border-b border-zinc-900 p-6">
                 <div className="flex items-center gap-3">
                     <Settings className="w-8 h-8 text-primary-500" />
@@ -184,7 +184,7 @@ const AdminSettings = () => {
             </div>
 
             {/* Floating Save Button */}
-            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-lg px-6 z-50">
+            <div className="fixed bottom-28 left-1/2 -translate-x-1/2 w-full max-w-lg px-6 z-50">
                 <button
                     onClick={handleSave}
                     disabled={saving}
