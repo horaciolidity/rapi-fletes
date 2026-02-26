@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { supabase } from '../api/supabase'
+import { notificationService } from '../services/notificationService'
 
 export const useBookingStore = create((set, get) => ({
     fletes: [],
@@ -222,6 +223,12 @@ export const useBookingStore = create((set, get) => ({
             }
 
             set({ loading: false })
+
+            // Notify drivers about the new trip
+            if (data) {
+                notificationService.notifyNewTrip(data)
+            }
+
             return data
         } catch (err) {
             console.error('Error creating flete:', err)

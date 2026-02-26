@@ -19,6 +19,8 @@ import { useAuthStore } from './store/useAuthStore'
 import { useThemeStore } from './store/useThemeStore'
 import { supabase } from './api/supabase'
 import NotificationManager from './components/notifications/NotificationManager'
+import { useNotificationStore } from './store/useNotificationStore'
+import { onMessageListener } from './lib/firebase'
 
 const AppContent = () => {
   const { setUser, fetchProfile } = useAuthStore()
@@ -43,22 +45,41 @@ const AppContent = () => {
     })
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const user = session?.user ?? null
       setUser(user)
       if (user) {
-        fetchProfile(user.id)
+        const profile = await fetchProfile(user.id)
         if (profileSub) {
           supabase.removeChannel(profileSub)
           profileSub = null
         }
         profileSub = useAuthStore.getState().subscribeToProfile(user.id)
+
+        // Register FCM token if driver
+        if (profile?.role === 'driver' || profile?.role === 'admin') {
+          const { registerFCMToken, permission, requestPermission } = useNotificationStore.getState()
+          if (permission !== 'granted') {
+            await requestPermission()
+          }
+          await registerFCMToken(user.id)
+        }
       } else {
         if (profileSub) {
           supabase.removeChannel(profileSub)
           profileSub = null
         }
       }
+    })
+
+    // Listen for foreground FCM messages
+    onMessageListener().then(payload => {
+      console.log('Foreground message received:', payload)
+      useNotificationStore.getState().addNotification({
+        title: payload.notification.title,
+        message: payload.notification.body,
+        type: 'info'
+      })
     })
 
     return () => {

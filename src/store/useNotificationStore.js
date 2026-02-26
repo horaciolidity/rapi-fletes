@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { requestForToken } from '../lib/firebase'
+import { supabase } from '../api/supabase'
 
 export const useNotificationStore = create(
     persist(
@@ -12,6 +14,28 @@ export const useNotificationStore = create(
                 if (typeof Notification === 'undefined') return
                 const permission = await Notification.requestPermission()
                 set({ permission })
+                return permission
+            },
+
+            registerFCMToken: async (userId) => {
+                if (!userId) return
+
+                try {
+                    const token = await requestForToken()
+                    if (token) {
+                        console.log('FCM Token generated:', token)
+                        const { error } = await supabase
+                            .from('profiles')
+                            .update({ fcm_token: token })
+                            .eq('id', userId)
+
+                        if (error) throw error
+                        return true
+                    }
+                } catch (err) {
+                    console.error('Error registering FCM token:', err)
+                }
+                return false
             },
 
             addNotification: (notification) => {
