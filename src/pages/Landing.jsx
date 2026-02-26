@@ -1,14 +1,23 @@
-import React, { useEffect } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import React, { useEffect, useState } from 'react'
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { Truck, MapPin, Shield, CreditCard, Clock, Star, ArrowRight, Play, CheckCircle, AlertCircle } from 'lucide-react'
 import { useBookingStore } from '../store/useBookingStore'
 import { Link } from 'react-router-dom'
 
 const Landing = () => {
     const { categories, fetchCategories, loading, error } = useBookingStore()
+    const [vehicleIndex, setVehicleIndex] = useState(0)
+    const vehicles = ['COCHE', 'UTILITARIO', 'CAMIONETA', 'CAMIÓN']
 
     useEffect(() => {
         fetchCategories()
+    }, [])
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setVehicleIndex((prev) => (prev + 1) % vehicles.length)
+        }, 2000)
+        return () => clearInterval(interval)
     }, [])
 
     return (
@@ -35,14 +44,25 @@ const Landing = () => {
                         LOGÍSTICA DE ÉLITE 2026
                     </motion.div>
 
-                    <div className="overflow-hidden mb-6">
+                    <div className="mb-6">
                         <motion.h1
-                            initial={{ y: "100%" }}
-                            animate={{ y: 0 }}
-                            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                            className="text-5xl sm:text-7xl font-black leading-[0.85] tracking-tighter italic uppercase text-gradient"
+                            className="text-4xl sm:text-7xl font-black leading-tight tracking-tighter italic uppercase text-white"
                         >
-                            PUNTUAL Y<br />CONFIABLE
+                            ¿NECESITA UN <br />
+                            <div className="h-[1.2em] inline-flex items-center justify-center overflow-hidden relative w-full">
+                                <AnimatePresence mode="wait">
+                                    <motion.span
+                                        key={vehicles[vehicleIndex]}
+                                        initial={{ y: 40, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        exit={{ y: -40, opacity: 0 }}
+                                        transition={{ duration: 0.5, ease: "backOut" }}
+                                        className="text-primary-500 block"
+                                    >
+                                        {vehicles[vehicleIndex]}?
+                                    </motion.span>
+                                </AnimatePresence>
+                            </div>
                         </motion.h1>
                     </div>
 
@@ -62,8 +82,8 @@ const Landing = () => {
                         transition={{ delay: 0.6 }}
                         className="flex flex-col gap-6 w-full max-w-xs mx-auto"
                     >
-                        <Link to="/booking" className="premium-button group">
-                            <span>RESERVAR AHORA</span>
+                        <Link to="/booking" className="premium-button group scale-110">
+                            <span>PEDIR VIAJE AHORA</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                         </Link>
                         <Link to="/auth" className="glass-button">
