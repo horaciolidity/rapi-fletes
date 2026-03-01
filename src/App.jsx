@@ -20,7 +20,6 @@ import { useThemeStore } from './store/useThemeStore'
 import { supabase } from './api/supabase'
 import NotificationManager from './components/notifications/NotificationManager'
 import { useNotificationStore } from './store/useNotificationStore'
-import { onMessageListener } from './lib/firebase'
 
 const AppContent = () => {
   const { setUser, fetchProfile } = useAuthStore()
@@ -41,8 +40,6 @@ const AppContent = () => {
         setUser(session.user)
         fetchProfile(session.user.id)
         profileSub = useAuthStore.getState().subscribeToProfile(session.user.id)
-      } else {
-        useAuthStore.getState().setLoading(false)
       }
     })
 
@@ -57,15 +54,6 @@ const AppContent = () => {
           profileSub = null
         }
         profileSub = useAuthStore.getState().subscribeToProfile(user.id)
-
-        // Register FCM token if driver
-        if (profile?.role === 'driver' || profile?.role === 'admin') {
-          const { registerFCMToken, permission, requestPermission } = useNotificationStore.getState()
-          if (permission !== 'granted') {
-            await requestPermission()
-          }
-          await registerFCMToken(user.id)
-        }
       } else {
         if (profileSub) {
           supabase.removeChannel(profileSub)
@@ -74,15 +62,7 @@ const AppContent = () => {
       }
     })
 
-    // Listen for foreground FCM messages
-    onMessageListener().then(payload => {
-      console.log('Foreground message received:', payload)
-      useNotificationStore.getState().addNotification({
-        title: payload.notification.title,
-        message: payload.notification.body,
-        type: 'info'
-      })
-    })
+
 
     return () => {
       subscription.unsubscribe()
@@ -92,13 +72,7 @@ const AppContent = () => {
 
   const ProtectedAdminRoute = ({ children }) => {
     const { profile, loading } = useAuthStore()
-    if (loading) {
-      return (
-        <div className="min-h-screen bg-black flex items-center justify-center">
-          <Truck className="w-12 h-12 text-primary-500 animate-pulse" />
-        </div>
-      )
-    }
+    if (loading) return null
     if (profile?.role !== 'admin') return <Navigate to="/" replace />
     return children
   }

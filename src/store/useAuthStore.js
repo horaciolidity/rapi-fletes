@@ -4,10 +4,10 @@ import { supabase } from '../api/supabase'
 export const useAuthStore = create((set, get) => ({
     user: null,
     profile: null,
-    loading: true, // Start loading until session is checked
+    loading: false, // Reverted to false to avoid blocking the app
     error: null,
 
-    setUser: (user) => set({ user, loading: user ? get().loading : false }),
+    setUser: (user) => set({ user }),
     setProfile: (profile) => set({ profile, loading: false }),
     setLoading: (loading) => set({ loading }),
     setError: (error) => set({ error }),
@@ -75,10 +75,7 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    signOut: async () => {
-        await supabase.auth.signOut()
-        set({ user: null, profile: null })
-    },
+
 
     fetchProfile: async (userId) => {
         if (!userId) return
