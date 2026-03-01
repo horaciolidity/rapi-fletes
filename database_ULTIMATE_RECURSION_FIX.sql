@@ -23,6 +23,13 @@ DROP POLICY IF EXISTS "profiles_update_self_v3" ON public.profiles;
 DROP POLICY IF EXISTS "profiles_admin_update_v3" ON public.profiles;
 DROP POLICY IF EXISTS "profiles_select_self" ON public.profiles;
 DROP POLICY IF EXISTS "profiles_select_admin" ON public.profiles;
+DROP POLICY IF EXISTS "profiles_update_self" ON public.profiles;
+DROP POLICY IF EXISTS "profiles_update_admin" ON public.profiles;
+DROP POLICY IF EXISTS "Admins can do everything on profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
+DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
+
 
 -- 3. Restore clean, non-recursive policies for PROFILES
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
