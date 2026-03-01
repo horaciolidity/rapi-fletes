@@ -98,10 +98,32 @@ USING (
   )
 );
 
--- 7. ACTIVITY_LOGS
+-- 7. ACTIVITY_LOGS, WARNINGS, BANS (Admin only)
 ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins can view logs" ON public.activity_logs;
 CREATE POLICY "Admins can view logs" ON public.activity_logs
+FOR SELECT TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles p
+    WHERE p.id = auth.uid() AND p.role = 'admin'
+  )
+);
+
+ALTER TABLE public.user_warnings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins can view warnings" ON public.user_warnings;
+CREATE POLICY "Admins can view warnings" ON public.user_warnings
+FOR SELECT TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles p
+    WHERE p.id = auth.uid() AND p.role = 'admin'
+  )
+);
+
+ALTER TABLE public.user_bans ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins can view bans" ON public.user_bans;
+CREATE POLICY "Admins can view bans" ON public.user_bans
 FOR SELECT TO authenticated
 USING (
   EXISTS (
