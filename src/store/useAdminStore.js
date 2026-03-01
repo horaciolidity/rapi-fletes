@@ -331,42 +331,41 @@ export const useAdminStore = create((set, get) => ({
                 query = query.eq('role', filters.role)
             }
             if (filters.search) {
-                query = query.or(`full_name.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`)
+                query = query.or(`full_name.ilike.%${filters.search}%,phone.ilike.%${filters.search}%,email.ilike.%${filters.search}%`)
             }
 
-            const { data, error } = await query
+            const { data: users, error } = await query
 
             if (error) throw error
 
-            // Para cada usuario, obtener advertencias y baneos
-            const usersWithDetails = await Promise.all(
-                data.map(async (user) => {
-                    // Obtener advertencias
-                    const { data: warnings } = await supabase
-                        .from('user_warnings')
-                        .select('*')
-                        .eq('user_id', user.id)
-                        .order('created_at', { ascending: false })
+            if (!users || users.length === 0) {
+                set({ users: [], loading: false })
+                return []
+            }
 
-                    // Obtener baneos activos
-                    const { data: bans } = await supabase
-                        .from('user_bans')
-                        .select('*')
-                        .eq('user_id', user.id)
-                        .eq('is_active', true)
+            const userIds = users.map(u => u.id)
 
-                    // Verificar si está baneado
-                    const { data: isBanned } = await supabase
-                        .rpc('is_user_banned', { p_user_id: user.id })
+            // 1. Fetch ALL warnings for these users in one go
+            const { data: allWarnings } = await supabase
+                .from('user_warnings')
+                .select('*')
+                .in('user_id', userIds)
+                .order('created_at', { ascending: false })
 
-                    return {
-                        ...user,
-                        warnings: warnings || [],
-                        bans: bans || [],
-                        is_banned: isBanned || false
-                    }
-                })
-            )
+            // 2. Fetch ALL active bans for these users in one go
+            const { data: allBans } = await supabase
+                .from('user_bans')
+                .select('*')
+                .in('user_id', userIds)
+                .eq('is_active', true)
+
+            // 3. Map everything back to users
+            const usersWithDetails = users.map(user => ({
+                ...user,
+                warnings: allWarnings?.filter(w => w.user_id === user.id) || [],
+                bans: allBans?.filter(b => b.user_id === user.id) || [],
+                is_banned: allBans?.some(b => b.user_id === user.id && b.is_active) || false
+            }))
 
             set({ users: usersWithDetails, loading: false })
             return usersWithDetails

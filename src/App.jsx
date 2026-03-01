@@ -41,6 +41,8 @@ const AppContent = () => {
         setUser(session.user)
         fetchProfile(session.user.id)
         profileSub = useAuthStore.getState().subscribeToProfile(session.user.id)
+      } else {
+        useAuthStore.getState().setLoading(false)
       }
     })
 
@@ -90,7 +92,13 @@ const AppContent = () => {
 
   const ProtectedAdminRoute = ({ children }) => {
     const { profile, loading } = useAuthStore()
-    if (loading) return null // Wait for profile
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-black flex items-center justify-center">
+          <Truck className="w-12 h-12 text-primary-500 animate-pulse" />
+        </div>
+      )
+    }
     if (profile?.role !== 'admin') return <Navigate to="/" replace />
     return children
   }
