@@ -425,7 +425,7 @@ const Booking = () => {
                                                     <Package className="w-3 h-3" /> CARGAMENTO (LUJO DE DETALLE)
                                                 </label>
                                                 <textarea
-                                                    className="w-full px-5 py-4 bg-zinc-950/40 border border-white/5 rounded-2xl text-[10px] font-black italic text-white outline-none focus:border-primary-500/30 min-h-[100px] resize-none uppercase tracking-widest placeholder:text-zinc-800"
+                                                    className="w-full px-5 py-4 bg-zinc-950/40 border border-white/5 rounded-2xl text-[10px] font-black italic text-white outline-none focus:border-primary-500/30 min-h-[100px] resize-none uppercase tracking-widest placeholder:text-zinc-500"
                                                     placeholder="POR FAVOR, DETALLA TU CARGA CON EL MÁXIMO LUJO DE DETALLE (OBJETOS, VOLUMEN, CANTIDAD, PISO)..."
                                                     value={shipmentDetails}
                                                     onChange={(e) => setShipmentDetails(e.target.value)}
@@ -444,7 +444,7 @@ const Booking = () => {
                                                     </div>
                                                     <div>
                                                         <p className="text-[10px] font-black text-white uppercase italic tracking-widest">PASAJERO A BORDO</p>
-                                                        <p className="text-[8px] font-bold text-zinc-600 italic uppercase">Acompañar flete</p>
+                                                        <p className="text-[8px] font-bold text-zinc-400 italic uppercase">Acompañar flete</p>
                                                     </div>
                                                 </div>
                                                 <User className={`w-5 h-5 transition-all duration-500 ${passengerTravels ? 'text-primary-500' : 'text-zinc-800'}`} />

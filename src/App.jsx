@@ -88,6 +88,13 @@ const AppContent = () => {
     }
   }, [])
 
+  const ProtectedAdminRoute = ({ children }) => {
+    const { profile, loading } = useAuthStore()
+    if (loading) return null // Wait for profile
+    if (profile?.role !== 'admin') return <Navigate to="/" replace />
+    return children
+  }
+
   return (
     <div className="flex flex-col min-h-screen selection:bg-primary-500 selection:text-white max-w-lg mx-auto relative transition-colors duration-500 overflow-x-hidden">
       <div className="bg-mesh" />
@@ -107,11 +114,13 @@ const AppContent = () => {
           <Route path="/driver" element={<DriverDashboard />} />
           <Route path="/wallet" element={<DriverWallet />} />
           <Route path="/my-fletes" element={<MyFletes />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/complaints" element={<AdminComplaints />} />
-          <Route path="/admin/vehicles" element={<AdminVehicles />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
+
+          {/* Admin Routes - Protected */}
+          <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
+          <Route path="/admin/complaints" element={<ProtectedAdminRoute><AdminComplaints /></ProtectedAdminRoute>} />
+          <Route path="/admin/vehicles" element={<ProtectedAdminRoute><AdminVehicles /></ProtectedAdminRoute>} />
+          <Route path="/admin/users" element={<ProtectedAdminRoute><AdminUsers /></ProtectedAdminRoute>} />
+          <Route path="/admin/settings" element={<ProtectedAdminRoute><AdminSettings /></ProtectedAdminRoute>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

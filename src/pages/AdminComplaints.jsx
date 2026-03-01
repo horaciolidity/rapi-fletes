@@ -76,7 +76,7 @@ const AdminComplaints = () => {
                 <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter mb-2">
                     🚨 RECLAMOS
                 </h1>
-                <p className="text-[10px] font-bold text-zinc-600 uppercase italic">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase italic">
                     Gestión de problemas reportados
                 </p>
             </div>
@@ -231,23 +231,23 @@ const AdminComplaints = () => {
 
                             <div className="space-y-4 mb-6">
                                 <div>
-                                    <p className="text-[9px] text-zinc-600 uppercase font-bold mb-1">Título</p>
+                                    <p className="text-[9px] text-zinc-400 uppercase font-bold mb-1">Título</p>
                                     <p className="text-white font-black">{selectedComplaint.title}</p>
                                 </div>
 
                                 <div>
-                                    <p className="text-[9px] text-zinc-600 uppercase font-bold mb-1">Descripción</p>
+                                    <p className="text-[9px] text-zinc-400 uppercase font-bold mb-1">Descripción</p>
                                     <p className="text-zinc-400 text-sm">{selectedComplaint.description}</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-[9px] text-zinc-600 uppercase font-bold mb-1">Usuario</p>
+                                        <p className="text-[9px] text-zinc-400 uppercase font-bold mb-1">Usuario</p>
                                         <p className="text-white text-sm">{selectedComplaint.user?.full_name}</p>
                                         <p className="text-zinc-500 text-xs">{selectedComplaint.user?.phone}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[9px] text-zinc-600 uppercase font-bold mb-1">Estado</p>
+                                        <p className="text-[9px] text-zinc-400 uppercase font-bold mb-1">Estado</p>
                                         <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase ${getStatusColor(selectedComplaint.status)}`}>
                                             {selectedComplaint.status}
                                         </span>
@@ -256,7 +256,7 @@ const AdminComplaints = () => {
 
                                 {selectedComplaint.status === 'in_progress' && (
                                     <div>
-                                        <label className="text-[9px] text-zinc-600 uppercase font-bold mb-2 block">
+                                        <label className="text-[9px] text-zinc-400 uppercase font-bold mb-2 block">
                                             Resolución
                                         </label>
                                         <textarea
@@ -264,14 +264,14 @@ const AdminComplaints = () => {
                                             onChange={(e) => setResolution(e.target.value)}
                                             placeholder="Describe cómo se resolvió el problema..."
                                             rows={4}
-                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 resize-none"
+                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 resize-none"
                                         />
                                     </div>
                                 )}
 
                                 {selectedComplaint.resolution && (
                                     <div>
-                                        <p className="text-[9px] text-zinc-600 uppercase font-bold mb-1">Resolución</p>
+                                        <p className="text-[9px] text-zinc-400 uppercase font-bold mb-1">Resolución</p>
                                         <p className="text-green-400 text-sm">{selectedComplaint.resolution}</p>
                                     </div>
                                 )}

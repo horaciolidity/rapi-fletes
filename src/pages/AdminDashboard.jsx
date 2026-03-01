@@ -27,7 +27,7 @@ const AdminDashboard = () => {
                     {value?.toLocaleString() || '0'}
                 </p>
             </div>
-            <p className="text-[10px] font-black text-zinc-600 uppercase italic">
+            <p className="text-[10px] font-black text-zinc-400 uppercase italic">
                 {label}
             </p>
         </motion.div>
@@ -54,7 +54,7 @@ const AdminDashboard = () => {
                         PANEL ADMIN
                     </h1>
                 </div>
-                <p className="text-[10px] font-bold text-zinc-600 uppercase italic">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase italic">
                     Centro de control y moderación
                 </p>
             </div>

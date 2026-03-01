@@ -27,6 +27,7 @@ const AdminUsers = () => {
     const filteredUsers = users.filter(u => {
         const matchesSearch = u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             u.phone?.includes(searchTerm) ||
+            u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             u.id.includes(searchTerm)
         const matchesRole = filterRole === 'all' || u.role === filterRole
         return matchesSearch && matchesRole
@@ -69,7 +70,7 @@ const AdminUsers = () => {
                         <span className={`text-[7px] font-black uppercase px-2 py-0.5 rounded ${user.role === 'driver' ? 'bg-blue-500/10 text-blue-500' : 'bg-secondary-500/10 text-secondary-500'}`}>
                             {user.role}
                         </span>
-                        <span className="text-[8px] font-bold text-zinc-600">{user.phone || 'S/T'}</span>
+                        <span className="text-[8px] font-bold text-zinc-600 truncate">{user.phone || 'S/T'} • {user.email || 'S/E'}</span>
                     </div>
                 </div>
             </div>
@@ -120,10 +121,10 @@ const AdminUsers = () => {
                         {/* Search & Filters */}
                         <div className="flex gap-3">
                             <div className="relative flex-1">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
                                 <input
-                                    className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-xs font-bold text-white outline-none focus:border-primary-500/30"
-                                    placeholder="BUSCAR POR NOMBRE, TEL O ID..."
+                                    className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-xs font-bold text-white outline-none focus:border-primary-500/30 placeholder:text-zinc-500"
+                                    placeholder="BUSCAR POR NOMBRE, EMAIL, TEL O ID..."
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                 />
@@ -208,7 +209,7 @@ const AdminUsers = () => {
                                     <div>
                                         <p className="text-[9px] font-black text-primary-500 uppercase tracking-widest italic mb-1">USUARIO SELECCIONADO</p>
                                         <h3 className="text-xl font-black text-white italic uppercase">{selectedUser.full_name}</h3>
-                                        <p className="text-xs font-bold text-zinc-400">{selectedUser.phone}</p>
+                                        <p className="text-xs font-bold text-zinc-400">{selectedUser.phone} • {selectedUser.email}</p>
                                         <p className="text-[7px] font-bold text-zinc-600 uppercase mt-2 mono">{selectedUser.id}</p>
                                     </div>
                                 </div>
@@ -217,11 +218,11 @@ const AdminUsers = () => {
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="p-4 bg-zinc-950 rounded-2xl border border-white/5">
-                                                <p className="text-[8px] font-black text-zinc-600 uppercase italic mb-1">ADVERTENCIAS</p>
+                                                <p className="text-[8px] font-black text-zinc-400 uppercase italic mb-1">ADVERTENCIAS</p>
                                                 <p className={`text-2xl font-black italic ${selectedUser.warnings?.length > 0 ? 'text-yellow-500' : 'text-zinc-800'}`}>{selectedUser.warnings?.length || 0}</p>
                                             </div>
                                             <div className="p-4 bg-zinc-950 rounded-2xl border border-white/5 text-right">
-                                                <p className="text-[8px] font-black text-zinc-600 uppercase italic mb-1">ESTADO</p>
+                                                <p className="text-[8px] font-black text-zinc-400 uppercase italic mb-1">ESTADO</p>
                                                 <p className={`text-sm font-black italic ${selectedUser.is_banned ? 'text-red-500' : 'text-green-500'}`}>{selectedUser.is_banned ? 'BANEADO' : 'ACTIVO'}</p>
                                             </div>
                                         </div>
@@ -250,7 +251,7 @@ const AdminUsers = () => {
                                             <p className="text-sm font-black italic uppercase">MOTIVO DE LA {actionType === 'ban' ? 'SANCIÓN' : 'ADVERTENCIA'}</p>
                                         </div>
                                         <textarea
-                                            className="w-full bg-black border border-white/5 rounded-2xl p-4 text-sm font-bold text-white outline-none focus:border-red-500/50 min-h-[120px] resize-none uppercase italic"
+                                            className="w-full bg-black border border-white/5 rounded-2xl p-4 text-sm font-bold text-white outline-none focus:border-red-500/50 min-h-[120px] resize-none uppercase italic placeholder:text-zinc-500"
                                             placeholder="DESCRIBA EL INCIDENTE O INFRACCIÓN..."
                                             value={reason}
                                             onChange={e => setReason(e.target.value)}

@@ -194,7 +194,7 @@ body {
   }
 
   .input-field {
-    @apply w-full px-6 py-4 border border-[var(--border-color)] rounded-2xl bg-white/5 backdrop-blur-xl focus:border-primary-500/50 outline-none transition-all placeholder:text-zinc-600 font-bold italic text-xs;
+    @apply w-full px-6 py-4 border border-[var(--border-color)] rounded-2xl bg-white/5 backdrop-blur-xl focus:border-primary-500/50 outline-none transition-all placeholder:text-zinc-500 font-bold italic text-xs;
     color: var(--text-color);
   }
 

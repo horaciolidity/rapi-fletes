@@ -94,7 +94,7 @@ const AdminSettings = () => {
                     <Settings className="w-8 h-8 text-primary-500" />
                     <h1 className="text-3xl font-black italic uppercase tracking-tighter">CONFIGURACIÓN</h1>
                 </div>
-                <p className="text-[10px] font-bold text-zinc-600 uppercase italic">Control operativo y financiero</p>
+                <p className="text-[10px] font-bold text-zinc-400 uppercase italic">Control operativo y financiero</p>
             </div>
 
             <div className="p-6 space-y-8 max-w-2xl mx-auto">
@@ -106,7 +106,7 @@ const AdminSettings = () => {
                     </div>
                     <div className="glass-card p-6 space-y-4">
                         <div>
-                            <label className="text-[9px] font-black text-zinc-600 uppercase italic mb-2 block tracking-widest">Símbolo de Moneda</label>
+                            <label className="text-[9px] font-black text-zinc-400 uppercase italic mb-2 block tracking-widest">Símbolo de Moneda</label>
                             <input
                                 className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-sm font-black italic text-white outline-none focus:border-primary-500/50"
                                 value={localSettings.currency_symbol}
@@ -132,7 +132,7 @@ const AdminSettings = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="text-[8px] font-black text-zinc-600 uppercase italic mb-1 block">Bajada de Bandera</label>
+                                        <label className="text-[8px] font-black text-zinc-400 uppercase italic mb-1 block">Bajada de Bandera</label>
                                         <input
                                             type="number"
                                             className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-xs font-black text-white outline-none focus:border-primary-500/50"
@@ -145,7 +145,7 @@ const AdminSettings = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-[8px] font-black text-zinc-600 uppercase italic mb-1 block">Precio por KM</label>
+                                        <label className="text-[8px] font-black text-zinc-400 uppercase italic mb-1 block">Precio por KM</label>
                                         <input
                                             type="number"
                                             className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-xs font-black text-white outline-none focus:border-primary-500/50"

@@ -77,6 +77,7 @@ export const useAuthStore = create((set, get) => ({
 
     fetchProfile: async (userId) => {
         if (!userId) return
+        set({ loading: true, error: null })
         try {
             const { data: profile, error } = await supabase
                 .from('profiles')
@@ -101,14 +102,15 @@ export const useAuthStore = create((set, get) => ({
                     .single()
 
                 if (createError) throw createError
-                set({ profile: createdProfile })
+                set({ profile: createdProfile, loading: false })
                 return createdProfile
             }
 
-            set({ profile })
+            set({ profile, loading: false })
             return profile
         } catch (err) {
             console.error('Error fetching/creating profile:', err)
+            set({ loading: false })
             return null
         }
     },
