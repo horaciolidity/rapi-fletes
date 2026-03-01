@@ -22,53 +22,61 @@ import NotificationManager from './components/notifications/NotificationManager'
 import { useNotificationStore } from './store/useNotificationStore'
 
 const AppContent = () => {
-  const { setUser, fetchProfile } = useAuthStore()
-  const { theme } = useThemeStore()
+  const setUser = useAuthStore(state => state.setUser)
+  const fetchProfile = useAuthStore(state => state.fetchProfile)
+  const theme = useThemeStore(state => state.theme)
   const location = useLocation()
   const isAuthPage = location.pathname === '/auth'
+
+  const profileSubRef = React.useRef(null)
 
   useEffect(() => {
     document.documentElement.className = theme
   }, [theme])
 
   useEffect(() => {
-    let profileSub = null
-
-    // Check for active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // 1. Initial Session Check
+    const initAuth = async () => {
+      console.log('--- Initial Auth Check ---')
+      const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
         setUser(session.user)
-        fetchProfile(session.user.id)
-        profileSub = useAuthStore.getState().subscribeToProfile(session.user.id)
+        await fetchProfile(session.user.id)
+        if (!profileSubRef.current) {
+          profileSubRef.current = useAuthStore.getState().subscribeToProfile(session.user.id)
+        }
       }
-    })
+    }
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    initAuth()
+
+    // 2. Auth State Listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('--- Auth Event:', event)
       const user = session?.user ?? null
       setUser(user)
+
       if (user) {
-        const profile = await fetchProfile(user.id)
-        if (profileSub) {
-          supabase.removeChannel(profileSub)
-          profileSub = null
+        await fetchProfile(user.id)
+        if (!profileSubRef.current) {
+          profileSubRef.current = useAuthStore.getState().subscribeToProfile(user.id)
         }
-        profileSub = useAuthStore.getState().subscribeToProfile(user.id)
       } else {
-        if (profileSub) {
-          supabase.removeChannel(profileSub)
-          profileSub = null
+        if (profileSubRef.current) {
+          supabase.removeChannel(profileSubRef.current)
+          profileSubRef.current = null
         }
       }
     })
-
-
 
     return () => {
       subscription.unsubscribe()
-      if (profileSub) supabase.removeChannel(profileSub)
+      if (profileSubRef.current) {
+        supabase.removeChannel(profileSubRef.current)
+        profileSubRef.current = null
+      }
     }
-  }, [])
+  }, []) // Stability: run once
 
   const ProtectedAdminRoute = ({ children }) => {
     const { profile, loading } = useAuthStore()

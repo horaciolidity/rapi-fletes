@@ -4,8 +4,9 @@ import { supabase } from '../api/supabase'
 export const useAuthStore = create((set, get) => ({
     user: null,
     profile: null,
-    loading: false, // Reverted to false to avoid blocking the app
+    loading: false,
     error: null,
+    _isFetchingProfile: false, // Internal flag to avoid race conditions
 
     setUser: (user) => set({ user }),
     setProfile: (profile) => set({ profile, loading: false }),
@@ -78,8 +79,17 @@ export const useAuthStore = create((set, get) => ({
 
 
     fetchProfile: async (userId) => {
-        if (!userId) return
-        set({ loading: true, error: null })
+        if (!userId) {
+            set({ loading: false })
+            return null
+        }
+
+        // Avoid parallel fetches for the same thing
+        if (get()._isFetchingProfile) return get().profile
+
+        set({ loading: true, error: null, _isFetchingProfile: true })
+        console.log('--- Fetching profile for:', userId)
+
         try {
             const { data: profile, error } = await supabase
                 .from('profiles')
@@ -87,10 +97,13 @@ export const useAuthStore = create((set, get) => ({
                 .eq('id', userId)
                 .maybeSingle()
 
-            if (error) throw error
+            if (error) {
+                console.error('--- Profile Fetch Error (DB/RLS/Network):', error)
+                throw error
+            }
 
             if (!profile) {
-                // If profile doesn't exist, create it (handles older accounts)
+                console.log('--- Profile NOT FOUND, creating NEW one for:', userId)
                 const { data: { user } } = await supabase.auth.getUser()
                 const newProfile = {
                     id: userId,
@@ -103,16 +116,22 @@ export const useAuthStore = create((set, get) => ({
                     .select()
                     .single()
 
-                if (createError) throw createError
-                set({ profile: createdProfile, loading: false })
+                if (createError) {
+                    console.error('--- Profile CREATION Error:', createError)
+                    throw createError
+                }
+
+                set({ profile: createdProfile, loading: false, _isFetchingProfile: false })
                 return createdProfile
             }
 
-            set({ profile, loading: false })
+            console.log('--- Profile LOADED successfully')
+            set({ profile, loading: false, _isFetchingProfile: false })
             return profile
         } catch (err) {
-            console.error('Error fetching/creating profile:', err)
-            set({ loading: false })
+            console.error('--- Error in fetchProfile:', err)
+            // CRITICAL: Always set loading false so we don't hang the UI
+            set({ loading: false, error: err.message, _isFetchingProfile: false })
             return null
         }
     },
