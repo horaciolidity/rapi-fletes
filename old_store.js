@@ -84,62 +84,56 @@ export const useAuthStore = create((set, get) => ({
             return null
         }
 
-        // Avoid parallel fetches for the same thing by awaiting the ongoing promise
-        if (get()._fetchPromise) return get()._fetchPromise
+        // Avoid parallel fetches for the same thing
+        if (get()._isFetchingProfile) return get().profile
 
-        const promise = (async () => {
-            set({ loading: true, error: null })
-            console.log('--- Fetching profile for:', userId)
+        set({ loading: true, error: null, _isFetchingProfile: true })
+        console.log('--- Fetching profile for:', userId)
 
-            try {
-                const { data: profile, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', userId)
-                    .maybeSingle()
+        try {
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .maybeSingle()
 
-                if (error) {
-                    console.error('--- Profile Fetch Error (DB/RLS/Network):', error)
-                    throw error
-                }
-
-                if (!profile) {
-                    console.log('--- Profile NOT FOUND, creating NEW one for:', userId)
-                    const { data: { user } } = await supabase.auth.getUser()
-                    const newProfile = {
-                        id: userId,
-                        full_name: user?.user_metadata?.full_name || 'Usuario',
-                        role: user?.user_metadata?.role || 'user'
-                    }
-                    const { data: createdProfile, error: createError } = await supabase
-                        .from('profiles')
-                        .upsert([newProfile])
-                        .select()
-                        .single()
-
-                    if (createError) {
-                        console.error('--- Profile CREATION Error:', createError)
-                        throw createError
-                    }
-
-                    set({ profile: createdProfile, loading: false })
-                    return createdProfile
-                }
-
-                console.log('--- Profile LOADED successfully')
-                set({ profile, loading: false })
-                return profile
-            } catch (err) {
-                console.error('--- Error in fetchProfile:', err)
-                set({ loading: false, error: err.message })
-                return null
-            } finally {
-                set({ _fetchPromise: null })
+            if (error) {
+                console.error('--- Profile Fetch Error (DB/RLS/Network):', error)
+                throw error
             }
-        })()
 
-        set({ _fetchPromise: promise })
-        return promise
+            if (!profile) {
+                console.log('--- Profile NOT FOUND, creating NEW one for:', userId)
+                const { data: { user } } = await supabase.auth.getUser()
+                const newProfile = {
+                    id: userId,
+                    full_name: user?.user_metadata?.full_name || 'Usuario',
+                    role: user?.user_metadata?.role || 'user'
+                }
+                const { data: createdProfile, error: createError } = await supabase
+                    .from('profiles')
+                    .upsert([newProfile])
+                    .select()
+                    .single()
+
+                if (createError) {
+                    console.error('--- Profile CREATION Error:', createError)
+                    throw createError
+                }
+
+                set({ profile: createdProfile, loading: false, _isFetchingProfile: false })
+                return createdProfile
+            }
+
+            console.log('--- Profile LOADED successfully')
+            set({ profile, loading: false, _isFetchingProfile: false })
+            return profile
+        } catch (err) {
+            console.error('--- Error in fetchProfile:', err)
+            // CRITICAL: Always set loading false so we don't hang the UI
+            set({ loading: false, error: err.message, _isFetchingProfile: false })
+            return null
+        }
     },
 
     updateProfile: async (userId, updates) => {
