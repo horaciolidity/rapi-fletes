@@ -198,6 +198,13 @@ const Booking = () => {
 
             {/* TOP HUD: Search & Route Configuration */}
             <div className="absolute top-24 left-0 right-0 z-40 px-6">
+                {user?.email === 'pasajero@demo.com' && (
+                    <div className="max-w-md mx-auto mb-4 bg-primary-500/20 border border-primary-500 text-primary-500 p-3 rounded-2xl text-center backdrop-blur-md">
+                        <p className="text-[10px] font-black italic uppercase tracking-widest flex items-center justify-center gap-2">
+                            <AlertTriangle className="w-4 h-4" /> MODO DEMO: Viajes de prueba (Solo Lectura)
+                        </p>
+                    </div>
+                )}
                 <div className="max-w-md mx-auto relative">
                     <AnimatePresence>
                         {step === 1 && (

@@ -57,6 +57,14 @@ const AdminDashboard = () => {
                 <p className="text-[10px] font-bold text-zinc-400 uppercase italic">
                     Centro de control y moderación
                 </p>
+                {useAuthStore.getState().user?.email === 'admin@demo.com' && (
+                    <div className="mt-4 bg-red-500/10 border border-red-500 text-red-500 p-3 rounded-xl flex items-center gap-3">
+                        <AlertCircle className="w-5 h-5 shrink-0" />
+                        <p className="text-[10px] font-black uppercase italic tracking-widest">
+                            MODO DEMONSTRACIÓN: LAS FUNCIONES DE EDICIÓN, VERIFICACIÓN Y CAMBIOS ESTÁN DESHABILITADAS.
+                        </p>
+                    </div>
+                )}
             </div>
 
             <div className="p-6 space-y-6">

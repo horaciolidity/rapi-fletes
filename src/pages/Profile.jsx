@@ -151,8 +151,14 @@ const Profile = () => {
                             </div>
                         </div>
                         <button
-                            onClick={() => document.getElementById('avatar-upload').click()}
-                            disabled={loading}
+                            onClick={() => {
+                                if (user?.email?.endsWith('@demo.com')) {
+                                    addNotification({ message: 'Las cuentas demo no pueden modificar datos', type: 'error' })
+                                    return
+                                }
+                                document.getElementById('avatar-upload').click()
+                            }}
+                            disabled={loading || user?.email?.endsWith('@demo.com')}
                             className="absolute -bottom-2 -right-2 p-3.5 bg-primary-500 rounded-2xl text-black shadow-xl hover:bg-primary-400 transition-colors z-10 disabled:opacity-50"
                         >
                             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
@@ -179,15 +185,15 @@ const Profile = () => {
                 <div className="glass-card mb-10 p-1.5 flex gap-1 relative z-10 backdrop-blur-3xl shadow-primary-500/5">
                     <button
                         onClick={() => handleRoleSwitch('client')}
-                        disabled={roleLoading}
-                        className={`flex-1 py-5 rounded-[2.5rem] text-[10px] font-black uppercase italic tracking-[0.2em] transition-all duration-500 ${profile.role === 'client' ? 'bg-primary-500 text-black shadow-xl shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
+                        disabled={roleLoading || user?.email?.endsWith('@demo.com')}
+                        className={`flex-1 py-5 rounded-[2.5rem] text-[10px] font-black uppercase italic tracking-[0.2em] transition-all duration-500 ${profile.role === 'client' ? 'bg-primary-500 text-black shadow-xl shadow-primary-500/20' : 'text-zinc-500 hover:text-white disabled:opacity-50'}`}
                     >
                         CLIENTE
                     </button>
                     <button
                         onClick={() => handleRoleSwitch('driver')}
-                        disabled={roleLoading}
-                        className={`flex-1 py-5 rounded-[2.5rem] text-[10px] font-black uppercase italic tracking-[0.2em] transition-all duration-500 ${profile.role === 'driver' ? 'bg-primary-500 text-black shadow-xl shadow-primary-500/20' : 'text-zinc-500 hover:text-white'}`}
+                        disabled={roleLoading || user?.email?.endsWith('@demo.com')}
+                        className={`flex-1 py-5 rounded-[2.5rem] text-[10px] font-black uppercase italic tracking-[0.2em] transition-all duration-500 ${profile.role === 'driver' ? 'bg-primary-500 text-black shadow-xl shadow-primary-500/20' : 'text-zinc-500 hover:text-white disabled:opacity-50'}`}
                     >
                         CHOFER
                     </button>
@@ -202,6 +208,11 @@ const Profile = () => {
                             <span className="w-1.5 h-1.5 bg-primary-500 rounded-full" />
                             Información Personal
                         </h3>
+                        {user?.email?.endsWith('@demo.com') && (
+                            <div className="bg-red-500/10 border border-red-500/30 text-red-500 p-3 rounded-xl mb-4 text-[10px] font-black uppercase italic tracking-widest text-center flex items-center gap-2 justify-center">
+                                <AlertTriangle className="w-4 h-4" /> MODO DEMO: EDICIÓN BLOQUEADA
+                            </div>
+                        )}
                         <form onSubmit={handleUpdate} className="space-y-6">
                             <div className="space-y-3">
                                 <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest px-4 italic opacity-60">Nombre Completo</label>
@@ -210,6 +221,7 @@ const Profile = () => {
                                     placeholder="Ej: Juan Pérez"
                                     value={formData.full_name}
                                     onChange={e => setFormData({ ...formData, full_name: e.target.value })}
+                                    disabled={loading || user?.email?.endsWith('@demo.com')}
                                 />
                             </div>
                             <div className="space-y-3">
@@ -220,6 +232,7 @@ const Profile = () => {
                                     placeholder="Ej: +54 9 261 1234567"
                                     value={formData.phone}
                                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                    disabled={loading || user?.email?.endsWith('@demo.com')}
                                 />
                             </div>
 
@@ -229,6 +242,7 @@ const Profile = () => {
                                     className="input-field bg-zinc-950/40"
                                     value={formData.province}
                                     onChange={e => setFormData({ ...formData, province: e.target.value })}
+                                    disabled={loading || user?.email?.endsWith('@demo.com')}
                                 >
                                     <option value="">Todas las regiones</option>
                                     <option value="Buenos Aires">Buenos Aires</option>
@@ -283,8 +297,15 @@ const Profile = () => {
                                             </div>
                                             <button
                                                 type="button"
-                                                onClick={() => document.getElementById('dni-upload').click()}
-                                                className="p-3 bg-zinc-900 hover:bg-zinc-800 rounded-xl transition-all"
+                                                onClick={() => {
+                                                    if (user?.email?.endsWith('@demo.com')) {
+                                                        addNotification({ message: 'Las cuentas demo no pueden modificar datos', type: 'error' })
+                                                        return
+                                                    }
+                                                    document.getElementById('dni-upload').click()
+                                                }}
+                                                disabled={loading || user?.email?.endsWith('@demo.com')}
+                                                className="p-3 bg-zinc-900 hover:bg-zinc-800 rounded-xl transition-all disabled:opacity-50"
                                             >
                                                 <Upload className="w-4 h-4 text-primary-500" />
                                             </button>
@@ -318,8 +339,8 @@ const Profile = () => {
 
                             <button
                                 type="submit"
-                                disabled={loading}
-                                className="premium-button w-full"
+                                disabled={loading || user?.email?.endsWith('@demo.com')}
+                                className="premium-button w-full disabled:opacity-50"
                             >
                                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                                     <>

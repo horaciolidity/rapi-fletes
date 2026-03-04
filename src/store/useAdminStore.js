@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { supabase } from '../api/supabase'
+import { useAuthStore } from './useAuthStore'
 
 export const useAdminStore = create((set, get) => ({
     // Estado
@@ -30,6 +31,10 @@ export const useAdminStore = create((set, get) => ({
 
     // Update App Setting
     updateSetting: async (key, value) => {
+        if (useAuthStore.getState().user?.email === 'admin@demo.com') {
+            alert('MODO DEMO: Funcionalidad de solo lectura.');
+            return false;
+        }
         try {
             const payload = {
                 key,
@@ -80,6 +85,10 @@ export const useAdminStore = create((set, get) => ({
 
     // Update Vehicle Category (Prices + Commission)
     updateVehicleCategory: async (categoryId, updates) => {
+        if (useAuthStore.getState().user?.email === 'admin@demo.com') {
+            alert('MODO DEMO: Funcionalidad de solo lectura.');
+            return false;
+        }
         try {
             const payload = {
                 ...updates,
@@ -112,6 +121,10 @@ export const useAdminStore = create((set, get) => ({
 
     // Refund trip commission to driver (admin action)
     refundTripCommission: async (driverId, fleteId, adminNote = 'Devolución por soporte') => {
+        if (useAuthStore.getState().user?.email === 'admin@demo.com') {
+            alert('MODO DEMO: Funcionalidad de solo lectura.');
+            return { success: false, error: 'MODO DEMO' };
+        }
         try {
             const { data, error } = await supabase.rpc('refund_trip_commission', {
                 p_driver_id: driverId,
@@ -128,6 +141,10 @@ export const useAdminStore = create((set, get) => ({
 
     // Add manual wallet credit (admin support tool)
     addWalletCredit: async (driverId, amount, note = 'Crédito por soporte') => {
+        if (useAuthStore.getState().user?.email === 'admin@demo.com') {
+            alert('MODO DEMO: Funcionalidad de solo lectura.');
+            return { success: false, error: 'MODO DEMO' };
+        }
         try {
             const { data, error } = await supabase.rpc('admin_add_wallet_credit', {
                 p_driver_id: driverId,
@@ -268,6 +285,10 @@ export const useAdminStore = create((set, get) => ({
 
     // Actualizar estado de reclamo
     updateComplaint: async (complaintId, updates) => {
+        if (useAuthStore.getState().user?.email === 'admin@demo.com') {
+            alert('MODO DEMO: Funcionalidad de solo lectura.');
+            return null;
+        }
         try {
             const { data, error } = await supabase
                 .from('complaints')
@@ -378,6 +399,10 @@ export const useAdminStore = create((set, get) => ({
 
     // Advertir a un usuario
     warnUser: async (userId, adminId, reason, severity = 'medium', complaintId = null) => {
+        if (useAuthStore.getState().user?.email === 'admin@demo.com') {
+            alert('MODO DEMO: Funcionalidad de solo lectura.');
+            return null;
+        }
         try {
             const { data, error } = await supabase
                 .from('user_warnings')
@@ -405,6 +430,10 @@ export const useAdminStore = create((set, get) => ({
 
     // Banear a un usuario
     banUser: async (userId, adminId, reason, banType = 'temporary', expiresAt = null, complaintId = null) => {
+        if (useAuthStore.getState().user?.email === 'admin@demo.com') {
+            alert('MODO DEMO: Funcionalidad de solo lectura.');
+            return null;
+        }
         try {
             const { data, error } = await supabase
                 .from('user_bans')
@@ -434,6 +463,10 @@ export const useAdminStore = create((set, get) => ({
 
     // Levantar baneo
     liftBan: async (banId, adminId) => {
+        if (useAuthStore.getState().user?.email === 'admin@demo.com') {
+            alert('MODO DEMO: Funcionalidad de solo lectura.');
+            return null;
+        }
         try {
             const { data, error } = await supabase
                 .from('user_bans')
@@ -517,6 +550,10 @@ export const useAdminStore = create((set, get) => ({
 
     // Verificar (aprobar/rechazar) un vehículo
     verifyVehicle: async (vehicleId, status, adminNotes = '') => {
+        if (useAuthStore.getState().user?.email === 'admin@demo.com') {
+            alert('MODO DEMO: Funcionalidad de solo lectura.');
+            return null;
+        }
         set({ loading: true, error: null })
         try {
             const { data, error } = await supabase

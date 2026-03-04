@@ -201,6 +201,37 @@ const Auth = () => {
                         {isLogin ? 'SOLICITAR REGISTRO' : 'VOLVER AL ACCESO'}
                     </button>
                 </div>
+
+                {isLogin && (
+                    <div className="pt-6 mt-6 border-t border-white/5 space-y-3">
+                        <p className="text-center text-[9px] font-black text-zinc-500 uppercase italic tracking-widest mb-4">
+                            CUENTAS DE PRUEBA (SOLO LECTURA)
+                        </p>
+                        <div className="grid grid-cols-1 gap-2">
+                            <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); setEmail('pasajero@demo.com'); setPassword('demo1234'); }}
+                                className="w-full py-3 bg-zinc-900/50 hover:bg-zinc-800 border border-white/5 rounded-xl text-[10px] font-black uppercase text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-2"
+                            >
+                                <User className="w-3 h-3" /> CLIENTE DEMO
+                            </button>
+                            <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); setEmail('chofer@demo.com'); setPassword('demo1234'); }}
+                                className="w-full py-3 bg-zinc-900/50 hover:bg-zinc-800 border border-white/5 rounded-xl text-[10px] font-black uppercase text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Truck className="w-3 h-3" /> CHOFER DEMO
+                            </button>
+                            <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); setEmail('admin@demo.com'); setPassword('demo1234'); }}
+                                className="w-full py-3 bg-zinc-900/50 hover:bg-zinc-800 border border-white/5 rounded-xl text-[10px] font-black uppercase text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Lock className="w-3 h-3" /> ADMIN DEMO
+                            </button>
+                        </div>
+                    </div>
+                )}
             </motion.div>
         </div>
     )
