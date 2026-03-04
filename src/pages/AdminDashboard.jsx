@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Truck, AlertCircle, CheckCircle, XCircle, TrendingUp, DollarSign, Activity, Shield, Ban, Settings } from 'lucide-react'
 import { useAdminStore } from '../store/useAdminStore'
+import { useAuthStore } from '../store/useAuthStore'
 import { useNavigate } from 'react-router-dom'
 
 const AdminDashboard = () => {
