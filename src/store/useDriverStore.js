@@ -9,6 +9,7 @@ export const useDriverStore = create((set, get) => ({
     error: null,
 
     fetchAvailableFletes: async (driverId) => {
+        if (!driverId) return
         set({ loading: true, error: null })
         try {
             // Get active vehicle category and driver's province

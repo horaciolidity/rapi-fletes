@@ -177,7 +177,7 @@ const Profile = () => {
                     </h1>
                     <div className="flex items-center gap-3">
                         <span className="badge-gold">MODO {profile.role}</span>
-                        <span className="text-[10px] text-zinc-500 font-bold uppercase italic tracking-widest">{user.email}</span>
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase italic tracking-widest">{user?.email}</span>
                     </div>
                 </div>
 

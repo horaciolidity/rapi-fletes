@@ -79,12 +79,14 @@ const DriverDashboard = () => {
     }, [profile?.role, user?.id])
 
     useEffect(() => {
+        if (!user?.id) return
+
         if (profile?.verification_status === 'verified' || profile?.verification_status === 'pending') {
             fetchAvailableFletes(user.id)
             fetchActiveFlete(user.id)
             fetchDriverHistory(user.id).then(setCompletedHistory)
 
-            const channel = subscribeToNewFletes()
+            const channel = subscribeToNewFletes(user.id)
             return () => {
                 if (channel) channel.unsubscribe()
             }
@@ -101,7 +103,7 @@ const DriverDashboard = () => {
                         setDriverLatLng({ lat: latitude, lng: longitude })
                         useDriverStore.getState().updateLocation(user.id, latitude, longitude)
                     },
-                    (err) => console.error("Error watching location", err),
+                    (err) => console.warn("Permiso de ubicación denegado o error:", err.message),
                     { enableHighAccuracy: true, distanceFilter: 10 }
                 )
             }
