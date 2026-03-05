@@ -36,35 +36,63 @@ const AppContent = () => {
   }, [theme])
 
   useEffect(() => {
-    // 1. Initial Session Check
-    const initAuth = async () => {
-      console.log('--- Initial Auth Check ---')
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          setUser(session.user)
-          await fetchProfile(session.user.id)
-          if (!profileSubRef.current) {
-            profileSubRef.current = useAuthStore.getState().subscribeToProfile(session.user.id)
-          }
-        }
-      } finally {
+    let isMounted = true
+
+    // Fallback timer: NEVER lock the app in black screen for more than 2 seconds
+    const safetyTimer = setTimeout(() => {
+      if (isMounted && useAuthStore.getState().loading) {
+        console.warn("--- Auth init timeout reached, forcing render ---")
+        setIsInitializing(false)
+      } else if (isMounted) {
         setIsInitializing(false)
       }
-    }
+    }, 2500)
 
-    initAuth()
+    // 1. Initial Session Check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return
 
-    // 2. Auth State Listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('--- Auth Event:', event)
       const user = session?.user ?? null
       setUser(user)
 
       if (user) {
-        await fetchProfile(user.id)
+        fetchProfile(user.id).finally(() => {
+          if (isMounted) {
+            setIsInitializing(false)
+            clearTimeout(safetyTimer)
+          }
+        })
         if (!profileSubRef.current) {
           profileSubRef.current = useAuthStore.getState().subscribeToProfile(user.id)
+        }
+      } else {
+        if (isMounted) {
+          setIsInitializing(false)
+          clearTimeout(safetyTimer)
+        }
+      }
+    }).catch(err => {
+      console.error("Auth initial error:", err)
+      if (isMounted) {
+        setIsInitializing(false)
+        clearTimeout(safetyTimer)
+      }
+    })
+
+    // 2. Auth State Listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('--- Auth Event:', event)
+      if (event === 'INITIAL_SESSION') return // Handled by getSession
+
+      const user = session?.user ?? null
+      setUser(user)
+
+      if (user) {
+        if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+          fetchProfile(user.id)
+          if (!profileSubRef.current) {
+            profileSubRef.current = useAuthStore.getState().subscribeToProfile(user.id)
+          }
         }
       } else {
         if (profileSubRef.current) {
@@ -75,7 +103,9 @@ const AppContent = () => {
     })
 
     return () => {
-      subscription.unsubscribe()
+      isMounted = false
+      clearTimeout(safetyTimer)
+      subscription?.unsubscribe()
       if (profileSubRef.current) {
         supabase.removeChannel(profileSubRef.current)
         profileSubRef.current = null
