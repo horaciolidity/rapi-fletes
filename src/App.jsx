@@ -29,6 +29,7 @@ const AppContent = () => {
   const isAuthPage = location.pathname === '/auth'
 
   const profileSubRef = React.useRef(null)
+  const [isInitializing, setIsInitializing] = React.useState(true)
 
   useEffect(() => {
     document.documentElement.className = theme
@@ -38,13 +39,17 @@ const AppContent = () => {
     // 1. Initial Session Check
     const initAuth = async () => {
       console.log('--- Initial Auth Check ---')
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        setUser(session.user)
-        await fetchProfile(session.user.id)
-        if (!profileSubRef.current) {
-          profileSubRef.current = useAuthStore.getState().subscribeToProfile(session.user.id)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setUser(session.user)
+          await fetchProfile(session.user.id)
+          if (!profileSubRef.current) {
+            profileSubRef.current = useAuthStore.getState().subscribeToProfile(session.user.id)
+          }
         }
+      } finally {
+        setIsInitializing(false)
       }
     }
 
@@ -77,6 +82,14 @@ const AppContent = () => {
       }
     }
   }, []) // Stability: run once
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
+      </div>
+    )
+  }
 
   const ProtectedAdminRoute = ({ children }) => {
     const { profile, loading } = useAuthStore()
