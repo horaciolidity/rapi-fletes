@@ -76,8 +76,9 @@ const ChatWidget = ({ fleteId, receiverName }) => {
                                 const isMe = msg.sender_id === user.id
                                 return (
                                     <motion.div
-                                        initial={{ opacity: 0, x: isMe ? 20 : -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
+                                        initial={{ opacity: 0, x: isMe ? 40 : -40, scale: 0.7 }}
+                                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 25, mass: 1 }}
                                         key={msg.id}
                                         className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                                     >
@@ -118,19 +119,24 @@ const ChatWidget = ({ fleteId, receiverName }) => {
                         <motion.button
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            whileHover={{ scale: 1.1, rotate: -10 }}
+                            whileHover={{ scale: 1.1, rotate: -5 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => setIsOpen(true)}
-                            className="w-16 h-16 bg-primary-500 text-black rounded-2xl shadow-[0_20px_60px_rgba(245,158,11,0.4)] flex items-center justify-center relative group pointer-events-auto"
+                            className="w-16 h-16 bg-primary-500 text-black rounded-3xl shadow-[0_20px_60px_rgba(245,158,11,0.5)] flex items-center justify-center relative group pointer-events-auto"
                         >
-                            <MessageSquare className="w-8 h-8" />
-                            <div className="absolute -top-1 -right-1 w-6 h-6 bg-black border-4 border-primary-500 rounded-full flex items-center justify-center">
-                                <div className="w-2 h-2 bg-primary-500 rounded-full animate-ping" />
-                            </div>
+                            <MessageSquare className="w-7 h-7" />
+                            <motion.div
+                                initial={{ scale: 0.5, opacity: 0 }}
+                                animate={{ scale: [1, 1.2, 1], opacity: 1 }}
+                                transition={{ repeat: Infinity, duration: 1.5 }}
+                                className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 border-4 border-black rounded-full flex items-center justify-center shadow-lg"
+                            >
+                                <div className="w-full h-full rounded-full animate-ping bg-red-400 opacity-70" />
+                            </motion.div>
                         </motion.button>
 
                         {/* Subtle ping indicator */}
-                        <div className="absolute -inset-4 bg-primary-500/10 rounded-full blur-2xl -z-10 animate-pulse" />
+                        <div className="absolute -inset-6 bg-primary-500/20 rounded-full blur-3xl -z-10 animate-pulse" />
                     </motion.div>
                 )}
             </AnimatePresence>

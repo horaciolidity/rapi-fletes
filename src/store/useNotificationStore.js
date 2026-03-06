@@ -29,10 +29,10 @@ export const useNotificationStore = create(
 
                 // Haptic Feedback & Sound (Repeat for better awareness)
                 const triggerAlert = () => {
-                    // Sound
-                    const audio = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_783424ffc4.mp3')
-                    audio.volume = 0.7
-                    audio.play().catch(e => console.log('Audio play failed:', e))
+                    // Reliable sound from Google Actions Library without CORS/403 issues
+                    const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg')
+                    audio.volume = 1.0 // Fuerza máxima
+                    audio.play().catch(e => console.log('Audio play failed (maybe tab backgrounded):', e))
 
                     // Vibration
                     if ('vibrate' in navigator) {
@@ -43,13 +43,16 @@ export const useNotificationStore = create(
                 triggerAlert()
                 setTimeout(triggerAlert, 600)
 
-                // Browser Notification
+                // Browser Notification (Forces OS sound if tab is in background)
                 if (get().permission === 'granted') {
                     try {
+                        // Some mobile browsers need a service worker for this, but desktop handles it
                         new Notification('RapiFletes Logistics', {
                             body: notification.message,
                             icon: '/imagenes/1.jpg',
-                            vibrate: [200, 100, 200]
+                            vibrate: [200, 100, 200],
+                            silent: false, // Force the OS to play a default notification sound
+                            requireInteraction: notification.type === 'error' // Keep errors on screen until dismissed
                         })
                     } catch (e) {
                         console.error('Browser notification error:', e)
