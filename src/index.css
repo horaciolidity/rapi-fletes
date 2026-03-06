@@ -179,7 +179,7 @@ body {
   }
 
   .light .glass-card {
-    @apply backdrop-blur-3xl border-white/60 shadow-[0_8px_30px_rgb(0, 0, 0, 0.04)] bg-white/70;
+    @apply backdrop-blur-3xl border-white/60 shadow-[0_8px_30px_#0000000a] bg-white/70;
   }
 
   .premium-button {
