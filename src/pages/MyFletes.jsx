@@ -10,6 +10,8 @@ import ChatWidget from '../components/chat/ChatWidget'
 import RatingModal from '../components/trip/RatingModal'
 import DriverInfoCard from '../components/driver/DriverInfoCard'
 import TripStopwatch from '../components/trip/TripStopwatch'
+import GlobalChatModal from '../components/chat/GlobalChatModal'
+import { Users } from 'lucide-react'
 
 const MyFletes = () => {
     const { user, profile } = useAuthStore()
@@ -21,6 +23,7 @@ const MyFletes = () => {
     const [driverFletes, setDriverFletes] = useState([])
     const [showRatingModal, setShowRatingModal] = useState(false)
     const [showProblemModal, setShowProblemModal] = useState(false)
+    const [showGlobalChat, setShowGlobalChat] = useState(false)
 
     const isDriver = profile?.role === 'driver'
     const displayFletes = isDriver ? driverFletes : fletes
@@ -123,6 +126,29 @@ const MyFletes = () => {
                                     <h1 className="text-3xl font-black text-[var(--text-color)] italic tracking-tighter uppercase leading-none">MIS<br /><span className="text-primary-500">SERVICIOS</span></h1>
                                 </div>
                             </header>
+
+                            {/* Community Chat Card */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                onClick={() => setShowGlobalChat(true)}
+                                className="glass-card mb-10 p-6 bg-gradient-to-br from-primary-500/10 via-zinc-950 to-zinc-950 border-primary-500/20 active:scale-98 transition-all cursor-pointer relative overflow-hidden group shadow-2xl"
+                            >
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500 opacity-5 blur-[50px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:opacity-10 transition-opacity" />
+                                <div className="flex items-center gap-5">
+                                    <div className="w-14 h-14 bg-primary-500 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:rotate-6 transition-transform">
+                                        <Users className="w-7 h-7 text-black" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-sm font-black text-white uppercase italic tracking-widest leading-none mb-1.5">CANAL COMUNITARIO</h3>
+                                        <p className="text-[9px] font-bold text-zinc-500 italic uppercase">Habla con choferes y otros clientes en vivo</p>
+                                    </div>
+                                    <div className="flex items-center justify-center p-3 bg-white/5 rounded-xl border border-white/5 group-hover:bg-primary-500 group-hover:text-black transition-all">
+                                        <ArrowRight className="w-4 h-4" />
+                                    </div>
+                                </div>
+                                <div className="absolute bottom-0 left-0 h-0.5 bg-primary-500 group-hover:w-full w-0 transition-all duration-700" />
+                            </motion.div>
 
                             <div className="space-y-4">
                                 {displayFletes.map((flete, idx) => {
@@ -494,6 +520,11 @@ const MyFletes = () => {
                     </>
                 )}
             </AnimatePresence>
+
+            <GlobalChatModal
+                isOpen={showGlobalChat}
+                onClose={() => setShowGlobalChat(false)}
+            />
         </div>
     )
 }

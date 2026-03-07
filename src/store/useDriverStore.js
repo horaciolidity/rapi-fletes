@@ -277,9 +277,21 @@ export const useDriverStore = create((set, get) => ({
                 event: 'UPDATE',
                 schema: 'public',
                 table: 'fletes'
-            }, (payload) => {
+            }, async (payload) => {
                 // If a flete is accepted or cancelled by someone else, refresh the list
                 get().fetchAvailableFletes(driverId)
+
+                // If this flete belongs to THIS driver and was CANCELLED
+                if (payload.new.driver_id === driverId && payload.old.status !== 'cancelled' && payload.new.status === 'cancelled') {
+                    const { useNotificationStore } = await import('./useNotificationStore')
+                    useNotificationStore.getState().addNotification({
+                        title: '¡VIAJE CANCELADO!',
+                        message: 'El cliente ha cancelado la reserva en curso.',
+                        type: 'error'
+                    })
+                    // clear active flete
+                    set({ activeFlete: null })
+                }
             })
             .subscribe()
 

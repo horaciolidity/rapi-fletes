@@ -263,9 +263,38 @@ export const useBookingStore = create((set, get) => ({
                 schema: 'public',
                 table: 'fletes',
                 filter: `user_id=eq.${userId}`
-            }, (payload) => {
+            }, async (payload) => {
                 // Refresh list when any change occurs
                 get().fetchMyFletes(userId)
+
+                // NOTIFICATION LOGIC FOR CLIENT
+                if (payload.event === 'UPDATE' && payload.old && payload.new) {
+                    if (payload.old.status !== payload.new.status) {
+                        const { useNotificationStore } = await import('./useNotificationStore')
+                        const notify = useNotificationStore.getState().addNotification
+
+                        switch (payload.new.status) {
+                            case 'accepted':
+                                notify({ title: '¡CHOFER ASIGNADO!', message: 'Tu chofer está en camino al punto de encuentro.', type: 'info' })
+                                break
+                            case 'arrived_pickup':
+                                notify({ title: '¡CHOFER EN PUERTA!', message: 'El conductor está esperando en el punto de partida.', type: 'info' })
+                                break
+                            case 'in_transit':
+                                notify({ title: '¡VIAJE EN CURSO!', message: 'Carga segura. Tu vehículo está en tránsito hacia el destino.', type: 'info' })
+                                break
+                            case 'arrived_dropoff':
+                                notify({ title: '¡LLEGADA AL DESTINO!', message: 'El vehículo ha llegado al punto de descarga.', type: 'success' })
+                                break
+                            case 'completed':
+                                notify({ title: '¡VIAJE FINALIZADO!', message: 'El servicio ha concluido exitosamente. Por favor califica a tu conductor.', type: 'success' })
+                                break
+                            case 'cancelled':
+                                notify({ title: 'VIAJE CANCELADO', message: 'La reserva ha sido cancelada.', type: 'error' })
+                                break
+                        }
+                    }
+                }
             })
             .subscribe()
 

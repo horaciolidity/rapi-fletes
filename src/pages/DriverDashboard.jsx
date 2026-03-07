@@ -10,6 +10,8 @@ import ChatWidget from '../components/chat/ChatWidget'
 import TripStopwatch from '../components/trip/TripStopwatch'
 import TripTimer from '../components/trip/TripTimer'
 import RatingModal from '../components/trip/RatingModal'
+import GlobalChatModal from '../components/chat/GlobalChatModal'
+import { Users } from 'lucide-react'
 import { supabase } from '../api/supabase'
 import { uploadFile } from '../services/storageService'
 
@@ -28,6 +30,7 @@ const DriverDashboard = () => {
     const [completedTripId, setCompletedTripId] = useState(null)
     const [showPassengerConfirm, setShowPassengerConfirm] = useState(false)
     const [showChatTutorial, setShowChatTutorial] = useState(false)
+    const [showGlobalChat, setShowGlobalChat] = useState(false)
     const [isInternalNav, setIsInternalNav] = useState(false)
     const [regStep, setRegStep] = useState(0)
     const [showCommissionModal, setShowCommissionModal] = useState(false)
@@ -907,6 +910,12 @@ const DriverDashboard = () => {
                                     <p className="text-xl font-black text-[var(--text-color)] italic leading-none">{completedHistory.length}</p>
                                 </div>
                                 <button
+                                    onClick={() => setShowGlobalChat(true)}
+                                    className="bg-[var(--card-bg)]/80 backdrop-blur-xl p-4 rounded-3xl border border-[var(--border-color)] text-primary-500 hover:text-primary-400 transition-colors shadow-lg shadow-primary-500/10"
+                                >
+                                    <Users className="w-6 h-6" />
+                                </button>
+                                <button
                                     onClick={() => navigate('/profile')}
                                     className="bg-[var(--card-bg)]/80 backdrop-blur-xl p-4 rounded-3xl border border-[var(--border-color)] text-zinc-400 hover:text-primary-500 transition-colors"
                                 >
@@ -1661,6 +1670,10 @@ const DriverDashboard = () => {
                 )}
             </AnimatePresence>
 
+            <GlobalChatModal
+                isOpen={showGlobalChat}
+                onClose={() => setShowGlobalChat(false)}
+            />
         </div>
     )
 }
