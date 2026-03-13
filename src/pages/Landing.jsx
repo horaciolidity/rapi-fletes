@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { Truck, MapPin, Shield, CreditCard, Clock, Star, ArrowRight, Play, CheckCircle, AlertCircle } from 'lucide-react'
 import { useBookingStore } from '../store/useBookingStore'
+import { useAuthStore } from '../store/useAuthStore'
 import { Link } from 'react-router-dom'
 
 const Landing = () => {
     const { categories, fetchCategories, loading, error } = useBookingStore()
+    const { profile } = useAuthStore()
     const [vehicleIndex, setVehicleIndex] = useState(0)
     const vehicles = ['COCHE', 'UTILITARIO', 'CAMIONETA', 'CAMIÓN']
+    const isDriver = profile?.role === 'driver'
 
     useEffect(() => {
         fetchCategories()
@@ -48,21 +51,32 @@ const Landing = () => {
                         <motion.h1
                             className="text-4xl sm:text-7xl font-black leading-tight tracking-tighter italic uppercase text-white"
                         >
-                            ¿NECESITA UN <br />
-                            <div className="h-[1.2em] inline-flex items-center justify-center overflow-hidden relative w-full">
-                                <AnimatePresence mode="wait">
-                                    <motion.span
-                                        key={vehicles[vehicleIndex]}
-                                        initial={{ y: 40, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        exit={{ y: -40, opacity: 0 }}
-                                        transition={{ duration: 0.5, ease: "backOut" }}
-                                        className="text-primary-500 block"
-                                    >
-                                        {vehicles[vehicleIndex]}?
-                                    </motion.span>
-                                </AnimatePresence>
-                            </div>
+                            {isDriver ? (
+                                <>
+                                    ¿BUSCANDO <br />
+                                    <div className="h-[1.2em] inline-flex items-center justify-center overflow-hidden relative w-full">
+                                        <span className="text-primary-500 block">VIAJES?</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    ¿NECESITA UN <br />
+                                    <div className="h-[1.2em] inline-flex items-center justify-center overflow-hidden relative w-full">
+                                        <AnimatePresence mode="wait">
+                                            <motion.span
+                                                key={vehicles[vehicleIndex]}
+                                                initial={{ y: 40, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                exit={{ y: -40, opacity: 0 }}
+                                                transition={{ duration: 0.5, ease: "backOut" }}
+                                                className="text-primary-500 block"
+                                            >
+                                                {vehicles[vehicleIndex]}?
+                                            </motion.span>
+                                        </AnimatePresence>
+                                    </div>
+                                </>
+                            )}
                         </motion.h1>
                     </div>
 
@@ -82,13 +96,15 @@ const Landing = () => {
                         transition={{ delay: 0.6 }}
                         className="flex flex-col gap-6 w-full max-w-xs mx-auto"
                     >
-                        <Link to="/booking" className="premium-button group scale-110">
-                            <span>PEDIR VIAJE AHORA</span>
+                        <Link to={isDriver ? "/driver/dashboard" : "/booking"} className="premium-button group scale-110">
+                            <span>{isDriver ? "BUSCAR VIAJE" : "PEDIR VIAJE AHORA"}</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                         </Link>
-                        <Link to="/auth" className="glass-button">
-                            Unirse a la flota
-                        </Link>
+                        {!isDriver && (
+                            <Link to="/auth" className="glass-button">
+                                Unirse a la flota
+                            </Link>
+                        )}
                     </motion.div>
                 </div>
 
