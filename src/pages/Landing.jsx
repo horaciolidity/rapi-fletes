@@ -96,7 +96,7 @@ const Landing = () => {
                         transition={{ delay: 0.6 }}
                         className="flex flex-col gap-6 w-full max-w-xs mx-auto"
                     >
-                        <Link to={isDriver ? "/driver/dashboard" : "/booking"} className="premium-button group scale-110">
+                        <Link to={isDriver ? "/driver" : "/booking"} className="premium-button group scale-110">
                             <span>{isDriver ? "BUSCAR VIAJE" : "PEDIR VIAJE AHORA"}</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                         </Link>
