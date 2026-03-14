@@ -870,13 +870,28 @@ const DriverDashboard = () => {
                         )}
 
                         {activeFlete.status === 'arrived_dropoff' && (
-                            <button
-                                onClick={() => onStatusChange(activeFlete.id, 'completed')}
-                                className="w-full py-3 bg-[#05A357] text-white text-sm font-black uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-2"
-                            >
-                                <CheckCircle2 className="w-4 h-4" />
-                                <span>Finalizar Viaje</span>
-                            </button>
+                            <div className="space-y-3">
+                                {activeFlete.payment_method && (
+                                    <div className="bg-primary-500/10 border border-primary-500/20 p-3 rounded-xl flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            {activeFlete.payment_method === 'cash' ? <DollarSign className="w-4 h-4 text-primary-500" /> : <Activity className="w-4 h-4 text-primary-500" />}
+                                            <span className="text-[10px] font-black text-white uppercase italic">
+                                                PAGO EN {activeFlete.payment_method === 'cash' ? 'EFECTIVO' : 'TRANSFERENCIA'}
+                                            </span>
+                                        </div>
+                                        <span className="text-lg font-black text-primary-500 italic uppercase">
+                                            ${activeFlete.estimated_price}
+                                        </span>
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => onStatusChange(activeFlete.id, 'completed')}
+                                    className="w-full py-3 bg-[#05A357] text-white text-sm font-black uppercase rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    <span>Finalizar Viaje</span>
+                                </button>
+                            </div>
                         )}
 
                         {/* Secondary Action: Call Client & External Nav - Smaller footprint */}

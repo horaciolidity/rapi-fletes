@@ -327,6 +327,28 @@ export const useBookingStore = create((set, get) => ({
         return { data, error: null }
     },
 
+    submitPaymentMethod: async (fleteId, paymentMethod) => {
+        const { data, error } = await supabase
+            .from('fletes')
+            .update({ payment_method: paymentMethod })
+            .eq('id', fleteId)
+            .select()
+            .maybeSingle()
+
+        if (error) {
+            console.error('Error submitting payment method:', error)
+            return { data: null, error }
+        }
+
+        const currentFletes = get().fletes
+        const updatedFletes = currentFletes.map(f =>
+            f.id === fleteId ? { ...f, payment_method: paymentMethod } : f
+        )
+        set({ fletes: updatedFletes })
+
+        return { data, error: null }
+    },
+
     reportProblem: async (fleteId, problemDescription) => {
         set({ loading: true, error: null })
 

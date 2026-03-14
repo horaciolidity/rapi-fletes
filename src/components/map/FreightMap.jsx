@@ -128,16 +128,21 @@ const MapController = ({ pickup, dropoff, autoDetectLocation, isNavigating, user
     }, [map, pickup])
 
     useEffect(() => {
-        if (!isNavigating && pickup && dropoff) {
-            const bounds = L.latLngBounds([
-                [pickup.lat, pickup.lng],
-                [dropoff.lat, dropoff.lng]
-            ])
-            map.fitBounds(bounds, { padding: [50, 50] })
-        } else if (!isNavigating && pickup) {
-            map.setView([pickup.lat, pickup.lng], 17)
+        if (!isNavigating && pickup) {
+            const points = []
+            if (pickup) points.push([pickup.lat, pickup.lng])
+            if (dropoff) points.push([dropoff.lat, dropoff.lng])
+            // If there's a userLocation (driver navigating)
+            if (userLocation) points.push([userLocation.lat, userLocation.lng])
+
+            if (points.length > 1) {
+                const bounds = L.latLngBounds(points)
+                map.fitBounds(bounds, { padding: [50, 50] })
+            } else {
+                map.setView([pickup.lat, pickup.lng], 15)
+            }
         }
-    }, [pickup, dropoff, map, isNavigating])
+    }, [pickup?.lat, pickup?.lng, dropoff?.lat, dropoff?.lng, userLocation?.lat, userLocation?.lng, map, isNavigating])
 
     return null
 }
@@ -270,7 +275,8 @@ const NavigationOverlay = ({ steps, currentPos }) => {
 
         for (const step of steps) {
             const stepLoc = L.latLng(step.location[0], step.location[1])
-            const dist = stepLoc.distanceTo(currentPos)
+            const posLoc = L.latLng(currentPos.lat || currentPos[0], currentPos.lng || currentPos[1])
+            const dist = stepLoc.distanceTo(posLoc)
 
             // Heuristic: If we are very close to a step (e.g., < 20m), we might be "at" it, 
             // but for visual instruction we usually want to see the *target* we are approaching.
@@ -330,7 +336,8 @@ const FreightMap = ({
     onMapClick = null,
     isNavigating = false,
     fleteId = null,
-    enableLiveTracking = false
+    enableLiveTracking = false,
+    fleteStatus = null
 }) => {
     const storeData = useBookingStore()
     const { activeDrivers, fetchActiveDrivers, getDriversNearLocation } = useDriverLocationStore()
@@ -344,6 +351,7 @@ const FreightMap = ({
     const [routeInfo, setRouteInfo] = useState(null)
     const [nearbyDriversCount, setNearbyDriversCount] = useState(0)
     const [userLocation, setUserLocation] = useState(null)
+    const [initialDriverLocation, setInitialDriverLocation] = useState(null)
 
     useEffect(() => { if (showActiveDrivers) fetchActiveDrivers() }, [showActiveDrivers, fetchActiveDrivers])
 
@@ -379,7 +387,9 @@ const FreightMap = ({
                     .single()
 
                 if (driverData?.last_location_lat) {
-                    setTrackedDriver({ lat: driverData.last_location_lat, lng: driverData.last_location_lng })
+                    const loc = { lat: driverData.last_location_lat, lng: driverData.last_location_lng }
+                    setTrackedDriver(loc)
+                    setInitialDriverLocation(loc) // Fix the route origin so it doesn't spam OSRM
                 }
             }
         }
@@ -421,17 +431,29 @@ const FreightMap = ({
                     className={theme === 'dark' ? "map-tiles-dark" : "map-tiles-bright"}
                 />
 
-                <MapController pickup={pickup} dropoff={dropoff} autoDetectLocation={autoDetectLocation || isNavigating} isNavigating={isNavigating} userLocation={userLocation} />
+                {/* Map Controller needs to know tracked driver bounds */}
+                <MapController pickup={pickup} dropoff={dropoff} autoDetectLocation={autoDetectLocation || isNavigating} isNavigating={isNavigating} userLocation={userLocation || trackedDriver} />
                 <ClickHandler onClick={onMapClick} />
                 <RecenterControl />
                 <ZoomControl position="bottomright" />
 
-                {/* Dynamic Routing based on Navigation State */}
-                {!isNavigating && pickup && dropoff && (
+                {/* Routing when CLIENT is tracking driver driving TO PICKUP */}
+                {!isNavigating && enableLiveTracking && (fleteStatus === 'accepted' || fleteStatus === 'arrived_pickup') && initialDriverLocation && pickup && (
                     <RoutingMachine
-                        pickup={enableLiveTracking && trackedDriver ? trackedDriver : pickup}
+                        pickup={initialDriverLocation}
+                        dropoff={pickup}
+                        onRouteFound={handleRouteFound}
+                        key="route-to-pickup"
+                    />
+                )}
+
+                {/* Routing when CLIENT is tracking driver driving TO DROPOFF, OR static preview */}
+                {!isNavigating && pickup && dropoff && (!enableLiveTracking || ['in_transit', 'arrived_dropoff', 'completed'].includes(fleteStatus)) && (
+                    <RoutingMachine
+                        pickup={pickup}
                         dropoff={dropoff}
                         onRouteFound={handleRouteFound}
+                        key="route-to-dropoff"
                     />
                 )}
 
@@ -464,9 +486,39 @@ const FreightMap = ({
                 ))}
             </MapContainer>
 
-            {/* Navigation Instructions */}
-            {(isNavigating || enableLiveTracking) && routeInfo?.steps && (
-                <NavigationOverlay steps={routeInfo.steps} currentPos={isNavigating ? userLocation : trackedDriver} />
+            {/* Navigation Instructions (For Driver) */}
+            {isNavigating && routeInfo?.steps && (
+                <NavigationOverlay steps={routeInfo.steps} currentPos={userLocation} />
+            )}
+
+            {/* Simple Floating ETA (For Client tracking the driver) */}
+            {!isNavigating && enableLiveTracking && trackedDriver && (
+                (() => {
+                    const target = (fleteStatus === 'accepted' || fleteStatus === 'arrived_pickup') ? pickup : dropoff
+                    const distKm = target ? (L.latLng(trackedDriver.lat, trackedDriver.lng).distanceTo(L.latLng(target.lat, target.lng)) / 1000).toFixed(1) : 0
+                    const durationMin = Math.max(1, Math.ceil(distKm * 2.5)) // roughly 24km/h average city speed
+
+                    return (
+                        <div className="absolute top-4 right-4 z-[3000] pointer-events-none">
+                            <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="bg-black/90 border-b-2 border-primary-500 p-3 rounded-2xl flex flex-col shadow-2xl overflow-hidden backdrop-blur-xl items-end">
+                                <span className="text-[9px] font-black text-white uppercase italic tracking-widest mb-1">
+                                    {fleteStatus === 'accepted' ? 'CHOFER EN CAMINO AL ORIGEN' : fleteStatus === 'in_transit' ? 'VIAJE EN CURSO AL DESTINO' : 'ESTADO DEL VIAJE'}
+                                </span>
+                                <div className="flex gap-4 items-baseline">
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-2xl font-black text-primary-500 italic leading-none">{durationMin} MIN</span>
+                                        <span className="text-[10px] font-bold text-zinc-500 uppercase">TIEMPO ESTIMADO</span>
+                                    </div>
+                                    <div className="w-px h-6 bg-white/10" />
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-xl font-black text-white italic leading-none">{distKm}</span>
+                                        <span className="text-[10px] font-bold text-zinc-500 uppercase">KM RESTANTES</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )
+                })()
             )}
 
             <div className="absolute bottom-6 left-6 pointer-events-none z-[500] flex flex-col gap-3">

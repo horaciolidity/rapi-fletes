@@ -292,6 +292,14 @@ export const useDriverStore = create((set, get) => ({
                     // clear active flete
                     set({ activeFlete: null })
                 }
+
+                // If this flete belongs to THIS driver and the payment_method was updated
+                const currentActive = get().activeFlete
+                if (currentActive && payload.new.id === currentActive.id) {
+                    if (payload.new.payment_method !== payload.old.payment_method) {
+                        set({ activeFlete: { ...currentActive, payment_method: payload.new.payment_method } })
+                    }
+                }
             })
             .subscribe()
 

@@ -224,6 +224,7 @@ const MyFletes = () => {
                                             duration={selectedFlete.duration}
                                             enableLiveTracking={['accepted', 'arrived_pickup', 'in_transit', 'arrived_dropoff'].includes(selectedFlete.status)}
                                             fleteId={selectedFlete.id}
+                                            fleteStatus={selectedFlete.status}
                                         />
 
                                         {/* Simple Status Floating Badge */}
@@ -232,7 +233,7 @@ const MyFletes = () => {
                                             <p className="text-[8px] font-black text-white italic uppercase">{getStatusTheme(selectedFlete.status).label}</p>
                                         </div>
 
-                                        {/* PROMINENT PRICE AT DESTINATION FOR CLIENT (Moved outside absolute box if needed, but keeping logic consistent) */}
+                                        {/* PROMINENT PRICE AT DESTINATION FOR CLIENT */}
                                         {selectedFlete.status === 'arrived_dropoff' && (
                                             <motion.div
                                                 initial={{ scale: 0.9, opacity: 0 }}
@@ -241,10 +242,42 @@ const MyFletes = () => {
                                             >
                                                 <p className="text-[8px] font-black uppercase tracking-[0.3em] mb-1">TOTAL A PAGAR</p>
                                                 <h2 className="text-4xl font-black italic tracking-tighter">${selectedFlete.estimated_price}</h2>
-                                                <div className="mt-2 flex items-center justify-center gap-2">
-                                                    <DollarSign className="w-4 h-4" />
-                                                    <span className="text-[8px] font-black uppercase italic">Efectivo o Transferencia</span>
-                                                </div>
+
+                                                {selectedFlete.payment_method ? (
+                                                    <div className="mt-4 pt-4 border-t border-black/10">
+                                                        <p className="text-[10px] font-black uppercase italic mb-1">MÉTODO ELEGIDO:</p>
+                                                        <p className="text-sm font-black uppercase tracking-widest bg-black text-primary-500 py-2 rounded-xl">
+                                                            {selectedFlete.payment_method === 'cash' ? 'EFECTIVO' : 'TRANSFERENCIA'}
+                                                        </p>
+                                                        <p className="text-[8px] font-bold mt-2 uppercase text-black/70">Esperando que el chofer finalice el viaje</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="mt-4 pt-4 border-t border-black/10">
+                                                        <p className="text-[9px] font-black uppercase italic tracking-widest mb-3">¿CÓMO VAS A PAGAR?</p>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    useBookingStore.getState().submitPaymentMethod(selectedFlete.id, 'cash');
+                                                                }}
+                                                                className="flex flex-col items-center justify-center p-3 rounded-xl bg-black text-white hover:bg-zinc-800 transition-colors border border-transparent hover:border-white/20 active:scale-95"
+                                                            >
+                                                                <DollarSign className="w-5 h-5 mb-1 text-primary-500" />
+                                                                <span className="text-[9px] font-black uppercase">Efectivo</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    useBookingStore.getState().submitPaymentMethod(selectedFlete.id, 'transfer');
+                                                                }}
+                                                                className="flex flex-col items-center justify-center p-3 rounded-xl bg-black text-white hover:bg-zinc-800 transition-colors border border-transparent hover:border-white/20 active:scale-95"
+                                                            >
+                                                                <Activity className="w-5 h-5 mb-1 text-primary-500" />
+                                                                <span className="text-[9px] font-black uppercase">Transferencia</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </motion.div>
                                         )}
                                     </div>
