@@ -98,13 +98,41 @@ const DriverDashboard = () => {
 
     useEffect(() => {
         let watchId = null
+        let channel = null
+        let lastDbUpdate = 0
+
         if (profile?.verification_status === 'verified' && activeFlete) {
+
+            // Creamos el canal de Broadcast para este flete
+            channel = supabase.channel(`flete_${activeFlete.id}`)
+            channel.subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('📡 Broadcast de GPS conectado para flete:', activeFlete.id)
+                }
+            })
+
             if (navigator.geolocation) {
                 watchId = navigator.geolocation.watchPosition(
                     (pos) => {
                         const { latitude, longitude } = pos.coords
                         setDriverLatLng({ lat: latitude, lng: longitude })
-                        useDriverStore.getState().updateLocation(user.id, latitude, longitude)
+
+                        // 1. Enviar siempre por Broadcast (Gratis, ultra-rápido, sin DB limit hit)
+                        if (channel) {
+                            channel.send({
+                                type: 'broadcast',
+                                event: 'location_update',
+                                payload: { lat: latitude, lng: longitude }
+                            })
+                        }
+
+                        // 2. Escribir en la DB (Postgres) solo cada 30 segundos
+                        // para "Conductores Cerca" y evitar que el cliente lo vea offline si recarga la página
+                        const now = Date.now()
+                        if (now - lastDbUpdate > 30000) {
+                            useDriverStore.getState().updateLocation(user.id, latitude, longitude)
+                            lastDbUpdate = now
+                        }
                     },
                     (err) => console.warn("Permiso de ubicación denegado o error:", err.message),
                     { enableHighAccuracy: true, distanceFilter: 10 }
@@ -113,8 +141,12 @@ const DriverDashboard = () => {
         }
         return () => {
             if (watchId) navigator.geolocation.clearWatch(watchId)
+            if (channel) {
+                channel.unsubscribe()
+                supabase.removeChannel(channel)
+            }
         }
-    }, [activeFlete, profile?.verification_status, user?.id])
+    }, [activeFlete?.id, profile?.verification_status, user?.id])
 
     useEffect(() => {
         if (activeFlete) {

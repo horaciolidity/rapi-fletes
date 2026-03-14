@@ -354,7 +354,17 @@ const FreightMap = ({
         let channel = null
 
         const startTracking = async () => {
-            // Get the driver_id for this flete
+            // Escuchar el canal de Broadcast (Gratis, ultra-rápido)
+            channel = supabase
+                .channel(`flete_${fleteId}`)
+                .on('broadcast', { event: 'location_update' }, (payload) => {
+                    if (payload.payload?.lat && payload.payload?.lng) {
+                        setTrackedDriver({ lat: payload.payload.lat, lng: payload.payload.lng })
+                    }
+                })
+                .subscribe()
+
+            // Hacer UN solo fetch a la DB para tener la ubicación inicial antes del primer movimiento
             const { data: fleteData } = await supabase
                 .from('fletes')
                 .select('driver_id')
@@ -362,23 +372,6 @@ const FreightMap = ({
                 .single()
 
             if (fleteData?.driver_id) {
-                // Subscribe to that driver's profile for location updates
-                channel = supabase
-                    .channel(`track_driver_${fleteData.driver_id}`)
-                    .on('postgres_changes', {
-                        event: 'UPDATE',
-                        schema: 'public',
-                        table: 'profiles',
-                        filter: `id=eq.${fleteData.driver_id}`
-                    }, (payload) => {
-                        const { last_location_lat, last_location_lng } = payload.new
-                        if (last_location_lat && last_location_lng) {
-                            setTrackedDriver({ lat: last_location_lat, lng: last_location_lng })
-                        }
-                    })
-                    .subscribe()
-
-                // Initial fetch
                 const { data: driverData } = await supabase
                     .from('profiles')
                     .select('last_location_lat, last_location_lng')
@@ -394,7 +387,10 @@ const FreightMap = ({
         startTracking()
 
         return () => {
-            if (channel) supabase.removeChannel(channel)
+            if (channel) {
+                channel.unsubscribe()
+                supabase.removeChannel(channel)
+            }
         }
     }, [fleteId, enableLiveTracking])
 
