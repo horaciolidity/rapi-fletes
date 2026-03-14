@@ -54,47 +54,64 @@ const DriverInfoCard = ({ driver, vehicle, averageRating, totalTrips }) => {
             {/* Información del vehículo */}
             {vehicle && (
                 <div className="space-y-3 mb-4">
-                    <div className="bg-zinc-950/50 rounded-xl p-4 border border-white/5">
-                        <p className="text-[8px] font-black text-zinc-600 uppercase mb-2 italic">
-                            Vehículo
-                        </p>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <p className="text-[9px] font-bold text-zinc-500 uppercase">
-                                    Marca/Modelo
-                                </p>
-                                <p className="text-[11px] font-black text-white italic uppercase">
-                                    {vehicle.brand} {vehicle.model}
-                                </p>
+                    <div className="bg-zinc-950/50 rounded-xl overflow-hidden border border-white/5">
+                        {vehicle.photo_url && (
+                            <div className="w-full h-32 relative">
+                                <img
+                                    src={vehicle.photo_url}
+                                    alt={`${vehicle.brand} ${vehicle.model}`}
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-transparent to-transparent"></div>
+                                <div className="absolute bottom-2 left-3">
+                                    <p className="text-[8px] font-black text-white/70 uppercase italic">Foto del Vehículo</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-[9px] font-bold text-zinc-500 uppercase">
-                                    Patente
+                        )}
+                        <div className="p-4 pt-3">
+                            {!vehicle.photo_url && (
+                                <p className="text-[8px] font-black text-zinc-600 uppercase mb-2 italic">
+                                    Vehículo
                                 </p>
-                                <p className="text-[11px] font-black text-white italic uppercase">
-                                    {vehicle.license_plate}
-                                </p>
-                            </div>
-                            {vehicle.color && (
+                            )}
+                            <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <p className="text-[9px] font-bold text-zinc-500 uppercase">
-                                        Color
+                                        Marca/Modelo
                                     </p>
                                     <p className="text-[11px] font-black text-white italic uppercase">
-                                        {vehicle.color}
+                                        {vehicle.brand} {vehicle.model}
                                     </p>
                                 </div>
-                            )}
-                            {vehicle.year && (
                                 <div>
                                     <p className="text-[9px] font-bold text-zinc-500 uppercase">
-                                        Año
+                                        Patente
                                     </p>
                                     <p className="text-[11px] font-black text-white italic uppercase">
-                                        {vehicle.year}
+                                        {vehicle.license_plate}
                                     </p>
                                 </div>
-                            )}
+                                {vehicle.color && (
+                                    <div>
+                                        <p className="text-[9px] font-bold text-zinc-500 uppercase">
+                                            Color
+                                        </p>
+                                        <p className="text-[11px] font-black text-white italic uppercase">
+                                            {vehicle.color}
+                                        </p>
+                                    </div>
+                                )}
+                                {vehicle.year && (
+                                    <div>
+                                        <p className="text-[9px] font-bold text-zinc-500 uppercase">
+                                            Año
+                                        </p>
+                                        <p className="text-[11px] font-black text-white italic uppercase">
+                                            {vehicle.year}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
