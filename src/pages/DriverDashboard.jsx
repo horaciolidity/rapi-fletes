@@ -1019,14 +1019,23 @@ const DriverDashboard = () => {
                                                     onClick={() => setSelectedFleteId(flete.id === selectedFleteId ? null : flete.id)}
                                                     className={`glass-card p-5 border-white/5 bg-black/90 backdrop-blur-3xl transition-all cursor-pointer pointer-events-auto ${selectedFleteId === flete.id ? 'border-primary-500/50 ring-2 ring-primary-500/20' : ''}`}
                                                 >
-                                                    <div className="flex justify-between items-center mb-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`p-2 rounded-lg ${selectedFleteId === flete.id ? 'bg-primary-500 text-black' : 'bg-zinc-900 text-zinc-700'}`}>
-                                                                <Truck className="w-4 h-4" />
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`p-2 rounded-lg ${selectedFleteId === flete.id ? 'bg-primary-500 text-black' : 'bg-zinc-900 text-zinc-700'}`}>
+                                                                    <Truck className="w-4 h-4" />
+                                                                </div>
+                                                                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic leading-none">PEDIDO DISPONIBLE</span>
                                                             </div>
-                                                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">NUEVO PEDIDO</span>
+                                                            {/* PAYMENT METHOD BADGE */}
+                                                            <div className={`mt-1 px-3 py-1 rounded-full text-[8px] font-black uppercase italic tracking-tighter w-fit ${flete.payment_method === 'transfer' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/20' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'}`}>
+                                                                {flete.payment_method === 'transfer' ? '💳 TRANSFERENCIA' : '💵 EFECTIVO'}
+                                                            </div>
                                                         </div>
-                                                        <p className="text-xl font-black text-primary-500 italic">$ {flete.estimated_price}</p>
+                                                        <div className="text-right">
+                                                            <p className="text-xl font-black text-primary-500 italic leading-none">$ {flete.estimated_price}</p>
+                                                            <p className="text-[7px] font-black text-zinc-600 uppercase italic mt-1">GANANCIA ESTIMADA</p>
+                                                        </div>
                                                     </div>
 
                                                     <div className="space-y-2 mb-4">
@@ -1071,13 +1080,27 @@ const DriverDashboard = () => {
                                                                 </div>
                                                             )}
 
-                                                            {/* Shipment Details */}
-                                                            {flete.shipment_details && (
-                                                                <div className="bg-secondary-500/5 p-3 rounded-xl border border-secondary-500/10">
-                                                                    <p className="text-[7px] font-black text-secondary-500 uppercase mb-1">DETALLES DE CARGA</p>
-                                                                    <p className="text-[9px] font-bold text-zinc-300 italic uppercase leading-tight">{flete.shipment_details}</p>
+                                                            {/* Shipment Details - PREMIUM VIEW */}
+                                                            <div className="bg-zinc-900/80 p-5 rounded-2xl border border-white/5 space-y-3">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Package className="w-3.5 h-3.5 text-primary-500" />
+                                                                    <p className="text-[8px] font-black text-primary-500 uppercase tracking-widest italic">CARGAMENTO ESPECIFICADO:</p>
                                                                 </div>
-                                                            )}
+                                                                <p className="text-[11px] font-bold text-zinc-200 uppercase italic leading-relaxed tracking-tight bg-black/40 p-3 rounded-xl border border-white/5">
+                                                                    {flete.shipment_details || 'SIN DETALLES ADICIONALES'}
+                                                                </p>
+                                                                
+                                                                <div className="flex items-center gap-4 text-[9px] font-black italic uppercase text-zinc-500">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Users className="w-3.5 h-3.5" />
+                                                                        <span>PASAJERO: {flete.passenger_travels ? 'SÍ' : 'NO'}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Clock className="w-3.5 h-3.5" />
+                                                                        <span>EXPIRA: PRONTO</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </motion.div>
                                                     )}
 
@@ -1193,6 +1216,9 @@ const DriverDashboard = () => {
                                                             <div className="flex flex-col items-end gap-1">
                                                                 <span className="px-3 py-1 bg-zinc-900 border border-white/5 rounded-full text-[9px] font-bold text-zinc-500 uppercase italic">{activeFlete.status}</span>
                                                                 <span className="px-3 py-1 bg-primary-500/10 border border-primary-500/20 rounded-full text-[8px] font-black text-primary-500 uppercase italic tracking-tighter">{activeFlete.vehicle_categories?.name}</span>
+                                                                <span className={`px-3 py-1 border rounded-full text-[8px] font-black uppercase italic mt-1 ${activeFlete.payment_method === 'transfer' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
+                                                                    {activeFlete.payment_method === 'transfer' ? '💳 TRANSFER' : '💵 EFECTIVO'}
+                                                                </span>
                                                             </div>
                                                         </div>
 

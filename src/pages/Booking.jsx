@@ -24,6 +24,7 @@ const Booking = () => {
     const [shipmentDetails, setShipmentDetails] = useState('')
     const [passengerTravels, setPassengerTravels] = useState(false)
     const [pickupProvince, setPickupProvince] = useState(null)
+    const [paymentMethod, setPaymentMethod] = useState('cash')
 
     useEffect(() => {
         if (profile?.role === 'driver') {
@@ -416,13 +417,21 @@ const Booking = () => {
                                                         <p className="text-[10px] font-black italic text-white uppercase">{selectedCategory?.name}</p>
                                                     </div>
                                                 </div>
-                                                <div className="flex-1 glass-card p-5 border-white/5 bg-white/5 flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center border border-white/5">
-                                                        <CreditCard className="w-5 h-5 text-zinc-400" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[7px] font-black text-zinc-600 uppercase italic tracking-widest">PAGO</p>
-                                                        <p className="text-[10px] font-black italic text-zinc-300 uppercase">EFECTIVO</p>
+                                                <div className="flex-1 glass-card p-5 border-white/5 bg-white/5 flex flex-col gap-3">
+                                                    <p className="text-[7px] font-black text-zinc-600 uppercase italic tracking-widest">MÉTODO DE PAGO</p>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => setPaymentMethod('cash')}
+                                                            className={`flex-1 py-3 px-2 rounded-xl border text-[9px] font-black uppercase italic transition-all ${paymentMethod === 'cash' ? 'bg-primary-500 border-primary-500 text-black' : 'border-white/5 bg-zinc-900 text-zinc-500'}`}
+                                                        >
+                                                            EFECTIVO
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setPaymentMethod('transfer')}
+                                                            className={`flex-1 py-3 px-2 rounded-xl border text-[9px] font-black uppercase italic transition-all ${paymentMethod === 'transfer' ? 'bg-primary-500 border-primary-500 text-black' : 'border-white/5 bg-zinc-900 text-zinc-500'}`}
+                                                        >
+                                                            TRANSF.
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -461,7 +470,7 @@ const Booking = () => {
                                         <div className="flex gap-4">
                                             <button onClick={() => setStep(2)} className="p-6 glass-card bg-white/5 border-white/5 text-zinc-600 hover:text-white transition-all rotate-180"><ArrowRight className="w-6 h-6" /></button>
                                             <button
-                                                onClick={() => createFlete(user.id, shipmentDetails, passengerTravels, pickupProvince).then(res => res && setStep(4))}
+                                                onClick={() => createFlete(user.id, shipmentDetails, passengerTravels, pickupProvince, paymentMethod).then(res => res && setStep(4))}
                                                 disabled={loading || shipmentDetails.length < 10}
                                                 className={`premium-button flex-grow flex items-center justify-center gap-6 py-6 shadow-[0_20px_50px_rgba(245,158,11,0.3)] transition-all duration-700 ${shipmentDetails.length < 10 ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
                                             >
