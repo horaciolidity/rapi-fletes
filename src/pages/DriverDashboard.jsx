@@ -1074,14 +1074,27 @@ const DriverDashboard = () => {
 
                                                             {/* Client Info */}
                                                             {flete.profiles && (
-                                                                <div className="bg-primary-500/5 p-3 rounded-xl border border-primary-500/10">
-                                                                    <p className="text-[7px] font-black text-primary-500 uppercase mb-1">CLIENTE</p>
-                                                                    <p className="text-[10px] font-bold text-white italic uppercase">{flete.profiles.full_name}</p>
+                                                                <div className="bg-primary-500/5 p-4 rounded-2xl border border-primary-500/10 flex items-center justify-between">
+                                                                    <div>
+                                                                        <p className="text-[7px] font-black text-primary-500 uppercase mb-1 italic">CLIENTE ESTRATÉGICO</p>
+                                                                        <p className="text-sm font-black text-white italic uppercase tracking-tight">{flete.profiles.full_name}</p>
+                                                                        <div className="flex items-center gap-3 mt-1">
+                                                                            <p className="text-[8px] font-bold text-zinc-500 italic uppercase">Viajes: <span className="text-zinc-300">{flete.clientStats?.totalTrips || 0}</span></p>
+                                                                            <p className="text-[8px] font-bold text-zinc-500 italic uppercase">Reportes: <span className="text-zinc-300">0</span></p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-right">
+                                                                        <div className="flex items-center justify-end gap-1 mb-1">
+                                                                            <Star className="w-3.5 h-3.5 text-primary-500 fill-primary-500" />
+                                                                            <span className="text-xl font-black italic text-white leading-none">{flete.clientStats?.averageRating || '0.0'}</span>
+                                                                        </div>
+                                                                        <p className="text-[7px] font-black text-zinc-600 uppercase italic">PUNTAJE PASAJERO</p>
+                                                                    </div>
                                                                 </div>
                                                             )}
 
                                                             {/* Shipment Details - PREMIUM VIEW */}
-                                                            <div className="bg-zinc-900/80 p-5 rounded-2xl border border-white/5 space-y-3">
+                                                            <div className="bg-zinc-900/80 p-5 rounded-2xl border border-white/5 space-y-4">
                                                                 <div className="flex items-center gap-2">
                                                                     <Package className="w-3.5 h-3.5 text-primary-500" />
                                                                     <p className="text-[8px] font-black text-primary-500 uppercase tracking-widest italic">CARGAMENTO ESPECIFICADO:</p>
@@ -1089,6 +1102,21 @@ const DriverDashboard = () => {
                                                                 <p className="text-[11px] font-bold text-zinc-200 uppercase italic leading-relaxed tracking-tight bg-black/40 p-3 rounded-xl border border-white/5">
                                                                     {flete.shipment_details || 'SIN DETALLES ADICIONALES'}
                                                                 </p>
+
+                                                                {/* RECENT COMMENTS SECTION */}
+                                                                {flete.clientStats?.recentComments?.length > 0 && (
+                                                                    <div className="pt-2">
+                                                                        <p className="text-[7px] font-black text-zinc-600 uppercase mb-2 tracking-widest">ÚLTIMAS REFERENCIAS:</p>
+                                                                        <div className="space-y-1.5">
+                                                                            {flete.clientStats.recentComments.map((comment, i) => (
+                                                                                <div key={i} className="flex gap-2">
+                                                                                    <div className="w-1 h-3 bg-primary-500/30 rounded-full shrink-0" />
+                                                                                    <p className="text-[9px] font-bold text-zinc-500 italic uppercase truncate">"{comment}"</p>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
                                                                 
                                                                 <div className="flex items-center gap-4 text-[9px] font-black italic uppercase text-zinc-500">
                                                                     <div className="flex items-center gap-2">

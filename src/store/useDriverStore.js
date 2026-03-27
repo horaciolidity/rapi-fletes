@@ -50,7 +50,45 @@ export const useDriverStore = create((set, get) => ({
             const { data, error } = await query.order('created_at', { ascending: false })
 
             if (error) throw error
-            set({ availableFletes: data, loading: false })
+
+            // Para cada flete, obtener calificación promedio y viajes del CLIENTE
+            const fletesWithClientStats = await Promise.all(
+                (data || []).map(async (flete) => {
+                    if (!flete.profiles) return flete
+
+                    // Calcular calificación promedio del CLIENTE (driver_rating es lo que el chofer le da al cliente)
+                    const { data: clientRatings } = await supabase
+                        .from('fletes')
+                        .select('driver_rating')
+                        .eq('user_id', flete.user_id)
+                        .not('driver_rating', 'is', null)
+
+                    const averageRating = clientRatings && clientRatings.length > 0
+                        ? clientRatings.reduce((sum, r) => sum + r.driver_rating, 0) / clientRatings.length
+                        : 0
+
+                    // Contar viajes completados del cliente
+                    const { count: totalTrips } = await supabase
+                        .from('fletes')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('user_id', flete.user_id)
+                        .eq('status', 'completed')
+
+                    return {
+                        ...flete,
+                        clientStats: {
+                            averageRating: parseFloat(averageRating.toFixed(1)),
+                            totalTrips: totalTrips || 0,
+                            recentComments: (clientRatings || [])
+                                .filter(r => r.driver_notes)
+                                .slice(0, 3)
+                                .map(r => r.driver_notes)
+                        }
+                    }
+                })
+            )
+
+            set({ availableFletes: fletesWithClientStats, loading: false })
         } catch (err) {
             set({ error: err.message, loading: false })
         }

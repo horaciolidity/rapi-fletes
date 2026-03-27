@@ -91,7 +91,11 @@ export const useBookingStore = create((set, get) => ({
                             ...flete.driver,
                             vehicle: vehicleData,
                             averageRating: parseFloat(averageRating.toFixed(1)),
-                            totalTrips: totalTrips || 0
+                            totalTrips: totalTrips || 0,
+                            recentComments: (driverRatings || [])
+                                .filter(r => r.client_notes)
+                                .slice(0, 3)
+                                .map(r => r.client_notes)
                         }
                     }
                 })

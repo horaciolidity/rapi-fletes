@@ -46,10 +46,25 @@ const DriverInfoCard = ({ driver, vehicle, averageRating, totalTrips }) => {
                         </span>
                     </div>
                     <p className="text-[8px] font-bold text-zinc-600 uppercase italic">
-                        {totalTrips || 0} viajes
+                        {totalTrips || 0} viajes | 0 reportes
                     </p>
                 </div>
             </div>
+
+            {/* Recent Comments Section for Client to see */}
+            {driver.recentComments?.length > 0 && (
+                <div className="mb-6 bg-black/40 p-4 rounded-xl border border-white/5">
+                    <p className="text-[7px] font-black text-zinc-600 uppercase mb-3 tracking-widest italic">ÚLTIMAS RESEÑAS DE CLIENTES:</p>
+                    <div className="space-y-2">
+                        {driver.recentComments.map((comment, i) => (
+                            <div key={i} className="flex gap-3">
+                                <div className="w-0.5 h-3 bg-primary-500/50 rounded-full shrink-0" />
+                                <p className="text-[10px] font-medium text-zinc-400 italic leading-tight">"{comment}"</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Información del vehículo */}
             {vehicle && (
