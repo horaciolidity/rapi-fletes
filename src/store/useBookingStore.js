@@ -92,7 +92,7 @@ export const useBookingStore = create((set, get) => ({
                             vehicle: vehicleData,
                             averageRating: parseFloat(averageRating.toFixed(1)),
                             totalTrips: totalTrips || 0,
-                            recentComments: (driverRatings || [])
+                            recentComments: (ratingsData || [])
                                 .filter(r => r.client_notes)
                                 .slice(0, 3)
                                 .map(r => r.client_notes)

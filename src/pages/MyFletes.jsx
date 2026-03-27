@@ -61,7 +61,7 @@ const MyFletes = () => {
 
     const getStatusTheme = (status) => {
         switch (status) {
-            case 'pending': return { color: 'text-primary-500', label: 'Buscando Unidad', icon: Clock, bg: 'bg-primary-500/10' }
+            case 'pending': return { color: 'text-primary-500', label: 'BUSCANDO CHOFER', icon: Clock, bg: 'bg-primary-500/10' }
             case 'accepted': return { color: 'text-secondary-500', label: 'Chofer en Camino', icon: Truck, bg: 'bg-secondary-500/10' }
             case 'arrived_pickup': return { color: 'text-blue-500', label: 'Chofer Arribó', icon: MapPin, bg: 'bg-blue-500/10' }
             case 'in_transit': return { color: 'text-primary-400', label: 'En Tránsito', icon: Activity, bg: 'bg-primary-400/10' }

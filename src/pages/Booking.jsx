@@ -474,7 +474,7 @@ const Booking = () => {
                                                 disabled={loading || shipmentDetails.length < 10}
                                                 className={`premium-button flex-grow flex items-center justify-center gap-6 py-6 shadow-[0_20px_50px_rgba(245,158,11,0.3)] transition-all duration-700 ${shipmentDetails.length < 10 ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
                                             >
-                                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <> <span className="text-[12px] font-black tracking-[0.2em] uppercase italic">{shipmentDetails.length < 10 ? 'MÍNIMO 10 CARACTERES' : 'GENERAR ORDEN'}</span> <CheckCircle2 className="w-6 h-6" /> </>}
+                                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <> <span className="text-[12px] font-black tracking-[0.2em] uppercase italic">{shipmentDetails.length < 10 ? 'MÍNIMO 10 CARACTERES' : 'BUSCAR CHOFER'}</span> <CheckCircle2 className="w-6 h-6" /> </>}
                                             </button>
                                         </div>
                                     </div>
@@ -490,10 +490,10 @@ const Booking = () => {
                             >
                                 <div className="absolute inset-0 bg-mesh opacity-30 pointer-events-none" />
                                 <div className="w-24 h-24 bg-primary-500/10 rounded-[2.5rem] flex items-center justify-center mb-8 border border-primary-500/30 relative z-10 shadow-[0_0_50px_rgba(245,158,11,0.1)]">
-                                    <CheckCircle2 className="w-12 h-12 text-primary-500" />
+                                    <Clock className="w-12 h-12 text-primary-500 animate-spin-slow" />
                                 </div>
-                                <h3 className="text-5xl font-black italic text-gradient uppercase mb-6 leading-tight tracking-tighter relative z-11 py-2">ESTRATEGIA<br />CONFIRMADA</h3>
-                                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] mb-10 italic relative z-11">Buscando conductores en su área...</p>
+                                <h3 className="text-5xl font-black italic text-gradient uppercase mb-6 leading-tight tracking-tighter relative z-11 py-2">VIAJE<br />PENDIENTE</h3>
+                                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] mb-10 italic relative z-11">Buscando el chofer más cercano para usted...</p>
                                 <button onClick={() => navigate('/my-fletes')} className="premium-button w-full relative z-11 py-6 shadow-2xl">RASTREAR VIAJE</button>
                             </motion.div>
                         )}
