@@ -43,26 +43,76 @@ const createCustomIcon = (color, emoji) => {
     })
 }
 
-const truckIcon = L.divIcon({
-    className: 'truck-marker',
+const createTripIcon = (value) => L.divIcon({
+    className: 'trip-marker',
     html: `
-        <div style="
-            background: #f59e0b;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 15px rgba(245,158,11,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: pulse 2s infinite;
-        ">
-            <div style="font-size: 18px;">🚚</div>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <div style="
+                background: #ef4444; 
+                padding: 4px 8px; 
+                border-radius: 12px; 
+                border: 2px solid white; 
+                color: white; 
+                font-weight: 900; 
+                font-size: 10px; 
+                margin-bottom: 2px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                white-space: nowrap;
+                font-family: 'Outfit', sans-serif;
+            ">
+                $${value}
+            </div>
+            <div style="
+                background: #ef4444;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                border: 2px solid white;
+                box-shadow: 0 0 10px rgba(239,68,68,0.5);
+            "></div>
         </div>
     `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16]
+    iconSize: [60, 40],
+    iconAnchor: [30, 36]
+})
+
+const createDriverIconWithPrice = (price) => L.divIcon({
+    className: 'truck-marker',
+    html: `
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <div style="
+                background: #f59e0b; 
+                padding: 4px 8px; 
+                border-radius: 12px; 
+                border: 2px solid white; 
+                color: black; 
+                font-weight: 900; 
+                font-size: 10px; 
+                margin-bottom: 2px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                white-space: nowrap;
+                font-family: 'Outfit', sans-serif;
+            ">
+                $${price}
+            </div>
+            <div style="
+                background: #f59e0b;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                border: 2px solid white;
+                box-shadow: 0 0 15px rgba(245,158,11,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: pulse 2s infinite;
+            ">
+                <div style="font-size: 18px;">🚚</div>
+            </div>
+        </div>
+    `,
+    iconSize: [60, 50],
+    iconAnchor: [30, 46]
 })
 
 // Custom Car Marker that attempts to show direction (static for now, dynamic if we had heading)
@@ -341,6 +391,8 @@ const FreightMap = ({
 }) => {
     const storeData = useBookingStore()
     const { activeDrivers, fetchActiveDrivers, getDriversNearLocation } = useDriverLocationStore()
+    const { availableFletes } = useDriverStore()
+    const { profile } = useAuthStore()
 
     const { theme } = useThemeStore()
     const pickup = propPickup || storeData.pickup
@@ -353,7 +405,15 @@ const FreightMap = ({
     const [userLocation, setUserLocation] = useState(null)
     const [initialDriverLocation, setInitialDriverLocation] = useState(null)
 
-    useEffect(() => { if (showActiveDrivers) fetchActiveDrivers() }, [showActiveDrivers, fetchActiveDrivers])
+    useEffect(() => { 
+        if (showActiveDrivers) {
+            fetchActiveDrivers()
+            const channel = useDriverLocationStore.getState().subscribeToDriverLocations()
+            return () => {
+                if (channel) channel.unsubscribe()
+            }
+        }
+    }, [showActiveDrivers, fetchActiveDrivers])
 
     // Specific Driver Live Tracking
     useEffect(() => {
@@ -479,10 +539,40 @@ const FreightMap = ({
                 {/* Specific Driver being tracked (Client side view) */}
                 {enableLiveTracking && trackedDriver && <CarMarker position={[trackedDriver.lat, trackedDriver.lng]} />}
 
-                {showActiveDrivers && activeDrivers.map((driver) => (
-                    driver.last_location_lat && driver.last_location_lng && (
-                        <Marker key={driver.id} position={[driver.last_location_lat, driver.last_location_lng]} icon={truckIcon} />
+                {/* Show nearby Drivers with Prices (For Clients) */}
+                {showActiveDrivers && activeDrivers.map((driver) => {
+                    const price = driver.active_vehicle?.category?.base_price || 0
+                    return driver.last_location_lat && driver.last_location_lng && (
+                        <Marker
+                            key={driver.id}
+                            position={[driver.last_location_lat, driver.last_location_lng]}
+                            icon={createDriverIconWithPrice(price)}
+                        >
+                            <Popup>
+                                <div className="text-center p-1">
+                                    <p className="text-xs font-black uppercase italic">{driver.full_name}</p>
+                                    <p className="text-[10px] font-bold text-primary-500">$${price} BASE</p>
+                                </div>
+                            </Popup>
+                        </Marker>
                     )
+                })}
+
+                {/* Show nearby Trips (For Drivers) */}
+                {profile?.role === 'driver' && availableFletes && availableFletes.map((trip) => (
+                    <Marker
+                        key={trip.id}
+                        position={[trip.pickup_lat, trip.pickup_lng]}
+                        icon={createTripIcon(trip.estimated_price?.toFixed(0))}
+                    >
+                        <Popup>
+                            <div className="text-center p-2">
+                                <p className="text-[10px] font-black uppercase italic mb-1">{trip.vehicle_categories?.name}</p>
+                                <p className="text-base font-black text-red-500 tracking-tighter">$${trip.estimated_price?.toFixed(0)}</p>
+                                <p className="text-[8px] font-bold text-zinc-500 uppercase mt-1 truncate max-w-[120px]">{trip.pickup_address}</p>
+                            </div>
+                        </Popup>
+                    </Marker>
                 ))}
             </MapContainer>
 

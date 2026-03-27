@@ -12,7 +12,21 @@ export const useDriverLocationStore = create((set, get) => ({
         try {
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, full_name, phone, last_location_lat, last_location_lng, is_available')
+                .select(`
+                    id, 
+                    full_name, 
+                    phone, 
+                    last_location_lat, 
+                    last_location_lng, 
+                    is_available,
+                    active_vehicle:vehicles!active_vehicle_id (
+                        id,
+                        category:vehicle_categories (
+                            name,
+                            base_price
+                        )
+                    )
+                `)
                 .eq('role', 'driver')
                 .eq('verification_status', 'verified')
                 .eq('is_available', true)
