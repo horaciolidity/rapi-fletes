@@ -17,9 +17,10 @@ const BottomNav = () => {
         { icon: Map, label: 'MAPA', path: '/map' },
         {
             icon: Truck,
-            label: isDriver ? 'CONDUCTOR' : 'RESERVAR',
+            label: isDriver ? 'CHÓFER' : 'RESERVAR',
             path: isDriver ? '/driver' : '/booking'
         },
+        { icon: History, label: 'MIS VIAJES', path: '/my-fletes' },
         { icon: User, label: 'PERFIL', path: '/profile' },
         ...(isAdmin ? [{ icon: Shield, label: 'ADMIN', path: '/admin' }] : []),
     ]

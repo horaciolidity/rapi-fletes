@@ -31,7 +31,7 @@ const Navbar = () => {
         {
             name: 'MIS VIAJES',
             path: '/my-fletes',
-            show: user && profile?.role !== 'driver' && profile?.role !== 'admin',
+            show: !!user,
         },
         {
             name: 'EXPLORAR',
