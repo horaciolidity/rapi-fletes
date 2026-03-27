@@ -34,6 +34,11 @@ const Navbar = () => {
             show: user && profile?.role !== 'driver' && profile?.role !== 'admin',
         },
         {
+            name: 'EXPLORAR',
+            path: '/map',
+            show: !!user,
+        },
+        {
             name: 'PERFIL',
             path: '/profile',
             show: !!user,

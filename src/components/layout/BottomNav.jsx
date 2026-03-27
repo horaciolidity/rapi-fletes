@@ -14,12 +14,12 @@ const BottomNav = () => {
 
     const navItems = [
         { icon: Home, label: 'INICIO', path: '/' },
+        { icon: Map, label: 'MAPA', path: '/map' },
         {
-            icon: Map,
-            label: isDriver ? 'LOGÍSTICA' : 'RESERVA',
+            icon: Truck,
+            label: isDriver ? 'CONDUCTOR' : 'RESERVAR',
             path: isDriver ? '/driver' : '/booking'
         },
-        { icon: History, label: 'ÓRDENES', path: '/my-fletes' },
         { icon: User, label: 'PERFIL', path: '/profile' },
         ...(isAdmin ? [{ icon: Shield, label: 'ADMIN', path: '/admin' }] : []),
     ]

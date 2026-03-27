@@ -13,6 +13,7 @@ import AdminUsers from './pages/AdminUsers'
 import AdminSettings from './pages/AdminSettings'
 import MyFletes from './pages/MyFletes'
 import Profile from './pages/Profile'
+import MapExplorer from './pages/MapExplorer'
 import Navbar from './components/layout/Navbar'
 import BottomNav from './components/layout/BottomNav'
 import { useAuthStore } from './store/useAuthStore'
@@ -147,6 +148,7 @@ const AppContent = () => {
           <Route path="/driver" element={<DriverDashboard />} />
           <Route path="/wallet" element={<DriverWallet />} />
           <Route path="/my-fletes" element={<MyFletes />} />
+          <Route path="/map" element={<MapExplorer />} />
 
           {/* Admin Routes - Protected */}
           <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
