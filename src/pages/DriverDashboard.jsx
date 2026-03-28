@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User, Search, X, MessageSquare, Camera, Star, Package, Plus } from 'lucide-react'
+import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User, Search, X, MessageSquare, Camera, Star, Package, Plus, Users } from 'lucide-react'
 import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { useNotificationStore } from '../store/useNotificationStore'
@@ -1274,6 +1274,10 @@ const DriverDashboard = () => {
                                                             <div className="p-4 bg-primary-500/5 border border-primary-500/10 rounded-2xl">
                                                                 <p className="text-[8px] font-black text-primary-500 uppercase tracking-widest mb-2 italic">📦 CARGAMENTO (DE DETALLE):</p>
                                                                 <p className="text-[10px] font-bold text-zinc-300 uppercase italic leading-relaxed tracking-tight">{activeFlete.shipment_details}</p>
+                                                                <div className="mt-3 flex items-center gap-2 text-[9px] font-black italic uppercase text-primary-500/60">
+                                                                    <Users className="w-3 h-3" />
+                                                                    <span>VIAJA CON PASAJERO: {activeFlete.passenger_travels ? 'SÍ' : 'NO'}</span>
+                                                                </div>
                                                             </div>
                                                         )}
 

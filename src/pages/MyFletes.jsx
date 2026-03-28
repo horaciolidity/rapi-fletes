@@ -348,6 +348,10 @@ const MyFletes = () => {
                                                 <h3 className="text-[9px] font-black uppercase tracking-widest text-zinc-700 mb-2 italic">DETALLES DE ENVÍO</h3>
                                                 <div className="bg-primary-500/5 p-4 rounded-2xl border border-primary-500/10">
                                                     <p className="text-[10px] font-bold text-zinc-300 italic uppercase leading-relaxed">{selectedFlete.shipment_details}</p>
+                                                    <div className="mt-3 flex items-center gap-2 text-[9px] font-black italic uppercase text-primary-500/60">
+                                                        <Users className="w-3 h-3" />
+                                                        <span>VIAJA CON PASAJERO: {selectedFlete.passenger_travels ? 'SÍ' : 'NO'}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}

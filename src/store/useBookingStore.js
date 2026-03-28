@@ -198,7 +198,7 @@ export const useBookingStore = create((set, get) => ({
             if (error) {
                 // If 400, try fallback without the new columns (schema might not be updated)
                 if (error.code === '42703' || error.message.includes('column')) {
-                    console.warn('Faltan columnas en la DB, intentando insert básico...')
+                    console.warn('Faltan columnas específicas en la DB, intentando insert con campos compatibles...')
                     const { data: fallbackData, error: fallbackError } = await supabase
                         .from('fletes')
                         .insert([
@@ -214,6 +214,8 @@ export const useBookingStore = create((set, get) => ({
                                 estimated_price: estimate,
                                 distance: get().distance,
                                 duration: duration,
+                                shipment_details: shipmentDetails,
+                                passenger_travels: passengerTravels,
                                 status: 'pending'
                             }
                         ])
