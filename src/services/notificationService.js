@@ -59,7 +59,7 @@ export const notificationService = {
             if (drivers && drivers.length > 0) {
                 const tokens = drivers.map(d => d.fcm_token);
 
-                await supabase.functions.invoke('send-broadcast-notification', {
+                await supabase.functions.invoke('send-notification', {
                     body: {
                         tokens,
                         title: '¡NUEVO VIAJE DISPONIBLE! 🚚',
@@ -73,6 +73,43 @@ export const notificationService = {
             }
         } catch (err) {
             console.error('Error notifying drivers:', err);
+        }
+    },
+
+    /**
+     * Notify custom message to specific role
+     */
+    sendCustomBroadcast: async (title, body, role) => {
+        try {
+            // Get all fcm_token for the specified role
+            let query = supabase
+                .from('profiles')
+                .select('fcm_token')
+                .not('fcm_token', 'is', null);
+
+            if (role !== 'all') {
+                query = query.eq('role', role);
+            }
+
+            const { data: users, error } = await query;
+            if (error) throw error;
+
+            if (users && users.length > 0) {
+                const tokens = users.map(u => u.fcm_token);
+                
+                await supabase.functions.invoke('send-notification', {
+                    body: {
+                        tokens,
+                        title,
+                        body,
+                        data: { type: 'admin_alert' }
+                    }
+                });
+            }
+            return { success: true, count: users ? users.length : 0 };
+        } catch (err) {
+            console.error('Error sending custom broadcast:', err);
+            return { success: false, error: err.message };
         }
     }
 };

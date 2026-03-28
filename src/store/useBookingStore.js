@@ -248,7 +248,7 @@ export const useBookingStore = create((set, get) => ({
         set({ loading: true, error: null })
         const { data, error } = await supabase
             .from('fletes')
-            .update({ status: 'cancelled', updated_at: new Date() })
+            .update({ status: 'cancelled', updated_at: new Date().toISOString() })
             .eq('id', fleteId)
             .select()
             .maybeSingle()
@@ -258,7 +258,23 @@ export const useBookingStore = create((set, get) => ({
             return null
         }
 
-        set({ loading: false })
+        // Actualizar estado local para reactividad inmediata
+        const currentFletes = get().fletes;
+        const updatedFletes = currentFletes.map(f => f.id === fleteId ? { ...f, status: 'cancelled' } : f);
+        set({ fletes: updatedFletes, loading: false });
+
+        // Notificar éxito al usuario
+        try {
+            const { useNotificationStore } = await import('./useNotificationStore')
+            useNotificationStore.getState().addNotification({
+                title: 'VIAJE CANCELADO',
+                message: 'Tu servicio ha sido cancelado exitosamente.',
+                type: 'error'
+            })
+        } catch (nErr) {
+            console.error('Error triggering notification:', nErr)
+        }
+
         return data
     },
 

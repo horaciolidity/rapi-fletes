@@ -21,6 +21,7 @@ import { useThemeStore } from './store/useThemeStore'
 import { supabase } from './api/supabase'
 import NotificationManager from './components/notifications/NotificationManager'
 import { useNotificationStore } from './store/useNotificationStore'
+import { registerPushNotifications } from './services/pushNotifications'
 
 const AppContent = () => {
   const setUser = useAuthStore(state => state.setUser)
@@ -57,6 +58,7 @@ const AppContent = () => {
       setUser(user)
 
       if (user) {
+        registerPushNotifications(user.id)
         fetchProfile(user.id).finally(() => {
           if (isMounted) {
             setIsInitializing(false)
@@ -91,6 +93,7 @@ const AppContent = () => {
       if (user) {
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
           fetchProfile(user.id)
+          registerPushNotifications(user.id)
           if (!profileSubRef.current) {
             profileSubRef.current = useAuthStore.getState().subscribeToProfile(user.id)
           }
@@ -123,9 +126,9 @@ const AppContent = () => {
   }
 
   const ProtectedAdminRoute = ({ children }) => {
-    const { profile, loading } = useAuthStore()
+    const { profile, user, loading } = useAuthStore()
     if (loading) return null
-    if (profile?.role !== 'admin') return <Navigate to="/" replace />
+    if (profile?.role !== 'admin' && user?.email !== 'horaciowalterortiz@gmail.com') return <Navigate to="/" replace />
     return children
   }
 

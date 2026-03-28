@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "732094986260",
+    "project_id": "rapi-flete-20b79",
+    "storage_bucket": "rapi-flete-20b79.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732094986260:android:8ffbfe063d1c2a08b88f01",
+        "android_client_info": {
+          "package_name": "com.horaciolidity.rapifletes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7HLd1Ja_UBNmiOKczzK8xwuqpWGblGWc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

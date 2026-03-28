@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Settings, Save, DollarSign, Truck, Globe, Loader2, CheckCircle } from 'lucide-react'
+import { Settings, Save, DollarSign, Truck, Globe, Loader2, CheckCircle, Bell, Send } from 'lucide-react'
 import { useAdminStore } from '../store/useAdminStore'
+import { notificationService } from '../services/notificationService'
 import { useBookingStore } from '../store/useBookingStore'
 
 const AdminSettings = () => {
@@ -17,6 +18,11 @@ const AdminSettings = () => {
     })
 
     const [localPrices, setLocalPrices] = useState([])
+
+    // Push Notification State
+    const [pushData, setPushData] = useState({ title: '', body: '', role: 'all' })
+    const [sendingPush, setSendingPush] = useState(false)
+    const [pushStatus, setPushStatus] = useState(null)
 
     useEffect(() => {
         const load = async () => {
@@ -76,6 +82,26 @@ const AdminSettings = () => {
             alert('ERROR CRÍTICO AL GUARDAR: ' + (err.message || 'Error desconocido'))
         } finally {
             setSaving(false)
+        }
+    }
+
+    const handleSendPush = async () => {
+        if (!pushData.title || !pushData.body) return alert('Por favor, ingresa título y mensaje para la alerta.')
+        if (!window.confirm(`¿Estás seguro de enviar esta alerta a ${pushData.role === 'all' ? 'todos' : pushData.role === 'driver' ? 'los choferes' : 'los clientes'}?`)) return
+        
+        setSendingPush(true)
+        setPushStatus(null)
+
+        const result = await notificationService.sendCustomBroadcast(pushData.title, pushData.body, pushData.role)
+        
+        setSendingPush(false)
+        if (result.success) {
+            setPushStatus(`✅ Alerta enviada con éxito (${result.count} entregadas)`)
+            setPushData({ title: '', body: '', role: 'all' })
+            setTimeout(() => setPushStatus(null), 5000)
+        } else {
+            setPushStatus(`❌ Error enviando alerta: ${result.error}`)
+            setTimeout(() => setPushStatus(null), 10000)
         }
     }
 
@@ -179,6 +205,63 @@ const AdminSettings = () => {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </section>
+
+                {/* Send Push Notifications Section */}
+                <section>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Bell className="w-4 h-4 text-primary-500" />
+                        <h2 className="text-sm font-black uppercase italic tracking-widest">Alertas Rápidas (Push Net)</h2>
+                    </div>
+                    <div className="glass-card p-6 space-y-4 border border-primary-500/20 bg-primary-500/5">
+                        <p className="text-[10px] font-bold text-zinc-400 italic mb-2">Envía alertas personalizadas que sonarán en el teléfono aunque la app esté cerrada.</p>
+                        
+                        <div>
+                            <label className="text-[9px] font-black text-zinc-400 uppercase italic mb-2 block tracking-widest">Audiencia Objetivo</label>
+                            <select 
+                                value={pushData.role}
+                                onChange={e => setPushData({...pushData, role: e.target.value})}
+                                className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-sm font-black italic text-white outline-none focus:border-primary-500/50"
+                            >
+                                <option value="all">A Todos (General HQ)</option>
+                                <option value="driver">Solo Conductores (Red Operativa)</option>
+                                <option value="client">Solo Clientes (Consumer Base)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="text-[9px] font-black text-zinc-400 uppercase italic mb-2 block tracking-widest">Título de la Alerta</label>
+                            <input
+                                className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-sm font-black italic text-white outline-none focus:border-primary-500/50"
+                                value={pushData.title}
+                                onChange={e => setPushData({ ...pushData, title: e.target.value })}
+                                placeholder="Ej: ¡ALERTA ROJA CLIMA!"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-[9px] font-black text-zinc-400 uppercase italic mb-2 block tracking-widest">Cuerpo del Mensaje</label>
+                            <textarea
+                                className="w-full bg-zinc-950 border border-white/5 rounded-xl px-4 py-3 text-sm font-bold italic text-white outline-none focus:border-primary-500/50 resize-none h-24"
+                                value={pushData.body}
+                                onChange={e => setPushData({ ...pushData, body: e.target.value })}
+                                placeholder="Escribe el mensaje detallado aquí..."
+                            />
+                        </div>
+
+                        <button 
+                            onClick={handleSendPush}
+                            disabled={sendingPush || !pushData.title || !pushData.body}
+                            className="w-full mt-4 py-4 rounded-xl flex items-center justify-center gap-2 font-black tracking-widest italic uppercase bg-red-600/20 border border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+                        >
+                            {sendingPush ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                            {sendingPush ? 'Transmitiendo...' : 'DISPARAR ALERTA GLOBAL'}
+                        </button>
+                        
+                        {pushStatus && (
+                            <p className="text-[10px] text-center font-bold mt-2 text-white italic">{pushStatus}</p>
+                        )}
                     </div>
                 </section>
             </div>

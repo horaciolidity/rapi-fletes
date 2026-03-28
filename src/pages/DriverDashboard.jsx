@@ -13,6 +13,7 @@ import RatingModal from '../components/trip/RatingModal'
 import GlobalChatModal from '../components/chat/GlobalChatModal'
 import { supabase } from '../api/supabase'
 import { uploadFile } from '../services/storageService'
+import { locationService } from '../services/locationService'
 
 const DriverDashboard = () => {
     const { user, profile, updateProfile, fetchProfile } = useAuthStore()
@@ -110,8 +111,9 @@ const DriverDashboard = () => {
                 }
             })
 
-            if (navigator.geolocation) {
-                watchId = navigator.geolocation.watchPosition(
+            const startWatch = async () => {
+                watchId = await locationService.watchPosition(
+                    { enableHighAccuracy: true },
                     (pos) => {
                         const { latitude, longitude } = pos.coords
                         setDriverLatLng({ lat: latitude, lng: longitude })
@@ -133,13 +135,13 @@ const DriverDashboard = () => {
                             lastDbUpdate = now
                         }
                     },
-                    (err) => console.warn("Permiso de ubicación denegado o error:", err.message),
-                    { enableHighAccuracy: true, distanceFilter: 10 }
+                    (err) => console.warn("Permiso de ubicación denegado o error:", err.message)
                 )
             }
+            startWatch()
         }
         return () => {
-            if (watchId) navigator.geolocation.clearWatch(watchId)
+            if (watchId) locationService.clearWatch(watchId)
             if (channel) {
                 channel.unsubscribe()
                 supabase.removeChannel(channel)

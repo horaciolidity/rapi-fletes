@@ -396,7 +396,9 @@ const MyFletes = () => {
                                                 <button
                                                     onClick={() => {
                                                         if (window.confirm('¿Estás seguro de que deseas cancelar este viaje? El chofer ya fue asignado.')) {
-                                                            cancelFlete(selectedFlete.id)
+                                                            cancelFlete(selectedFlete.id).then(res => {
+                                                                if (res) setShowDetail(false)
+                                                            })
                                                         }
                                                     }}
                                                     className="w-full py-4 bg-zinc-900 border border-red-500/30 rounded-2xl text-red-500 font-black italic text-[11px] uppercase hover:bg-red-500/10 transition-colors mt-4"
@@ -457,7 +459,9 @@ const MyFletes = () => {
                                             <button
                                                 onClick={() => {
                                                     if (window.confirm('¿Desea cancelar el servicio?')) {
-                                                        cancelFlete(selectedFlete.id)
+                                                        cancelFlete(selectedFlete.id).then(res => {
+                                                            if (res) setShowDetail(false)
+                                                        })
                                                     }
                                                 }}
                                                 className="text-red-500 text-[10px] font-black uppercase underline mt-4 tracking-widest italic"

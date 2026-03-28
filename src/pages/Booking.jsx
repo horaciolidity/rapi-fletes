@@ -5,6 +5,7 @@ import FreightMap from '../components/map/FreightMap'
 import { useBookingStore } from '../store/useBookingStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { useNavigate } from 'react-router-dom'
+import { locationService } from '../services/locationService'
 
 const Booking = () => {
     const {
@@ -39,55 +40,47 @@ const Booking = () => {
         return () => resetBooking()
     }, [fetchCategories, resetBooking])
 
-    const handleGeolocation = (silent = false) => {
-        if (!navigator.geolocation) return
+    const handleGeolocation = async (silent = false) => {
         if (!silent) setIsLocating(true)
         setGeoError(null)
 
-        navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-                const { latitude, longitude } = pos.coords
-                try {
-                    const res = await fetch(`https://photon.komoot.io/reverse?lon=${longitude}&lat=${latitude}`)
-                    if (!res.ok) throw new Error("Reverse geocoding failed")
-                    const data = await res.json()
+        try {
+            const pos = await locationService.getCurrentPosition({ enableHighAccuracy: true, timeout: 5000 })
+            const { latitude, longitude } = pos.coords
+            try {
+                const res = await fetch(`https://photon.komoot.io/reverse?lon=${longitude}&lat=${latitude}`)
+                if (!res.ok) throw new Error("Reverse geocoding failed")
+                const data = await res.json()
 
-                    if (data && data.features && data.features.length > 0) {
-                        const props = data.features[0].properties
-                        const address = [props.name, props.street, props.housenumber, props.city, props.state]
-                            .filter(Boolean)
-                            .filter((val, i, arr) => arr.indexOf(val) === i)
-                            .join(', ')
-                        setPAddress(address)
-                        setPickup({ address, lat: latitude, lng: longitude })
-                        setPickupProvince(props.state)
-                    } else {
-                        const address = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
-                        setPAddress(address)
-                        setPickup({ address, lat: latitude, lng: longitude })
-                        setPickupProvince(null)
-                    }
-                } catch (err) {
-                    const fallbackAddress = "Mi Ubicación"
-                    setPAddress(fallbackAddress)
-                    setPickup({ address: fallbackAddress, lat: latitude, lng: longitude })
+                if (data && data.features && data.features.length > 0) {
+                    const props = data.features[0].properties
+                    const address = [props.name, props.street, props.housenumber, props.city, props.state]
+                        .filter(Boolean)
+                        .filter((val, i, arr) => arr.indexOf(val) === i)
+                        .join(', ')
+                    setPAddress(address)
+                    setPickup({ address, lat: latitude, lng: longitude })
+                    setPickupProvince(props.state)
+                } else {
+                    const address = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+                    setPAddress(address)
+                    setPickup({ address, lat: latitude, lng: longitude })
                     setPickupProvince(null)
-                } finally {
-                    setIsLocating(false)
                 }
-            },
-            (error) => {
+            } catch (err) {
+                const fallbackAddress = "Mi Ubicación"
+                setPAddress(fallbackAddress)
+                setPickup({ address: fallbackAddress, lat: latitude, lng: longitude })
+                setPickupProvince(null)
+            } finally {
                 setIsLocating(false)
-                if (!silent) {
-                    if (error.code === 1) {
-                        setGeoError("Ubicación bloqueada.")
-                    } else {
-                        setGeoError("Error de ubicación.")
-                    }
-                }
-            },
-            { enableHighAccuracy: true, timeout: 5000 }
-        )
+            }
+        } catch (error) {
+            setIsLocating(false)
+            if (!silent) {
+                setGeoError(error.message || "Error de ubicación.")
+            }
+        }
     }
 
     const searchAddress = async (query, type) => {
