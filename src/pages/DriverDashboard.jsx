@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User, Search, X, MessageSquare, Camera, Star, Package } from 'lucide-react'
+import { Truck, MapPin, Navigation, Clock, CheckCircle2, XCircle, Loader2, AlertCircle, Phone, DollarSign, ShieldCheck, Car, FileText, Upload, AlertTriangle, ChevronRight, Target, Map as MapIcon, Info, History, Activity, ChevronLeft, User, Search, X, MessageSquare, Camera, Star, Package, Plus } from 'lucide-react'
 import { useDriverStore } from '../store/useDriverStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { useNotificationStore } from '../store/useNotificationStore'
@@ -1624,15 +1624,22 @@ const DriverDashboard = () => {
             {/* Commission Modal */}
             <AnimatePresence>
                 {showCommissionModal && pendingCommissionData && (
-                    <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm">
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm">
                         <motion.div
                             initial={{ y: "100%", opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
                             className="w-full max-w-sm bg-zinc-950 border border-white/10 rounded-[2.5rem] p-8 space-y-6 shadow-2xl relative overflow-hidden pointer-events-auto"
                         >
-                            {/* Glow Background */}
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary-500/10 rounded-full blur-[60px] pointer-events-none" />
+
+                            {/* Close Button */}
+                            <button
+                                onClick={() => { setShowCommissionModal(false); setPendingCommissionData(null); }}
+                                className="absolute top-6 right-6 w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center hover:bg-zinc-800 transition-colors z-20 shadow-lg"
+                            >
+                                <X className="w-5 h-5 text-zinc-400" />
+                            </button>
 
                             <div className="relative z-10 text-center">
                                 <div className="w-16 h-16 bg-primary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-primary-500/20">
@@ -1691,8 +1698,9 @@ const DriverDashboard = () => {
                                 ) : (
                                     <button
                                         onClick={() => navigate('/wallet')}
-                                        className="premium-button w-full py-5 text-sm bg-zinc-900 border-zinc-800 text-zinc-400"
+                                        className="w-full py-5 bg-zinc-900 border border-white/10 rounded-xl text-zinc-400 font-black italic text-[11px] uppercase hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 mb-2"
                                     >
+                                        <Plus className="w-4 h-4" />
                                         RECARGAR SALDO
                                     </button>
                                 )}
