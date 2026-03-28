@@ -11,7 +11,6 @@ import TripStopwatch from '../components/trip/TripStopwatch'
 import TripTimer from '../components/trip/TripTimer'
 import RatingModal from '../components/trip/RatingModal'
 import GlobalChatModal from '../components/chat/GlobalChatModal'
-import { Users } from 'lucide-react'
 import { supabase } from '../api/supabase'
 import { uploadFile } from '../services/storageService'
 
